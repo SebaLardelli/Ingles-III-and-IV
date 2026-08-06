@@ -727,7 +727,7 @@
           </label>
         </div>
         <div>
-          <label>Lector en inglés (natural)
+          <label>Lector en inglés
             <select id="voice-select" onchange="setChosenVoice(this.value)"></select>
           </label>
         </div>
@@ -735,7 +735,7 @@
         <button class="btn" type="button" onclick="navigate('historial')">Ver historial</button>
         <button class="btn small" type="button" onclick="previewVoice()">Probar voz</button>
       </div>
-      <p id="voice-status" class="hint" style="margin:-8px 0 18px">Lector natural en inglés · necesita internet · un solo audio a la vez.</p>
+      <p id="voice-status" class="hint" style="margin:-8px 0 18px">Lector del navegador · funciona en GitHub Pages · un solo audio a la vez.</p>
       <div class="notice"><strong>Clave para el oral:</strong> estudiá las ideas, no memorices cada palabra. Usá las diapositivas como mapa, practicá con el temporizador y reformulá el contenido con tus propias palabras. Cada práctica se guarda en Historial para mostrárselo a tu profesora.</div>
       <div class="grid">
         <article class="card span-4">
@@ -2165,17 +2165,19 @@
     const VOICE_KEY = "uai-ingles-voice-uri";
     const GRADED_TYPES = new Set(["quiz","blanks","story","match"]);
     const NATURAL_VOICES = [
-      {id:"en", label:"English US · natural (recomendada)"},
-      {id:"en-GB", label:"English UK · natural"},
-      {id:"en-AU", label:"English AU · natural"}
+      {id:"en", label:"English US · navegador (recomendada)"},
+      {id:"en-GB", label:"English UK · navegador"},
+      {id:"en-AU", label:"English AU · navegador"}
     ];
     const state = {
       timers:{},
       remaining:{speech3:420, speech4:420},
       timerStartedAt:{},
       matchItems:[],
-      chosenVoiceURI: localStorage.getItem(VOICE_KEY) || "natural:en",
+      chosenVoiceURI: localStorage.getItem(VOICE_KEY) || "browser:en-US",
       currentAudio:null,
+      currentUtterance:null,
+      browserVoices:[],
       playGen:0,
       audioWaitResolve:null,
       topicCourse:"III",
@@ -2208,36 +2210,79 @@
       try {
         localStorage.removeItem("uai-ingles-voice-pref");
         const saved = p.voiceURI || localStorage.getItem(VOICE_KEY) || "";
-        const validNatural = NATURAL_VOICES.some(v => saved === `natural:${v.id}`);
-        if (validNatural) state.chosenVoiceURI = saved;
-        else {
-          state.chosenVoiceURI = "natural:en";
-          localStorage.setItem(VOICE_KEY, state.chosenVoiceURI);
-        }
+        state.chosenVoiceURI = migrateLegacyVoice(saved || preferredBrowserVoiceURI() || "browser:en-US");
+        localStorage.setItem(VOICE_KEY, state.chosenVoiceURI);
       } catch {}
       fillVoiceSelect();
+      if ("speechSynthesis" in window) {
+        window.speechSynthesis.onvoiceschanged = () => fillVoiceSelect();
+      }
     }
     function setChosenVoice(uri) {
       stopSpeech();
-      state.chosenVoiceURI = uri || "natural:en";
+      state.chosenVoiceURI = uri || preferredBrowserVoiceURI() || "browser:en-US";
       localStorage.setItem(VOICE_KEY, state.chosenVoiceURI);
       document.querySelectorAll("#voice-select, .speech-voice-select").forEach(sel => {
         if (sel && [...sel.options].some(o => o.value === state.chosenVoiceURI)) sel.value = state.chosenVoiceURI;
       });
       updateVoiceStatus();
     }
+    function loadBrowserVoices() {
+      if (!("speechSynthesis" in window)) {
+        state.browserVoices = [];
+        return [];
+      }
+      const voices = window.speechSynthesis.getVoices() || [];
+      state.browserVoices = voices.filter(v => /^en([-_]|$)/i.test(v.lang || ""));
+      return state.browserVoices;
+    }
+    function preferredBrowserVoiceURI() {
+      const voices = loadBrowserVoices();
+      if (!voices.length) return "";
+      const rank = (v) => {
+        const name = (v.name || "").toLowerCase();
+        const lang = (v.lang || "").toLowerCase();
+        let score = 0;
+        if (lang.startsWith("en-us")) score += 30;
+        else if (lang.startsWith("en-gb")) score += 20;
+        else if (lang.startsWith("en")) score += 10;
+        if (/google|natural|neural|premium|enhanced|microsoft aria|microsoft guy|samantha|daniel/.test(name)) score += 25;
+        if (v.localService) score += 5;
+        return score;
+      };
+      return [...voices].sort((a, b) => rank(b) - rank(a))[0]?.voiceURI || "";
+    }
+    function migrateLegacyVoice(uri) {
+      const raw = String(uri || "");
+      if (!raw || raw.startsWith("natural:")) {
+        const lang = raw.endsWith("en-GB") ? "en-GB" : raw.endsWith("en-AU") ? "en-AU" : "en-US";
+        const voices = loadBrowserVoices();
+        const match = voices.find(v => (v.lang || "").toLowerCase().startsWith(lang.toLowerCase()));
+        return match?.voiceURI || preferredBrowserVoiceURI() || `browser:${lang}`;
+      }
+      return raw;
+    }
     function fillVoiceSelect() {
-      const options = NATURAL_VOICES.map(v =>
-        `<option value="natural:${v.id}">${escapeHtml(v.label)}</option>`
-      ).join("");
+      const voices = loadBrowserVoices();
+      let options = "";
+      if (voices.length) {
+        options = voices.map(v =>
+          `<option value="${escapeHtml(v.voiceURI)}">${escapeHtml(`${v.name} (${v.lang})`)}</option>`
+        ).join("");
+      } else {
+        options = NATURAL_VOICES.map(v =>
+          `<option value="browser:${v.id === "en" ? "en-US" : v.id}">${escapeHtml(v.label)}</option>`
+        ).join("");
+      }
+      const prev = migrateLegacyVoice(state.chosenVoiceURI);
+      state.chosenVoiceURI = prev;
       document.querySelectorAll("#voice-select, .speech-voice-select").forEach(sel => {
         if (!sel) return;
-        const prev = state.chosenVoiceURI || "natural:en";
         sel.innerHTML = options;
         if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
-        else {
-          sel.value = "natural:en";
-          state.chosenVoiceURI = "natural:en";
+        else if (sel.options.length) {
+          sel.selectedIndex = 0;
+          state.chosenVoiceURI = sel.value;
           localStorage.setItem(VOICE_KEY, state.chosenVoiceURI);
         }
       });
@@ -2246,8 +2291,12 @@
     function updateVoiceStatus() {
       const el = document.getElementById("voice-status");
       if (!el) return;
-      const label = NATURAL_VOICES.find(v => v.id === getVoiceLang())?.label || "English US";
-      el.textContent = `Lector: ${label} · internet requerido · Escuchar / Detener controlan un solo audio.`;
+      const supported = "speechSynthesis" in window;
+      const voice = getSelectedBrowserVoice();
+      const label = voice ? `${voice.name} (${voice.lang})` : "voz en inglés del navegador";
+      el.textContent = supported
+        ? `Lector: ${label} · funciona offline en GitHub Pages · Escuchar / Detener controlan un solo audio.`
+        : "Tu navegador no soporta lectura en voz alta. Probá Chrome o Edge.";
     }
     async function previewVoice() {
       await speakText("Good morning everyone. Today I'm going to talk about data centres and how we can reduce their energy consumption.");
@@ -2712,10 +2761,16 @@
     function cleanSpeechText(el) {
       return (el?.textContent || "").replace(/\s+/g, " ").trim();
     }
-    function getVoiceLang() {
-      const raw = state.chosenVoiceURI || "natural:en";
-      const id = raw.startsWith("natural:") ? raw.slice(8) : raw;
-      return NATURAL_VOICES.some(x => x.id === id) ? id : "en";
+    function getSelectedBrowserVoice() {
+      const voices = loadBrowserVoices();
+      const uri = migrateLegacyVoice(state.chosenVoiceURI);
+      let voice = voices.find(v => v.voiceURI === uri);
+      if (voice) return voice;
+      if (String(uri).startsWith("browser:")) {
+        const lang = uri.slice(8).toLowerCase();
+        voice = voices.find(v => (v.lang || "").toLowerCase().startsWith(lang));
+      }
+      return voice || voices.find(v => preferredBrowserVoiceURI() === v.voiceURI) || voices[0] || null;
     }
     function isPlayActive(gen) {
       return gen === state.playGen;
@@ -2725,6 +2780,10 @@
       state.currentAudio = null;
       const pending = state.audioWaitResolve;
       state.audioWaitResolve = null;
+      state.currentUtterance = null;
+      if ("speechSynthesis" in window) {
+        try { window.speechSynthesis.cancel(); } catch {}
+      }
       if (audio) {
         try {
           audio.onended = null;
@@ -2741,7 +2800,7 @@
       hardStopAudio();
       document.querySelectorAll(".speaking-line").forEach(el => el.classList.remove("speaking-line"));
     }
-    function chunkForTTS(text, maxLen=160) {
+    function chunkForTTS(text, maxLen=180) {
       const parts = String(text).match(/[^.!?]+[.!?]+\s*|[^.!?]+$/g) || [text];
       const chunks = [];
       let buf = "";
@@ -2757,57 +2816,40 @@
       if (buf.trim()) chunks.push(buf.trim());
       return chunks.filter(Boolean);
     }
-    function playAudioUrl(url, gen) {
+    function speakChunkBrowser(chunk, gen) {
       return new Promise((resolve, reject) => {
         if (!isPlayActive(gen)) { resolve("cancelled"); return; }
-        hardStopAudio();
-        if (!isPlayActive(gen)) { resolve("cancelled"); return; }
-
-        const audio = new Audio();
-        state.currentAudio = audio;
-        audio.preload = "auto";
-
+        if (!("speechSynthesis" in window)) {
+          reject(new Error("Speech Synthesis no disponible"));
+          return;
+        }
+        const utter = new SpeechSynthesisUtterance(chunk);
+        const voice = getSelectedBrowserVoice();
+        if (voice) {
+          utter.voice = voice;
+          utter.lang = voice.lang || "en-US";
+        } else {
+          utter.lang = "en-US";
+        }
+        utter.rate = 0.95;
+        utter.pitch = 1;
+        utter.volume = 1;
+        state.currentUtterance = utter;
         let settled = false;
         const finish = (result) => {
           if (settled) return;
           settled = true;
-          if (state.audioWaitResolve === finish) state.audioWaitResolve = null;
-          if (state.currentAudio === audio) state.currentAudio = null;
+          if (state.currentUtterance === utter) state.currentUtterance = null;
           resolve(result);
         };
-        state.audioWaitResolve = finish;
-
-        audio.onended = () => finish("ended");
-        audio.onerror = () => {
-          if (!isPlayActive(gen)) finish("cancelled");
-          else {
-            settled = true;
-            if (state.audioWaitResolve === finish) state.audioWaitResolve = null;
-            if (state.currentAudio === audio) state.currentAudio = null;
-            reject(new Error("No se pudo reproducir el audio"));
-          }
+        utter.onend = () => finish(isPlayActive(gen) ? "ended" : "cancelled");
+        utter.onerror = (ev) => {
+          if (!isPlayActive(gen) || ev?.error === "interrupted" || ev?.error === "canceled") finish("cancelled");
+          else reject(new Error(ev?.error || "Error de voz del navegador"));
         };
-        audio.src = url;
-        const p = audio.play();
-        if (p && typeof p.then === "function") {
-          p.catch(err => {
-            if (!isPlayActive(gen)) finish("cancelled");
-            else {
-              settled = true;
-              if (state.audioWaitResolve === finish) state.audioWaitResolve = null;
-              if (state.currentAudio === audio) state.currentAudio = null;
-              reject(err);
-            }
-          });
-        }
-      });
-    }
-    function wait(ms, gen) {
-      return new Promise(resolve => {
-        if (!isPlayActive(gen)) { resolve("cancelled"); return; }
-        const t = setTimeout(() => resolve(isPlayActive(gen) ? "ok" : "cancelled"), ms);
-        // guardamos cleanup simple en el timer id no hace falta
-        void t;
+        // Chrome a veces queda “paused” al cancelar; se reaplica
+        try { window.speechSynthesis.resume(); } catch {}
+        window.speechSynthesis.speak(utter);
       });
     }
     async function speakText(text, opts={}) {
@@ -2818,31 +2860,28 @@
         .trim();
       if (!cleaned) return;
 
-      // Nueva sesión: corta todo lo anterior y evita que queden audios viejos
       const gen = ++state.playGen;
       hardStopAudio();
       document.querySelectorAll(".speaking-line").forEach(el => el.classList.remove("speaking-line"));
+      loadBrowserVoices();
 
-      const lang = getVoiceLang();
-      const chunks = chunkForTTS(cleaned, 160);
+      const chunks = chunkForTTS(cleaned, 220);
       if (opts.onstart) opts.onstart();
 
       try {
+        if (!("speechSynthesis" in window)) {
+          throw new Error("Speech Synthesis no disponible");
+        }
         for (const chunk of chunks) {
           if (!isPlayActive(gen)) return;
-          const url = "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob"
-            + "&tl=" + encodeURIComponent(lang)
-            + "&q=" + encodeURIComponent(chunk);
-          const result = await playAudioUrl(url, gen);
+          const result = await speakChunkBrowser(chunk, gen);
           if (result === "cancelled" || !isPlayActive(gen)) return;
-          const pause = await wait(160, gen);
-          if (pause === "cancelled" || !isPlayActive(gen)) return;
         }
         if (isPlayActive(gen) && opts.onend) opts.onend();
       } catch (err) {
         if (!isPlayActive(gen)) return;
         console.warn(err);
-        alert("No se pudo reproducir el audio. Revisá tu conexión a internet e intentá de nuevo.");
+        alert("No se pudo reproducir el audio con la voz del navegador. Probá Chrome o Edge y elegí una voz en inglés en el selector.");
       }
     }
     async function speakSpeech(id) {
