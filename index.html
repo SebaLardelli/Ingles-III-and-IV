@@ -729,14 +729,18 @@
         </div>
         <div>
           <label>Lector en inglés (natural)
-            <select id="voice-select" onchange="setChosenVoice(this.value)"></select>
+            <select id="voice-select" onchange="setChosenVoice(this.value)">
+              <option value="natural:en">English US · natural (recomendada)</option>
+              <option value="natural:en-GB">English UK · natural</option>
+              <option value="natural:en-AU">English AU · natural</option>
+            </select>
           </label>
         </div>
         <button class="btn primary" type="button" onclick="saveProfile()">Guardar perfil</button>
         <button class="btn" type="button" onclick="navigate('historial')">Ver historial</button>
         <button class="btn small" type="button" onclick="previewVoice()">Probar voz</button>
       </div>
-      <p id="voice-status" class="hint" style="margin:-8px 0 18px">Lector natural en inglés · necesita internet · un solo audio a la vez.</p>
+      <p id="voice-status" class="hint" style="margin:-8px 0 18px">Lector natural (Polly) · necesita internet · un solo audio a la vez.</p>
       <div class="notice"><strong>Clave para el oral:</strong> estudiá las ideas, no memorices cada palabra. Usá las diapositivas como mapa, practicá con el temporizador y reformulá el contenido con tus propias palabras. Cada práctica se guarda en Historial para mostrárselo a tu profesora.</div>
       <div class="grid">
         <article class="card span-4">
@@ -1509,6 +1513,7 @@
 
   <footer>Material personal de estudio elaborado a partir de los archivos provistos. Los speeches son guías para hablar con tus propias palabras, no textos para leer durante el examen.</footer>
 
+  <script src="https://js.puter.com/v2/"></script>
   <script>
     const topicDrills = [
       // ===== INGLÉS III =====
@@ -2166,9 +2171,9 @@
     const VOICE_KEY = "uai-ingles-voice-uri";
     const GRADED_TYPES = new Set(["quiz","blanks","story","match"]);
     const NATURAL_VOICES = [
-      {id:"en", label:"English US · natural (recomendada)"},
-      {id:"en-GB", label:"English UK · natural"},
-      {id:"en-AU", label:"English AU · natural"}
+      {id:"en", label:"English US · natural (recomendada)", voice:"Joanna", language:"en-US"},
+      {id:"en-GB", label:"English UK · natural", voice:"Amy", language:"en-GB"},
+      {id:"en-AU", label:"English AU · natural", voice:"Olivia", language:"en-AU"}
     ];
     const state = {
       timers:{},
@@ -2247,8 +2252,8 @@
     function updateVoiceStatus() {
       const el = document.getElementById("voice-status");
       if (!el) return;
-      const label = NATURAL_VOICES.find(v => v.id === getVoiceLang())?.label || "English US";
-      el.textContent = `Lector: ${label} · internet requerido · Escuchar / Detener controlan un solo audio.`;
+      const cfg = NATURAL_VOICES.find(v => v.id === getVoiceLang()) || NATURAL_VOICES[0];
+      el.textContent = `Lector: ${cfg.label} · voz ${cfg.voice} · internet requerido.`;
     }
     async function previewVoice() {
       await speakText("Good morning everyone. Today I'm going to talk about data centres and how we can reduce their energy consumption.");
@@ -2682,7 +2687,11 @@
           <button class="btn teal" onclick="speakSpeech('${id}')">▶ Escuchar speech completo</button>
           <button class="btn" onclick="stopSpeech()">■ Detener audio</button>
           <label style="font-size:13px;font-weight:800;color:#cbd5e1">Voz EN
-            <select class="speech-voice-select" onchange="setChosenVoice(this.value)" style="margin-left:6px;border:1px solid #334155;border-radius:8px;padding:6px 8px;background:var(--surface);color:var(--ink)"></select>
+            <select class="speech-voice-select" onchange="setChosenVoice(this.value)" style="margin-left:6px;border:1px solid #334155;border-radius:8px;padding:6px 8px;background:var(--surface);color:var(--ink)">
+              <option value="natural:en">English US · natural</option>
+              <option value="natural:en-GB">English UK · natural</option>
+              <option value="natural:en-AU">English AU · natural</option>
+            </select>
           </label>
           <span class="score">Objetivo: 5–7 minutos · solo inglés</span>
         </div>
@@ -2718,6 +2727,9 @@
       const id = raw.startsWith("natural:") ? raw.slice(8) : raw;
       return NATURAL_VOICES.some(x => x.id === id) ? id : "en";
     }
+    function getNaturalVoiceConfig() {
+      return NATURAL_VOICES.find(v => v.id === getVoiceLang()) || NATURAL_VOICES[0];
+    }
     function isPlayActive(gen) {
       return gen === state.playGen;
     }
@@ -2731,8 +2743,10 @@
           audio.onended = null;
           audio.onerror = null;
           audio.pause();
-          audio.removeAttribute("src");
-          audio.load();
+          if (audio.removeAttribute) {
+            audio.removeAttribute("src");
+            audio.load();
+          }
         } catch {}
       }
       if (pending) pending("cancelled");
@@ -2743,7 +2757,7 @@
       hardStopAudio();
       document.querySelectorAll(".speaking-line").forEach(el => el.classList.remove("speaking-line"));
     }
-    function chunkForTTS(text, maxLen=160) {
+    function chunkForTTS(text, maxLen=450) {
       const parts = String(text).match(/[^.!?]+[.!?]+\s*|[^.!?]+$/g) || [text];
       const chunks = [];
       let buf = "";
@@ -2759,27 +2773,10 @@
       if (buf.trim()) chunks.push(buf.trim());
       return chunks.filter(Boolean);
     }
-    function naturalTtsUrls(chunk, lang) {
-      const q = encodeURIComponent(chunk);
-      const tl = encodeURIComponent(lang);
-      return [
-        `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=${tl}&q=${q}`,
-        `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${tl}&q=${q}`
-      ];
-    }
-    function playAudioUrl(url, gen) {
+    function bindAudioPlayback(audio, gen) {
       return new Promise((resolve, reject) => {
         if (!isPlayActive(gen)) { resolve("cancelled"); return; }
-        hardStopAudio();
-        if (!isPlayActive(gen)) { resolve("cancelled"); return; }
-
-        const audio = document.createElement("audio");
-        // GitHub Pages manda Referer y Google responde 404; sin referrer vuelve el MP3 natural
-        audio.setAttribute("referrerpolicy", "no-referrer");
-        try { audio.referrerPolicy = "no-referrer"; } catch {}
         state.currentAudio = audio;
-        audio.preload = "auto";
-
         let settled = false;
         const finish = (result) => {
           if (settled) return;
@@ -2789,7 +2786,6 @@
           resolve(result);
         };
         state.audioWaitResolve = finish;
-
         audio.onended = () => finish("ended");
         audio.onerror = () => {
           if (!isPlayActive(gen)) finish("cancelled");
@@ -2800,7 +2796,6 @@
             reject(new Error("No se pudo reproducir el audio"));
           }
         };
-        audio.src = url;
         const p = audio.play();
         if (p && typeof p.then === "function") {
           p.catch(err => {
@@ -2815,7 +2810,45 @@
         }
       });
     }
-    async function playNaturalChunk(chunk, lang, gen) {
+    async function playPuterChunk(chunk, cfg, gen) {
+      if (!isPlayActive(gen)) return "cancelled";
+      if (typeof puter === "undefined" || !puter?.ai?.txt2speech) {
+        throw new Error("Puter TTS no disponible");
+      }
+      hardStopAudio();
+      if (!isPlayActive(gen)) return "cancelled";
+      const audio = await puter.ai.txt2speech(chunk, {
+        provider: "aws-polly",
+        voice: cfg.voice,
+        engine: "neural",
+        language: cfg.language
+      });
+      if (!isPlayActive(gen)) {
+        try { audio.pause(); } catch {}
+        return "cancelled";
+      }
+      return bindAudioPlayback(audio, gen);
+    }
+    function naturalTtsUrls(chunk, lang) {
+      const q = encodeURIComponent(chunk);
+      const tl = encodeURIComponent(lang);
+      return [
+        `https://translate.googleapis.com/translate_tts?ie=UTF-8&client=gtx&tl=${tl}&q=${q}`,
+        `https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob&tl=${tl}&q=${q}`
+      ];
+    }
+    function playAudioUrl(url, gen) {
+      if (!isPlayActive(gen)) return Promise.resolve("cancelled");
+      hardStopAudio();
+      if (!isPlayActive(gen)) return Promise.resolve("cancelled");
+      const audio = document.createElement("audio");
+      audio.setAttribute("referrerpolicy", "no-referrer");
+      try { audio.referrerPolicy = "no-referrer"; } catch {}
+      audio.preload = "auto";
+      audio.src = url;
+      return bindAudioPlayback(audio, gen);
+    }
+    async function playGoogleChunk(chunk, lang, gen) {
       const urls = naturalTtsUrls(chunk, lang);
       let lastErr = null;
       for (const url of urls) {
@@ -2842,11 +2875,11 @@
         }
         try { speechSynthesis.cancel(); } catch {}
         const u = new SpeechSynthesisUtterance(text);
-        const lang = getVoiceLang();
-        u.lang = lang === "en" ? "en-US" : lang;
+        const cfg = getNaturalVoiceConfig();
+        u.lang = cfg.language || "en-US";
         u.rate = 0.95;
         const voices = speechSynthesis.getVoices().filter(v => /^en([-_]|$)/i.test(v.lang || ""));
-        const preferred = voices.find(v => (v.lang || "").toLowerCase().startsWith(u.lang.toLowerCase().slice(0,2))) || voices[0];
+        const preferred = voices.find(v => (v.lang || "").toLowerCase().startsWith(u.lang.toLowerCase().slice(0, 2))) || voices[0];
         if (preferred) u.voice = preferred;
         u.onend = () => resolve(isPlayActive(gen) ? "ended" : "cancelled");
         u.onerror = (e) => {
@@ -2856,6 +2889,16 @@
         };
         speechSynthesis.speak(u);
       });
+    }
+    async function speakChunksWith(player, chunks, gen) {
+      for (const chunk of chunks) {
+        if (!isPlayActive(gen)) return "cancelled";
+        const result = await player(chunk);
+        if (result === "cancelled" || !isPlayActive(gen)) return "cancelled";
+        const pause = await wait(120, gen);
+        if (pause === "cancelled" || !isPlayActive(gen)) return "cancelled";
+      }
+      return "ended";
     }
     async function speakText(text, opts={}) {
       const cleaned = String(text || "")
@@ -2869,32 +2912,33 @@
       hardStopAudio();
       document.querySelectorAll(".speaking-line").forEach(el => el.classList.remove("speaking-line"));
 
-      const lang = getVoiceLang();
-      const chunks = chunkForTTS(cleaned, 160);
+      const cfg = getNaturalVoiceConfig();
+      const chunks = chunkForTTS(cleaned, 450);
       if (opts.onstart) opts.onstart();
 
-      try {
-        for (const chunk of chunks) {
-          if (!isPlayActive(gen)) return;
-          const result = await playNaturalChunk(chunk, lang, gen);
-          if (result === "cancelled" || !isPlayActive(gen)) return;
-          const pause = await wait(140, gen);
-          if (pause === "cancelled" || !isPlayActive(gen)) return;
-        }
-        if (isPlayActive(gen) && opts.onend) opts.onend();
-      } catch (err) {
+      const engines = [
+        async () => speakChunksWith((chunk) => playPuterChunk(chunk, cfg, gen), chunks, gen),
+        async () => speakChunksWith((chunk) => playGoogleChunk(chunk, cfg.id === "en" ? "en" : cfg.id, gen), chunkForTTS(cleaned, 160), gen),
+        async () => speakBrowserFallback(cleaned, gen)
+      ];
+
+      let lastErr = null;
+      for (const engine of engines) {
         if (!isPlayActive(gen)) return;
-        console.warn("Natural TTS failed, using browser fallback", err);
         try {
-          const result = await speakBrowserFallback(cleaned, gen);
+          const result = await engine();
           if (result === "cancelled" || !isPlayActive(gen)) return;
           if (isPlayActive(gen) && opts.onend) opts.onend();
-        } catch (err2) {
-          if (!isPlayActive(gen)) return;
-          console.warn(err2);
-          alert("No se pudo reproducir el audio. Revisá tu conexión a internet e intentá de nuevo.");
+          return;
+        } catch (err) {
+          lastErr = err;
+          console.warn("TTS engine failed, trying next", err);
+          hardStopAudio();
         }
       }
+      if (!isPlayActive(gen)) return;
+      console.warn(lastErr);
+      alert("No se pudo reproducir el audio natural. Revisá tu conexión a internet e intentá de nuevo.");
     }
     async function speakSpeech(id) {
       const el = document.getElementById(`${id}-text`);
