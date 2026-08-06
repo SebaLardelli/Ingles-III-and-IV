@@ -1,0 +1,3139 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Finales de Inglés III y IV — UAI</title>
+  <style>
+    :root {
+      --ink: #e8eef2;
+      --muted: #94a3b8;
+      --paper: #0b1220;
+      --card: #121a2b;
+      --navy: #1e3a5f;
+      --teal: #2dd4bf;
+      --mint: #134e4a;
+      --gold: #fbbf24;
+      --red: #f87171;
+      --green: #34d399;
+      --line: #243044;
+      --shadow: 0 14px 36px rgba(0, 0, 0, .35);
+      --surface: #182338;
+      --surface-2: #1c2740;
+    }
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; color-scheme: dark; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(1200px 500px at 10% -10%, rgba(45, 212, 191, .12), transparent 55%),
+        radial-gradient(900px 400px at 90% 0%, rgba(30, 58, 95, .45), transparent 50%),
+        var(--paper);
+      font-family: Inter, "Segoe UI", Arial, sans-serif;
+      line-height: 1.55;
+    }
+    button, input, textarea, select { font: inherit; color: inherit; }
+    button { cursor: pointer; }
+    .hero {
+      background: linear-gradient(125deg, #07111f 0%, #0f2a3d 45%, #0d3d3a 100%);
+      color: white;
+      padding: 48px max(24px, calc((100vw - 1180px)/2));
+      position: relative;
+      overflow: hidden;
+      border-bottom: 1px solid rgba(45, 212, 191, .18);
+    }
+    .hero::after {
+      content: "III · IV";
+      position: absolute;
+      right: 5vw;
+      top: -35px;
+      font-weight: 900;
+      font-size: clamp(100px, 18vw, 240px);
+      color: rgba(255,255,255,.04);
+      letter-spacing: -12px;
+    }
+    .eyebrow { text-transform: uppercase; letter-spacing: .16em; font-size: 12px; font-weight: 800; color: #5eead4; }
+    h1 { max-width: 780px; font-size: clamp(34px, 5vw, 62px); line-height: 1.04; margin: 9px 0 14px; letter-spacing: -.04em; color: #f8fafc; }
+    .hero p { max-width: 760px; margin: 0; color: #b7d4d8; font-size: 17px; }
+    .topnav {
+      position: sticky;
+      top: 0;
+      z-index: 20;
+      background: rgba(11, 18, 32, .92);
+      backdrop-filter: blur(14px);
+      border-bottom: 1px solid var(--line);
+    }
+    .nav-inner {
+      max-width: 1180px;
+      margin: auto;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      padding: 10px 14px;
+      justify-content: center;
+      overflow: visible;
+    }
+    .nav-btn {
+      border: 0;
+      background: transparent;
+      padding: 8px 11px;
+      border-radius: 999px;
+      white-space: nowrap;
+      color: #94a3b8;
+      font-weight: 750;
+      font-size: 13px;
+      line-height: 1.2;
+    }
+    .nav-btn:hover, .nav-btn.active { background: var(--teal); color: #042f2e; }
+    main { max-width: 1180px; margin: 0 auto; padding: 30px 20px 70px; }
+    .view { display: none; animation: enter .25s ease; }
+    .view.active { display: block; }
+    @keyframes enter { from { opacity: 0; transform: translateY(5px); } }
+    h2 { font-size: clamp(28px, 4vw, 42px); line-height: 1.12; margin: 0 0 8px; letter-spacing: -.025em; color: #f1f5f9; }
+    h3 { line-height: 1.25; color: #e2e8f0; }
+    .lead { color: var(--muted); max-width: 800px; margin: 0 0 26px; }
+    .grid { display: grid; grid-template-columns: repeat(12, 1fr); gap: 18px; }
+    .card {
+      background: linear-gradient(180deg, rgba(24, 35, 56, .95), rgba(18, 26, 43, .98));
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 22px;
+      box-shadow: var(--shadow);
+    }
+    .span-3 { grid-column: span 3; } .span-4 { grid-column: span 4; } .span-6 { grid-column: span 6; } .span-8 { grid-column: span 8; } .span-12 { grid-column: span 12; }
+    .card h3 { margin: 0 0 8px; }
+    .tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: rgba(45, 212, 191, .14);
+      color: #5eead4;
+      padding: 4px 9px;
+      border-radius: 999px;
+      font-weight: 800;
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: .05em;
+      border: 1px solid rgba(45, 212, 191, .25);
+    }
+    .checklist { padding: 0; list-style: none; }
+    .checklist li { padding: 8px 0 8px 29px; border-bottom: 1px dashed var(--line); position: relative; color: #cbd5e1; }
+    .checklist li::before { content: "✓"; position: absolute; left: 2px; color: var(--teal); font-weight: 900; }
+    .notice {
+      border-left: 5px solid var(--gold);
+      background: rgba(251, 191, 36, .08);
+      padding: 15px 17px;
+      border-radius: 0 12px 12px 0;
+      margin: 18px 0 26px;
+      color: #fde68a;
+      border: 1px solid rgba(251, 191, 36, .2);
+      border-left-width: 5px;
+    }
+    .unit { border-top: 4px solid var(--teal); }
+    .unit-number { color: var(--teal); font-weight: 900; font-size: 13px; letter-spacing: .1em; text-transform: uppercase; }
+    .pill-list { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 12px; }
+    .pill { background: var(--surface-2); color: #cbd5e1; padding: 5px 9px; border-radius: 8px; font-size: 13px; border: 1px solid var(--line); }
+    .toolbar { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; margin: 20px 0; }
+    .btn {
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px 15px;
+      font-weight: 800;
+      color: #e2e8f0;
+      background: var(--surface);
+    }
+    .btn:hover { transform: translateY(-1px); box-shadow: 0 5px 13px rgba(0,0,0,.25); border-color: var(--teal); color: #fff; }
+    .btn.primary { background: #0f766e; color: white; border-color: #14b8a6; }
+    .btn.teal { background: var(--teal); color: #042f2e; border-color: var(--teal); }
+    .btn.small { padding: 7px 10px; font-size: 13px; }
+    .score { margin-left: auto; font-weight: 900; color: var(--teal); }
+    .exercise {
+      margin: 13px 0;
+      padding: 17px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+    }
+    .exercise.correct { border-color: #34d399; background: rgba(52, 211, 153, .08); }
+    .exercise.wrong { border-color: #f87171; background: rgba(248, 113, 113, .08); }
+    .qnum {
+      display: inline-grid;
+      place-items: center;
+      width: 27px;
+      height: 27px;
+      border-radius: 8px;
+      background: var(--surface-2);
+      color: var(--teal);
+      font-weight: 900;
+      margin-right: 7px;
+      border: 1px solid var(--line);
+    }
+    .question { font-weight: 750; color: #f1f5f9; }
+    .options { display: grid; gap: 8px; margin-top: 12px; }
+    .option {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 9px 11px;
+      display: flex;
+      gap: 9px;
+      align-items: flex-start;
+      cursor: pointer;
+      background: var(--surface);
+      color: #cbd5e1;
+    }
+    .option:hover { background: #22304a; border-color: #3b82f6; }
+    .feedback { display: none; margin-top: 10px; font-size: 14px; font-weight: 700; }
+    .correct .feedback { display: block; color: #6ee7b7; }
+    .wrong .feedback { display: block; color: #fca5a5; }
+    .text-answer {
+      width: min(100%, 420px);
+      margin-top: 11px;
+      border: 1px solid #334155;
+      border-radius: 9px;
+      padding: 9px 11px;
+      background: var(--surface);
+      color: var(--ink);
+    }
+    textarea {
+      width: 100%;
+      min-height: 180px;
+      border: 1px solid #334155;
+      border-radius: 12px;
+      padding: 14px;
+      resize: vertical;
+      background: var(--surface);
+      color: var(--ink);
+    }
+    textarea::placeholder, input::placeholder { color: #64748b; }
+    .counter { color: var(--muted); font-size: 13px; margin-top: 5px; }
+    .speech-controls { display: grid; grid-template-columns: 1fr auto; gap: 15px; align-items: end; margin: 20px 0; }
+    .speech-controls label { font-weight: 800; font-size: 13px; color: #cbd5e1; }
+    .speech-controls input {
+      display: block;
+      width: 100%;
+      max-width: 400px;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px;
+      margin-top: 5px;
+      background: var(--surface);
+      color: var(--ink);
+    }
+    .speech-layout { display: grid; grid-template-columns: 280px minmax(0,1fr); gap: 20px; align-items: start; }
+    .slide-deck { position: sticky; top: 76px; }
+    .slide-thumb {
+      border: 1px solid var(--line);
+      background: var(--card);
+      border-radius: 12px;
+      padding: 12px;
+      margin-bottom: 9px;
+      cursor: pointer;
+      color: #cbd5e1;
+    }
+    .slide-thumb:hover { border-color: #475569; }
+    .slide-thumb.active { border-color: var(--teal); box-shadow: inset 4px 0 var(--teal); background: rgba(45, 212, 191, .07); }
+    .slide-thumb small { color: var(--teal); font-weight: 900; }
+    .slide-thumb strong { display: block; line-height: 1.2; color: #f1f5f9; }
+    .speech-one {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 28px 30px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 18px;
+      line-height: 1.85;
+      color: #e2e8f0;
+      box-shadow: var(--shadow);
+    }
+    .speech-one p { margin: 0 0 1.15em; }
+    .speech-one p:last-child { margin-bottom: 0; }
+    .phrase {
+      background: linear-gradient(transparent 63%, rgba(251, 191, 36, .28) 0);
+      font-weight: 700;
+      color: #fef3c7;
+    }
+    .link {
+      color: #7dd3fc;
+      font-weight: 800;
+      background: rgba(14, 165, 233, .18);
+      border-bottom: 2px solid #38bdf8;
+      padding: 0 2px;
+      border-radius: 3px;
+    }
+    .legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 14px;
+      margin: 12px 0 18px;
+      font-size: 13px;
+      color: var(--muted);
+    }
+    .legend span { display: inline-flex; align-items: center; gap: 7px; }
+    .legend i {
+      display: inline-block;
+      width: 18px;
+      height: 12px;
+      border-radius: 3px;
+    }
+    .legend .lg-phrase { background: rgba(251, 191, 36, .35); border-bottom: 2px solid #fbbf24; }
+    .legend .lg-link { background: rgba(14, 165, 233, .25); border-bottom: 2px solid #38bdf8; }
+    .thread-banner {
+      display: flex;
+      gap: 14px;
+      align-items: flex-start;
+      background: linear-gradient(135deg, rgba(45,212,191,.10), rgba(96,165,250,.08));
+      border: 1px solid rgba(45,212,191,.28);
+      border-radius: 16px;
+      padding: 16px 18px;
+      margin: 18px 0 8px;
+    }
+    .thread-banner .thread-icon { font-size: 22px; line-height: 1.2; }
+    .thread-banner strong { display: block; color: #5eead4; font-size: 13px; text-transform: uppercase; letter-spacing: .08em; }
+    .thread-banner p { margin: 4px 0 0; color: #cbd5e1; }
+    .practice-block { margin-top: 28px; }
+    .practice-block > h3 { margin: 0 0 6px; }
+    .practice-block > .hint { color: var(--muted); margin: 0 0 14px; font-size: 14px; }
+    .blank-row {
+      display: grid;
+      grid-template-columns: auto 1fr minmax(140px, 220px);
+      gap: 10px;
+      align-items: center;
+      margin: 10px 0;
+      padding: 12px 14px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+    }
+    .blank-row .prompt { color: #cbd5e1; }
+    .blank-row input, .blank-row select {
+      width: 100%;
+      border: 1px solid #334155;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: var(--surface);
+      color: var(--ink);
+    }
+    .blank-row.ok { border-color: #34d399; background: rgba(52,211,153,.08); }
+    .blank-row.bad { border-color: #f87171; background: rgba(248,113,113,.08); }
+    .blank-row .note { grid-column: 1 / -1; font-size: 13px; font-weight: 700; display: none; }
+    .blank-row.ok .note, .blank-row.bad .note { display: block; }
+    .blank-row.ok .note { color: #6ee7b7; }
+    .blank-row.bad .note { color: #fca5a5; }
+    .story-gaps {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 16px;
+      padding: 18px 20px;
+      line-height: 1.9;
+      font-size: 16px;
+      color: #e2e8f0;
+    }
+    .story-gaps input {
+      width: 140px;
+      margin: 0 4px;
+      border: 0;
+      border-bottom: 2px solid #38bdf8;
+      background: rgba(14,165,233,.12);
+      color: #7dd3fc;
+      text-align: center;
+      padding: 2px 6px;
+      border-radius: 4px 4px 0 0;
+    }
+    .story-gaps input.ok { border-bottom-color: #34d399; color: #6ee7b7; background: rgba(52,211,153,.12); }
+    .story-gaps input.bad { border-bottom-color: #f87171; color: #fca5a5; background: rgba(248,113,113,.12); }
+    .type-tag {
+      display: inline-block;
+      min-width: 52px;
+      text-align: center;
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      padding: 3px 7px;
+      border-radius: 6px;
+      background: #1e293b;
+      color: #94a3b8;
+      border: 1px solid var(--line);
+    }
+    .type-tag.verb { color: #fda4af; border-color: #fb7185; }
+    .type-tag.adv { color: #c4b5fd; border-color: #a78bfa; }
+    .type-tag.adj { color: #fcd34d; border-color: #fbbf24; }
+    .type-tag.noun { color: #86efac; border-color: #4ade80; }
+    .type-tag.tense { color: #7dd3fc; border-color: #38bdf8; }
+    .essay-guide {
+      background: rgba(45,212,191,.07);
+      border: 1px dashed rgba(45,212,191,.35);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 10px 0 14px;
+      color: #99f6e4;
+      font-size: 14px;
+    }
+    .rule-card { border-left: 4px solid var(--teal); }
+    .rule-card h4 { margin: 0 0 8px; color: #5eead4; font-size: 16px; }
+    .rule-card ul { margin: 6px 0 12px; padding-left: 18px; color: #cbd5e1; }
+    .rule-card li { margin: 4px 0; }
+    .rule-card p { margin: 8px 0 4px; color: #e2e8f0; }
+    .rule-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 4px;
+      font-size: 14px;
+    }
+    .rule-table th, .rule-table td {
+      border: 1px solid var(--line);
+      padding: 8px 10px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .rule-table th { background: #1e293b; color: #99f6e4; }
+    .rule-table td { background: rgba(15, 23, 42, .45); color: #e2e8f0; }
+    .rule-table code, .ex {
+      color: #fde68a;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 13px;
+    }
+    .order-box { display: grid; gap: 8px; margin-top: 10px; }
+    .order-step {
+      display: grid;
+      grid-template-columns: 36px 1fr;
+      gap: 10px;
+      align-items: start;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+    }
+    .order-step b {
+      display: grid;
+      place-items: center;
+      width: 28px;
+      height: 28px;
+      border-radius: 8px;
+      background: rgba(45,212,191,.15);
+      color: var(--teal);
+      border: 1px solid rgba(45,212,191,.35);
+    }
+    .mini-nav {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 22px;
+    }
+    .mini-nav a {
+      text-decoration: none;
+      color: #cbd5e1;
+      background: var(--surface);
+      border: 1px solid var(--line);
+      border-radius: 999px;
+      padding: 6px 12px;
+      font-size: 13px;
+      font-weight: 700;
+    }
+    .mini-nav a:hover { border-color: var(--teal); color: #5eead4; }
+    .formula {
+      display: block;
+      margin: 8px 0;
+      padding: 10px 12px;
+      border-radius: 10px;
+      background: rgba(251, 191, 36, .08);
+      border: 1px solid rgba(251, 191, 36, .25);
+      color: #fde68a;
+      font-family: Consolas, "Courier New", monospace;
+      font-size: 14px;
+    }
+    @media (max-width: 820px) {
+      .blank-row { grid-template-columns: 1fr; }
+    }
+    .timer-panel {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      border-radius: 14px;
+      padding: 11px 15px;
+      background: linear-gradient(135deg, #0f766e, #1e3a5f);
+      color: white;
+      border: 1px solid rgba(45, 212, 191, .3);
+    }
+    .timer { min-width: 72px; font-size: 24px; font-weight: 900; font-variant-numeric: tabular-nums; }
+    .timer-panel .btn { border-color: rgba(255,255,255,.35); background: transparent; color: white; padding: 6px 10px; }
+    .questions-box {
+      background: rgba(30, 58, 95, .35);
+      border: 1px solid #334155;
+      border-radius: 16px;
+      padding: 18px;
+      margin-top: 18px;
+      color: #cbd5e1;
+    }
+    .questions-box li { margin-bottom: 11px; }
+    .strategy { color: var(--teal); font-weight: 800; }
+    .progress-wrap { height: 8px; background: #1e293b; border-radius: 99px; overflow: hidden; margin-top: 9px; border: 1px solid var(--line); }
+    .progress-bar { height: 100%; background: linear-gradient(90deg, #0f766e, #2dd4bf); width: 0; transition: width .25s; }
+    footer { text-align: center; color: var(--muted); padding: 28px; border-top: 1px solid var(--line); font-size: 13px; }
+    .flash-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+    .flash-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      background: var(--card);
+      min-height: 120px;
+      transition: border-color .2s;
+    }
+    .flash-card:hover { border-color: var(--teal); }
+    .flash-card .term { font-weight: 900; color: #5eead4; font-size: 17px; margin-bottom: 10px; }
+    .flash-card .meta-label {
+      display: block;
+      font-size: 11px;
+      font-weight: 800;
+      letter-spacing: .06em;
+      text-transform: uppercase;
+      color: #64748b;
+      margin: 8px 0 3px;
+    }
+    .flash-card .meaning { color: #e2e8f0; font-size: 14px; line-height: 1.4; }
+    .flash-card .usage { color: #94a3b8; font-size: 13px; line-height: 1.45; }
+    .theme-block { margin-bottom: 28px; }
+    .theme-head {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin: 0 0 12px;
+    }
+    .theme-head h3 { margin: 0; flex: 1; min-width: 200px; }
+    .theme-filter {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin: 0 0 22px;
+    }
+    .theme-filter button.active { background: var(--teal); color: #042f2e; border-color: var(--teal); }
+    .topic-groups { display: grid; gap: 14px; margin: 0 0 18px; }
+    .topic-group {
+      background: rgba(24, 35, 56, .55);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px 16px;
+    }
+    .topic-group h4 {
+      margin: 0 0 10px;
+      font-size: 13px;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      color: #5eead4;
+    }
+    .topic-group .topic-btns {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+      gap: 8px;
+    }
+    .topic-btns button {
+      border: 1px solid #334155;
+      background: var(--surface);
+      color: #cbd5e1;
+      border-radius: 12px;
+      padding: 10px 12px;
+      font-weight: 700;
+      font-size: 13px;
+      width: 100%;
+      text-align: left;
+      white-space: normal;
+    }
+    .topic-btns button:hover { border-color: var(--teal); color: #5eead4; }
+    .topic-btns button.active { background: var(--teal); color: #042f2e; border-color: var(--teal); }
+    .topic-panel.hidden { display: none; }
+    .topic-meta { color: var(--muted); margin: 0 0 12px; font-size: 14px; }
+    .match-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin: 8px 0;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+      align-items: center;
+    }
+    .match-row.ok { border-color: #34d399; background: rgba(52,211,153,.08); }
+    .match-row.bad { border-color: #f87171; background: rgba(248,113,113,.08); }
+    .match-row select {
+      width: 100%;
+      border: 1px solid #334155;
+      border-radius: 9px;
+      padding: 8px 10px;
+      background: var(--surface);
+      color: var(--ink);
+    }
+    .history-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin: 18px 0 22px;
+    }
+    .stat-box {
+      background: var(--card);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 16px;
+      text-align: center;
+    }
+    .stat-box b { display: block; font-size: 28px; color: var(--teal); letter-spacing: -.03em; }
+    .stat-box span { color: var(--muted); font-size: 13px; font-weight: 700; }
+    .history-table { width: 100%; border-collapse: collapse; font-size: 14px; }
+    .history-table th, .history-table td {
+      border: 1px solid var(--line);
+      padding: 10px 12px;
+      text-align: left;
+      vertical-align: top;
+    }
+    .history-table th { background: #1e293b; color: #99f6e4; }
+    .history-table td { background: rgba(15, 23, 42, .45); color: #e2e8f0; }
+    .history-table tr:hover td { background: rgba(45, 212, 191, .06); }
+    .speaking-line { outline: 2px solid var(--teal); background: rgba(45,212,191,.08); border-radius: 8px; }
+    .profile-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: end;
+      margin: 0 0 20px;
+      padding: 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+    }
+    .profile-bar label { font-weight: 800; font-size: 13px; color: #cbd5e1; display: block; }
+    .profile-bar input, .profile-bar select {
+      display: block;
+      margin-top: 5px;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px;
+      background: var(--surface);
+      color: var(--ink);
+      min-width: 200px;
+    }
+    .empty-state { color: var(--muted); padding: 28px; text-align: center; border: 1px dashed var(--line); border-radius: 14px; }
+    .history-card {
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+      padding: 16px 18px;
+      margin: 0 0 14px;
+    }
+    .history-card summary {
+      cursor: pointer;
+      list-style: none;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px 16px;
+      align-items: center;
+      font-weight: 750;
+      color: #e2e8f0;
+    }
+    .history-card summary::-webkit-details-marker { display: none; }
+    .history-card summary::after {
+      content: "▾ ver respuestas";
+      margin-left: auto;
+      color: var(--teal);
+      font-size: 12px;
+      font-weight: 800;
+    }
+    .history-card[open] summary::after { content: "▴ ocultar"; }
+    .answer-list { margin: 14px 0 0; padding: 0; list-style: none; display: grid; gap: 8px; }
+    .answer-list li {
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: var(--surface);
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+    .answer-list li.ok { border-color: rgba(52,211,153,.45); }
+    .answer-list li.bad { border-color: rgba(248,113,113,.45); }
+    .answer-list .q { color: #f1f5f9; font-weight: 700; margin-bottom: 4px; }
+    .answer-list .mark { font-weight: 800; }
+    .answer-list .mark.ok { color: #6ee7b7; }
+    .answer-list .mark.bad { color: #fca5a5; }
+    .section-speak {
+      display: inline-flex;
+      gap: 6px;
+      margin: 0 0 10px;
+    }
+    @media (max-width: 820px) {
+      .span-3, .span-4, .span-6, .span-8 { grid-column: span 12; }
+      .speech-layout { grid-template-columns: 1fr; }
+      .slide-deck { position: static; display: grid; grid-template-columns: repeat(2,1fr); gap: 8px; }
+      .slide-thumb { margin: 0; }
+      .speech-controls { grid-template-columns: 1fr; }
+      .score { margin-left: 0; width: 100%; }
+      .history-stats { grid-template-columns: repeat(2, 1fr); }
+      .match-row { grid-template-columns: 1fr; }
+    }
+    @media print {
+      .hero, .topnav, .toolbar, .speech-controls, .slide-deck, footer, .timer-panel, .legend, .thread-banner, .progress-wrap, .profile-bar, .section-speak { display: none !important; }
+      main { max-width: none; padding: 0; }
+      .view { display: none !important; }
+      .view.active { display: block !important; }
+      .speech-layout { display: block; }
+      .speech-one { border: 0; box-shadow: none; font-size: 12pt; color: #000; padding: 0; }
+      body { background: #fff; color: #000; }
+      .phrase { color: #000; background: linear-gradient(transparent 63%, #fff0ad 0); }
+      .link { color: #0369a1; background: rgba(14,165,233,.12); border-bottom: 2px solid #0284c7; }
+      .history-table th, .history-table td { color: #000; background: #fff; }
+      .stat-box b { color: #0f766e; }
+    }
+  </style>
+</head>
+<body>
+  <header class="hero">
+    <div class="eyebrow">Preparación integral · examen libre</div>
+    <h1>Inglés III + Inglés IV</h1>
+    <p>Práctica de gramática, vocabulario, lectura, escritura y dos presentaciones orales sobre Ingeniería en Sistemas, organizadas para ensayar durante 5–7 minutos.</p>
+  </header>
+
+  <nav class="topnav" aria-label="Secciones">
+    <div class="nav-inner">
+      <button class="nav-btn active" data-view="inicio">Inicio</button>
+      <button class="nav-btn" data-view="resumenes">Resúmenes</button>
+      <button class="nav-btn" data-view="gramatica">Gramática</button>
+      <button class="nav-btn" data-view="temas">Temas</button>
+      <button class="nav-btn" data-view="vocabulario">Vocabulario</button>
+      <button class="nav-btn" data-view="ingles3">Práctica III</button>
+      <button class="nav-btn" data-view="ingles4">Práctica IV</button>
+      <button class="nav-btn" data-view="speech3">Speech III</button>
+      <button class="nav-btn" data-view="speech4">Speech IV</button>
+      <button class="nav-btn" data-view="historial">Historial</button>
+    </div>
+  </nav>
+
+  <main>
+    <section id="inicio" class="view active">
+      <h2>Tu centro de práctica</h2>
+      <p class="lead">El examen escrito incluye todas las unidades, comprensión lectora, vocabulario, gramática y un email de alrededor de 100 palabras. El oral exige comentar los textos específicos del nivel, sin leer.</p>
+      <div class="profile-bar">
+        <div>
+          <label>Tu nombre (aparece en el historial y en el speech)
+            <input id="student-profile-name" placeholder="Ej: Lara Díaz" autocomplete="name">
+          </label>
+        </div>
+        <div>
+          <label>Nivel que estás preparando
+            <select id="student-profile-level">
+              <option value="III">Inglés III</option>
+              <option value="IV">Inglés IV</option>
+              <option value="III+IV">Ambos</option>
+            </select>
+          </label>
+        </div>
+        <div>
+          <label>Lector en inglés (natural)
+            <select id="voice-select" onchange="setChosenVoice(this.value)"></select>
+          </label>
+        </div>
+        <button class="btn primary" type="button" onclick="saveProfile()">Guardar perfil</button>
+        <button class="btn" type="button" onclick="navigate('historial')">Ver historial</button>
+        <button class="btn small" type="button" onclick="previewVoice()">Probar voz</button>
+      </div>
+      <p id="voice-status" class="hint" style="margin:-8px 0 18px">Lector natural en inglés · necesita internet · un solo audio a la vez.</p>
+      <div class="notice"><strong>Clave para el oral:</strong> estudiá las ideas, no memorices cada palabra. Usá las diapositivas como mapa, practicá con el temporizador y reformulá el contenido con tus propias palabras. Cada práctica se guarda en Historial para mostrárselo a tu profesora.</div>
+      <div class="grid">
+        <article class="card span-4">
+          <span class="tag">Escrito</span>
+          <h3>Gramática + vocabulario</h3>
+          <p>Reglas, resúmenes por unidad, flashcards, matching y ejercicios autocorregibles con puntaje guardado.</p>
+          <div class="pill-list">
+            <button class="btn small" type="button" onclick="navigate('resumenes')">Ver resúmenes</button>
+            <button class="btn small" type="button" onclick="navigate('temas')">Practicar por temas</button>
+          </div>
+        </article>
+        <article class="card span-4">
+          <span class="tag">Oral</span>
+          <h3>Speech data centres</h3>
+          <p>Mismo tema en III y IV: Introduction, Development, Conclusion (+ Questions en IV). Audio en inglés incluido.</p>
+        </article>
+        <article class="card span-4">
+          <span class="tag">Evidencia</span>
+          <h3>Historial de práctica</h3>
+          <p>Registro con fecha, actividad y resultado. Exportá un reporte para tu profesora o imprimilo.</p>
+        </article>
+        <article class="card span-6">
+          <h3>Inglés III — SpeakOut A2 u.5–8</h3>
+          <ul class="checklist">
+            <li>U5 The past: Past Simple regular/irregular + apologies</li>
+            <li>U6 Out and about: Present Continuous, comparatives, directions</li>
+            <li>U7 Work: articles, Present Simple vs Continuous, phone + verb + to</li>
+            <li>U8 Travellers: superlatives, be going to, hotel language, adverbs of manner</li>
+          </ul>
+        </article>
+        <article class="card span-6">
+          <h3>Inglés IV — SpeakOut A2+ u.1–4</h3>
+          <ul class="checklist">
+            <li>U1 My life: question forms + Present Simple</li>
+            <li>U2 Help: Past Simple + Past Continuous, article <em>the</em>, offers</li>
+            <li>U3 Learn: have to / don’t have to / can / can’t</li>
+            <li>U4 Try this: Present Perfect (+ for/since/already/yet) vs Past Simple · extra: First Conditional + Passive</li>
+          </ul>
+        </article>
+        <article class="card span-12">
+          <h3>Plan sugerido de 7 días</h3>
+          <div class="pill-list">
+            <span class="pill">Día 1 · III U5–6</span><span class="pill">Día 2 · III U7–8</span>
+            <span class="pill">Día 3 · Speech III</span><span class="pill">Día 4 · IV U1–2</span>
+            <span class="pill">Día 5 · IV U3–4 + Conditional/Passive</span><span class="pill">Día 6 · Speech IV + preguntas</span>
+            <span class="pill">Día 7 · Simulacro y emails</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="resumenes" class="view">
+      <h2>Resúmenes finales</h2>
+      <p class="lead">Versión web de tus apuntes tipo <em>Final (Resumen)</em>: Inglés III (SpeakOut A2 u.5–8) e Inglés IV (SpeakOut A2+ u.1–4). El archivo Word de IV está en la carpeta <code>Ingles IIII/Final (Resumen).docx</code>.</p>
+      <div class="mini-nav">
+        <a href="#res-iii">Inglés III</a>
+        <a href="#res-iv">Inglés IV</a>
+      </div>
+
+      <h3 id="res-iii" style="margin:24px 0 12px">Inglés III — Final (Resumen)</h3>
+      <div class="grid">
+        <article class="card span-6 rule-card">
+          <h4>Unit 5 · Past simple</h4>
+          <p><strong>Section A — Grammar</strong></p>
+          <ul>
+            <li>Past Simple regular: infinitive + <code>d/ed</code>.</li>
+            <li>Negative: <code>didn’t</code> + infinitive.</li>
+            <li>Yes/No question: <code>Did</code> + subject + infinitive?</li>
+          </ul>
+          <p><strong>Vocabulary</strong></p>
+          <ul>
+            <li>Time words: <em>before, after, for, from, later, then</em>.</li>
+          </ul>
+          <p><strong>Section B — Grammar</strong></p>
+          <ul>
+            <li>Wh- question: Wh- + <code>did</code> + subject + infinitive?</li>
+            <li>Irregulars: drive→drove, go→went, say→said, get→got, leave→left, take→took, have→had.</li>
+          </ul>
+          <p><strong>Vocabulary · life events</strong></p>
+          <ul>
+            <li>get married / a job · leave school / a job · pass your exam / driving test</li>
+            <li>become a teacher/doctor · learn to swim/drive · meet your friend / husband/wife</li>
+          </ul>
+          <p><strong>Section C · excuses</strong></p>
+          <ul>
+            <li>I left my bag in a taxi. · My bus was late. · I missed my train.</li>
+            <li>I didn’t hear my alarm. · I had the wrong time. · My wifi was down.</li>
+            <li>My daughter was ill. · I lost all my work.</li>
+          </ul>
+          <p><strong>Section D</strong> — adjectives: good, nice, all right, boring, busy, fun, great, lovely.</p>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 6 · Present continuous</h4>
+          <p><strong>Section A — Grammar</strong></p>
+          <ul>
+            <li><code>am/is/are</code> + verb-<code>ing</code> (now / around now).</li>
+          </ul>
+          <p><strong>Vocabulary · appearance</strong></p>
+          <ul>
+            <li>tall / short · straight / curly / long / short hair · bald</li>
+            <li>blond(e) / dark / red hair · a beard / a moustache</li>
+          </ul>
+          <p><strong>Section B — adjectives</strong></p>
+          <ul>
+            <li>cheap ↔ expensive · comfortable ↔ uncomfortable</li>
+            <li>easy ↔ difficult · interesting ↔ boring · long ↔ short</li>
+            <li>safe ↔ dangerous · slow ↔ fast/quick · quiet ↔ noisy</li>
+          </ul>
+          <p><strong>Grammar</strong> — comparatives: adj + <code>-er than</code> / <code>more</code> + adj + <code>than</code> / <code>as</code> + adj + <code>as</code>.</p>
+          <p><strong>Section C–D</strong> — directions &amp; movement: turn left/right, go straight on, across/along/past, go by bus, go on foot, get on/off, get into/out of.</p>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 7 · Articles + Work</h4>
+          <p><strong>Section A–B — Grammar</strong></p>
+          <ul>
+            <li><code>a/an</code> = first mention / job / singular countable.</li>
+            <li><code>the</code> = specific / already mentioned / unique.</li>
+            <li>∅ = general / plural / fixed phrases (<em>at work, by train</em>).</li>
+            <li>Present Simple (habits) vs Present Continuous (now).</li>
+          </ul>
+          <p><strong>Section C — phone + verb + to</strong></p>
+          <ul>
+            <li>I’m calling to check… · put me through · call me back</li>
+            <li>hold on / hang up / pick up</li>
+            <li>would like to / want to / need to / decide to</li>
+          </ul>
+          <p><strong>Vocabulary</strong> — skills &amp; qualities: organised, patient, friendly; look for a job, fill in a form, turn on/off.</p>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 8 · Travellers</h4>
+          <p><strong>Section A — Vocabulary</strong></p>
+          <ul>
+            <li>Location: in the middle of, west of, in the area, at the top of, national.</li>
+            <li>Nature: coast, ocean, forest, rocks.</li>
+            <li>Adjectives: wonderful, lovely, pretty.</li>
+          </ul>
+          <p><strong>Section B — travel activities</strong></p>
+          <ul>
+            <li>taking photos · visiting famous places · trying the local food</li>
+            <li>doing a class · going on an organised tour · looking around the town</li>
+            <li>using an app / guidebook · going with a local guide</li>
+          </ul>
+          <p><strong>Section C–D — Grammar</strong></p>
+          <ul>
+            <li>Superlatives: <code>the</code> + adj-<code>est</code> / <code>the most</code> + adj.</li>
+            <li><code>be going to</code> for future plans.</li>
+            <li>Hotel: book a room, check in/out, room service, pay your bill, late check-out.</li>
+            <li>Adverbs of manner: adj + <code>ly</code> · good→well · seem + adjective.</li>
+          </ul>
+        </article>
+      </div>
+
+      <h3 id="res-iv" style="margin:32px 0 12px">Inglés IV — Final (Resumen)</h3>
+      <div class="grid">
+        <article class="card span-6 rule-card">
+          <h4>Unit 1 · My life</h4>
+          <p><strong>Section A — Grammar</strong></p>
+          <ul>
+            <li>Yes/No: auxiliary + subject + verb.</li>
+            <li>Wh-: Wh- + auxiliary + subject + verb.</li>
+            <li>Subject question: Who/What + verb (no <code>do</code>).</li>
+            <li>Present Simple for habits/facts.</li>
+          </ul>
+          <p><strong>Vocabulary</strong></p>
+          <ul>
+            <li>Everyday activities: get up, go to bed, cook, study, do exercise, go to the gym.</li>
+            <li>live / work / study · free time · spend time with friends.</li>
+          </ul>
+          <p><strong>Section B–C</strong> — frequency adverbs; <em>have something in common</em>; interview questions (<em>Where were you born?</em>).</p>
+          <p><strong>Section D</strong> — word order in questions; Do/Does/Did vs am/is/are/was/were.</p>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 2 · Help</h4>
+          <p><strong>Section A — Grammar</strong></p>
+          <ul>
+            <li>Past Continuous: <code>was/were</code> + <code>-ing</code>.</li>
+            <li>Past Continuous + Past Simple: <em>I was waiting when I lost my passport.</em></li>
+            <li><code>while</code> + continuous · <code>when</code> + simple.</li>
+          </ul>
+          <p><strong>Vocabulary</strong> — rescue stories; animals (fur, tail, wings, shell).</p>
+          <p><strong>Section B — Grammar</strong></p>
+          <ul>
+            <li>Article <code>the</code>: specific / unique / already mentioned.</li>
+            <li>Place names: the USA, the Nile, the Alps.</li>
+          </ul>
+          <p><strong>Vocabulary · airport</strong> — boarding pass, check-in desk, departure/arrival, luggage, gate, security.</p>
+          <p><strong>Section C — offers</strong> — Would you like some help? · That’s kind of you. · No, thanks.</p>
+          <p><strong>Section D</strong> — short travel story + correct use of <code>the</code>.</p>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 3 · Learn</h4>
+          <p><strong>Section A — Grammar</strong></p>
+          <ul>
+            <li><code>have to / has to</code> = obligación / regla.</li>
+            <li><code>don’t / doesn’t have to</code> = no es necesario.</li>
+            <li><code>can</code> = permiso/habilidad · <code>can’t</code> = prohibición.</li>
+            <li>No confundir <em>don’t have to</em> con <em>can’t</em>.</li>
+          </ul>
+          <p><strong>Vocabulary</strong></p>
+          <ul>
+            <li>subject, take an exam, get good marks/grades, revise, homework.</li>
+            <li>learn / study / remember / forget / understand.</li>
+          </ul>
+          <p><strong>Section B–C</strong> — knowing/thinking verbs; explain rules; give opinions (<em>I think…</em>).</p>
+          <p><strong>Section D</strong> — choose correctly among have to / don’t have to / can / can’t.</p>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 4 · Try this</h4>
+          <p><strong>Section A — Grammar</strong></p>
+          <ul>
+            <li>Present Perfect: <code>have/has</code> + past participle.</li>
+            <li>Experiences: <em>Have you ever…?</em> / <em>I’ve never…</em></li>
+            <li><code>been</code> = fue y volvió · <code>gone</code> = sigue allá.</li>
+          </ul>
+          <p><strong>Vocabulary</strong> — try something new; irregular participles (been, done, seen, written, ridden, flown…).</p>
+          <p><strong>Section B</strong> — already / just (entre have y participio) · yet (al final) · for / since.</p>
+          <p><strong>Section C</strong> — Present Perfect vs Past Simple (sin fecha vs yesterday / last year / ago).</p>
+          <p><strong>Section D</strong> — practicar ever/never + already/yet + for/since.</p>
+        </article>
+
+        <article class="card span-12 rule-card">
+          <h4>Extra examen · IV</h4>
+          <div class="pill-list">
+            <span class="pill">First Conditional: If + Present Simple, will + base</span>
+            <span class="pill">Passive: be + past participle</span>
+            <span class="pill">Oral: Intro → Development → Conclusion → Questions</span>
+            <span class="pill">4 preguntas: 2 open/direct + 2 closed/indirect</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="gramatica" class="view">
+      <h2>Reglas gramaticales</h2>
+      <p class="lead">Organizado como el libro: <strong>Inglés III</strong> = SpeakOut A2 u.5–8 · <strong>Inglés IV</strong> = SpeakOut A2+ u.1–4. Incluye fórmulas, usos y ejemplos para el escrito y el oral.</p>
+      <div class="mini-nav">
+        <a href="#g-orden">Orden de la oración</a>
+        <a href="#g-iii">Inglés III · A2 5–8</a>
+        <a href="#g-iv">Inglés IV · A2+ 1–4</a>
+        <a href="#g-speech">Orden del speech</a>
+        <a href="#g-conectar">Conectores</a>
+        <a href="#g-mapa">Mapa rápido</a>
+      </div>
+
+      <article id="g-orden" class="card rule-card" style="margin-bottom:18px">
+        <h3>1 · Cómo ordenar una oración en inglés</h3>
+        <span class="formula">Sujeto + verbo auxiliar + verbo principal + complemento + tiempo/lugar</span>
+        <table class="rule-table">
+          <tr><th>Posición</th><th>Qué va</th><th>Ejemplo</th></tr>
+          <tr><td>1</td><td>Sujeto</td><td><code>Data centres</code></td></tr>
+          <tr><td>2</td><td>Verbo / auxiliar</td><td><code>use</code> / <code>have used</code> / <code>are used</code></td></tr>
+          <tr><td>3</td><td>Objeto / complemento</td><td><code>enormous amounts of electricity</code></td></tr>
+          <tr><td>4</td><td>Lugar</td><td><code>in Ireland</code></td></tr>
+          <tr><td>5</td><td>Tiempo</td><td><code>every day / yesterday / since 2020</code></td></tr>
+        </table>
+        <div class="order-box">
+          <div class="order-step"><b>1</b><div><strong>Afirmativa:</strong> <span class="ex">Companies use AI to detect threats.</span></div></div>
+          <div class="order-step"><b>2</b><div><strong>Negativa:</strong> auxiliar + <em>not</em> · <span class="ex">Companies do not use weak passwords.</span> · <span class="ex">She hasn’t finished yet.</span></div></div>
+          <div class="order-step"><b>3</b><div><strong>Pregunta:</strong> auxiliar + sujeto + verbo · <span class="ex">Have you ever flown alone?</span> · <span class="ex">Did she visit Milan last year?</span></div></div>
+          <div class="order-step"><b>4</b><div><strong>Adverbios de modo</strong> (quickly, carefully) suelen ir <em>después del verbo</em> o al final: <span class="ex">He answered politely.</span></div></div>
+          <div class="order-step"><b>5</b><div><strong>Already</strong> va entre have/has y el participio. <strong>Yet</strong> va al final. <strong>For/since</strong> van al final o después del verbo.</div></div>
+        </div>
+      </article>
+
+      <h3 id="g-iii" style="margin:28px 0 12px">Inglés III — SpeakOut A2 unidades 5–8</h3>
+      <div class="grid">
+        <article class="card span-6 rule-card">
+          <h4>Unit 5 · Past Simple (regular + irregular)</h4>
+          <span class="formula">Afirmativa: sujeto + verbo pasado · Negativa: didn’t + base · Pregunta: Did + sujeto + base?</span>
+          <table class="rule-table">
+            <tr><th>Tipo</th><th>Forma</th><th>Ejemplo</th></tr>
+            <tr><td>Regular</td><td>verbo + <code>-ed</code></td><td><code>worked, cooked, changed, visited</code></td></tr>
+            <tr><td>Irregular</td><td>forma propia</td><td><code>went, got, had, left, said, took, drove</code></td></tr>
+            <tr><td>Wh- question</td><td><code>Where/When/Why/Who + did + sujeto + base?</code></td><td><code>Where did you go?</code></td></tr>
+          </table>
+          <p>Señales: <code>yesterday, last week, in 2019, ago, when I was a child</code>.</p>
+          <p><strong>Apologies / excuses:</strong> <span class="ex">I’m sorry I’m late. My bus was late. / I missed my train.</span></p>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 6 · Present Continuous</h4>
+          <span class="formula">am / is / are + verbo-ing</span>
+          <table class="rule-table">
+            <tr><th>Uso</th><th>Ejemplo</th></tr>
+            <tr><td>Ahora / en este momento</td><td><code>She is wearing a blue jumper.</code></td></tr>
+            <tr><td>Alrededor de ahora</td><td><code>I’m studying English this month.</code></td></tr>
+            <tr><td>Negativa / pregunta</td><td><code>He isn’t working. · Are you waiting?</code></td></tr>
+          </table>
+          <p>Spelling: <code>make → making</code>, <code>run → running</code>, <code>lie → lying</code>.</p>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 6 · Comparativos</h4>
+          <span class="formula">adj + -er + than · more + adj + than · as + adj + as</span>
+          <table class="rule-table">
+            <tr><th>Tipo</th><th>Forma</th><th>Ejemplo</th></tr>
+            <tr><td>Corto</td><td><code>cheap → cheaper than</code></td><td><code>The bus is cheaper than a taxi.</code></td></tr>
+            <tr><td>CVC</td><td>duplica: <code>big → bigger</code></td><td><code>This car is bigger.</code></td></tr>
+            <tr><td>Largo</td><td><code>more comfortable than</code></td><td><code>The train is more comfortable than the bus.</code></td></tr>
+            <tr><td>Igualdad</td><td><code>as fast as</code></td><td><code>The metro is as fast as a car.</code></td></tr>
+            <tr><td>Irregulares</td><td>good→better · bad→worse · far→further</td><td></td></tr>
+          </table>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 6 · Directions & movement</h4>
+          <table class="rule-table">
+            <tr><th>Expresión</th><th>Uso</th></tr>
+            <tr><td><code>Turn left / right</code></td><td>girar</td></tr>
+            <tr><td><code>Go straight on</code></td><td>seguir derecho</td></tr>
+            <tr><td><code>It’s on the left / right</code></td><td>ubicación</td></tr>
+            <tr><td><code>across / along / past / into / out of</code></td><td>preposiciones de movimiento</td></tr>
+            <tr><td><code>go by bus · go on foot</code></td><td>transporte (no “by foot”)</td></tr>
+            <tr><td><code>get on / off</code> (bus, train) · <code>get into / out of</code> (car, taxi)</td><td>subir / bajar</td></tr>
+          </table>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 7 · Articles: a / an / the / ∅</h4>
+          <table class="rule-table">
+            <tr><th>Artículo</th><th>Cuándo</th><th>Ejemplo</th></tr>
+            <tr><td><code>a / an</code></td><td>1ª mención, trabajo, singular</td><td><code>She’s a teacher. / an engineer</code></td></tr>
+            <tr><td><code>the</code></td><td>específico / ya mencionado / único</td><td><code>the manager / the internet</code></td></tr>
+            <tr><td>∅</td><td>general, plural, frases fijas</td><td><code>I like music. / at work / by train</code></td></tr>
+          </table>
+          <p><code>an</code> = sonido vocálico (<span class="ex">an hour</span>). <code>a</code> = sonido consonántico (<span class="ex">a university</span>).</p>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 7 · Present Simple vs Continuous</h4>
+          <table class="rule-table">
+            <tr><th></th><th>Present Simple</th><th>Present Continuous</th></tr>
+            <tr><td>Uso</td><td>hábitos, hechos, rutinas</td><td>ahora / temporal</td></tr>
+            <tr><td>Señales</td><td>usually, every day, always</td><td>now, at the moment, today</td></tr>
+            <tr><td>Ejemplo</td><td><code>She works in an office.</code></td><td><code>She is working from home today.</code></td></tr>
+          </table>
+          <p>Verbos de estado suelen no ir en continuous: <code>know, like, want, need, understand</code>.</p>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 7 · Phone + verb + to</h4>
+          <table class="rule-table">
+            <tr><th>Expresión</th><th>Significado / uso</th></tr>
+            <tr><td><code>I’m calling to check…</code></td><td>motivo de la llamada</td></tr>
+            <tr><td><code>Could you put me through to…?</code></td><td>conectar con alguien</td></tr>
+            <tr><td><code>Can she call me back?</code></td><td>devolver la llamada</td></tr>
+            <tr><td><code>hold on / hang up / pick up</code></td><td>esperar / cortar / atender</td></tr>
+            <tr><td><code>would like to / want to / need to / decide to</code></td><td>verbo + <code>to</code> + infinitivo</td></tr>
+          </table>
+          <span class="formula">Would you like to + verbo base…?</span>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 8 · Superlativos</h4>
+          <span class="formula">the + adj-est · the most + adj largo</span>
+          <table class="rule-table">
+            <tr><th>Tipo</th><th>Forma</th><th>Ejemplo</th></tr>
+            <tr><td>Corto</td><td><code>the cheapest / the biggest</code></td><td><code>the cheapest way</code></td></tr>
+            <tr><td>Largo</td><td><code>the most beautiful</code></td><td><code>the most beautiful place</code></td></tr>
+            <tr><td>Irregulares</td><td>the best / the worst</td><td><code>the best time to visit</code></td></tr>
+          </table>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 8 · be going to + hotel language</h4>
+          <span class="formula">am/is/are + going to + verbo base</span>
+          <p>Uso: plan futuro · <span class="ex">We’re going to visit museums.</span> · <span class="ex">What are you going to do there?</span></p>
+          <table class="rule-table">
+            <tr><th>Hotel</th><th>Ejemplo</th></tr>
+            <tr><td>Reservar / llegar / salir</td><td><code>book a room · check in · check out</code></td></tr>
+            <tr><td>Pedidos</td><td><code>Could I order room service? · Can I have a late check-out?</code></td></tr>
+            <tr><td>Pagar / guardar</td><td><code>pay your bill · keep something in the safe</code></td></tr>
+          </table>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 8 · Adverbs of manner</h4>
+          <span class="formula">adjetivo + ly → adverbio (cómo se hace la acción)</span>
+          <p><span class="ex">She speaks slowly.</span> · <span class="ex">He answered politely.</span> · <span class="ex">They drive carefully.</span></p>
+          <p>Irregulares: <code>good → well</code>, <code>fast → fast</code>, <code>hard → hard</code>.</p>
+          <p>Con <code>be / seem / feel</code> usá <strong>adjetivo</strong>: <span class="ex">He seemed nervous.</span> (no <em>nervously</em>).</p>
+        </article>
+      </div>
+
+      <h3 id="g-iv" style="margin:32px 0 12px">Inglés IV — SpeakOut A2+ unidades 1–4</h3>
+      <div class="grid">
+        <article class="card span-6 rule-card">
+          <h4>Unit 1 · Questions (My life)</h4>
+          <table class="rule-table">
+            <tr><th>Tipo</th><th>Forma</th><th>Ejemplo</th></tr>
+            <tr><td>Yes/No</td><td>auxiliar + sujeto + verbo</td><td><code>Do you live here? · Are you a student?</code></td></tr>
+            <tr><td>Wh-</td><td>Wh- + auxiliar + sujeto + verbo</td><td><code>Where were you born? · What do you do?</code></td></tr>
+            <tr><td>Subject question</td><td>Who/What + verbo (sin do)</td><td><code>Who lives here?</code></td></tr>
+          </table>
+          <p>Present Simple para hábitos: <span class="ex">I get up at 7. · She works in IT.</span></p>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 2 · Past Simple + Past Continuous</h4>
+          <span class="formula">Past Continuous: was/were + -ing · Past Simple: verbo pasado</span>
+          <table class="rule-table">
+            <tr><th>Uso</th><th>Ejemplo</th></tr>
+            <tr><td>Acción en progreso en el pasado</td><td><code>I was waiting at the gate.</code></td></tr>
+            <tr><td>Una acción corta interrumpe otra</td><td><code>I was checking in when I lost my passport.</code></td></tr>
+            <tr><td>Historia / narrativa</td><td><code>While we were flying, the baby cried.</code></td></tr>
+          </table>
+          <p><code>when</code> suele ir con Past Simple; <code>while</code> con Past Continuous.</p>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 2 · Article <em>the</em> + offers</h4>
+          <table class="rule-table">
+            <tr><th>Usamos <code>the</code></th><th>Ejemplo</th></tr>
+            <tr><td>algo específico / único</td><td><code>the airport · the sun · the best seat</code></td></tr>
+            <tr><td>ya mencionado</td><td><code>I saw a bag. The bag was open.</code></td></tr>
+            <tr><td>nombres geográficos especiales</td><td><code>the USA · the Nile · the Alps</code></td></tr>
+          </table>
+          <p><strong>Offers:</strong> <span class="ex">Would you like some help? · Let me carry that. · That’s kind of you. / No, thanks.</span></p>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 3 · have to / don’t have to / can’t</h4>
+          <table class="rule-table">
+            <tr><th>Forma</th><th>Uso</th><th>Ejemplo</th></tr>
+            <tr><td><code>have to / has to</code></td><td>obligación / regla</td><td><code>Students have to take an exam.</code></td></tr>
+            <tr><td><code>don’t / doesn’t have to</code></td><td>no es necesario</td><td><code>You don’t have to wear a uniform.</code></td></tr>
+            <tr><td><code>can’t</code></td><td>prohibición / imposibilidad</td><td><code>You can’t use your phone in class.</code></td></tr>
+            <tr><td><code>can</code></td><td>permiso / habilidad</td><td><code>You can revise online.</code></td></tr>
+          </table>
+          <p>No confundas <code>don’t have to</code> (no hace falta) con <code>can’t</code> (no se puede).</p>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 4 · Present Perfect (experiences)</h4>
+          <span class="formula">have/has + past participle</span>
+          <table class="rule-table">
+            <tr><th>Uso</th><th>Ejemplo</th></tr>
+            <tr><td>Experiencia de vida (sin fecha)</td><td><code>I have tried sushi.</code></td></tr>
+            <tr><td>Desde un punto / durante un período</td><td><code>She has lived here since 2020. / for 3 years.</code></td></tr>
+            <tr><td>Resultado presente / reciente</td><td><code>I have just finished.</code></td></tr>
+          </table>
+          <table class="rule-table">
+            <tr><th>Palabra</th><th>Posición</th><th>Ejemplo</th></tr>
+            <tr><td><code>ever / never</code></td><td>antes del participio</td><td><code>Have you ever…? · I’ve never…</code></td></tr>
+            <tr><td><code>already / just</code></td><td>entre have y participio</td><td><code>I have already booked.</code></td></tr>
+            <tr><td><code>yet</code></td><td>al final (neg/preg)</td><td><code>I haven’t finished yet.</code></td></tr>
+            <tr><td><code>been / gone</code></td><td>been = fue y volvió · gone = sigue allá</td><td><code>She’s been to London. / She’s gone to London.</code></td></tr>
+          </table>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Unit 4 · Present Perfect vs Past Simple</h4>
+          <table class="rule-table">
+            <tr><th></th><th>Present Perfect</th><th>Past Simple</th></tr>
+            <tr><td>Tiempo</td><td>no exacto / conectado al presente</td><td>terminado + cuándo</td></tr>
+            <tr><td>Señales</td><td>ever, never, already, yet, since, for, just</td><td>yesterday, last year, in 2019, ago</td></tr>
+            <tr><td>Ejemplo</td><td><code>I have visited Bariloche.</code></td><td><code>I visited Bariloche last summer.</code></td></tr>
+          </table>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Extra examen · First Conditional</h4>
+          <span class="formula">If + Present Simple, will + verbo base</span>
+          <p><span class="ex">If it rains, I will stay at home.</span></p>
+          <p><span class="ex">If my company offers me a job abroad, I will say yes.</span></p>
+          <p>En la cláusula de <code>if</code> <strong>no</strong> uses <code>will</code>.</p>
+        </article>
+
+        <article class="card span-6 rule-card">
+          <h4>Extra examen · Passive Voice</h4>
+          <span class="formula">be + past participle (+ by…)</span>
+          <table class="rule-table">
+            <tr><th>Tiempo</th><th>Ejemplo</th></tr>
+            <tr><td>Presente</td><td><code>AI is used by security teams.</code></td></tr>
+            <tr><td>Pasado</td><td><code>The advert was released on Monday.</code></td></tr>
+            <tr><td>Present Perfect</td><td><code>Data has been stolen.</code></td></tr>
+          </table>
+          <p>Usala cuando importa el resultado, no el agente (textos, noticias, procesos).</p>
+        </article>
+      </div>
+
+      <h3 id="g-speech" style="margin:32px 0 12px">Cómo ordenar el speech (oral)</h3>
+      <div class="grid">
+        <article class="card span-6 rule-card">
+          <h4>Inglés III = Introduction + Development + Conclusion</h4>
+          <div class="order-box">
+            <div class="order-step"><b>1</b><div>Welcome + introduce yourself</div></div>
+            <div class="order-step"><b>2</b><div>Say the topic + why it is relevant</div></div>
+            <div class="order-step"><b>3</b><div>Structure (First… Second… Next… Finally…) + timing + handouts + questions</div></div>
+            <div class="order-step"><b>4</b><div>Development: un tema por diapositiva, con conectores</div></div>
+            <div class="order-step"><b>5</b><div>Conclusion: signal the end → summarize → recommend → invite questions</div></div>
+          </div>
+        </article>
+        <article class="card span-6 rule-card">
+          <h4>Inglés IV = lo de III + Questions</h4>
+          <div class="order-box">
+            <div class="order-step"><b>1</b><div>Todo el orden de Inglés III</div></div>
+            <div class="order-step"><b>2</b><div>Llevá 4 preguntas: 2 open/direct + 2 closed/indirect</div></div>
+            <div class="order-step"><b>3</b><div>Estrategias: <span class="ex">If I understood your question correctly…</span> · <span class="ex">That’s an interesting question.</span></div></div>
+            <div class="order-step"><b>4</b><div>Usá frases de niveles 1, 2, 3 y 4</div></div>
+          </div>
+        </article>
+      </div>
+
+      <article id="g-conectar" class="card rule-card" style="margin-top:18px">
+        <h3>Conectores para ordenar ideas (Development)</h3>
+        <table class="rule-table">
+          <tr><th>Función</th><th>Conectores</th></tr>
+          <tr><td>Ordenar</td><td>First of all · Firstly · Then · Secondly · Next · Finally · Lastly</td></tr>
+          <tr><td>Agregar</td><td>In addition · What’s more · Also · Added to this</td></tr>
+          <tr><td>Contraste</td><td>However · On the other hand · Then again · Nevertheless</td></tr>
+          <tr><td>Señalar slides</td><td>As you can see · My next slide shows · Let’s now have a closer look · I would like to draw your attention to…</td></tr>
+          <tr><td>Cerrar</td><td>To sum up · In conclusion · This brings me to the end…</td></tr>
+          <tr><td>Conectar temas</td><td>This takes me to my next point · As we have seen · So far… Now… · That leads me to…</td></tr>
+        </table>
+        <div class="notice" style="margin-top:14px"><strong>Truco para los textos:</strong> 1) Identificá el tiempo dominante (Present Perfect = experiencia/resultado; Past Simple = hecho datado; Passive = proceso; Conditional = consecuencia). 2) Marcá conectores. 3) Reordená las ideas con tu hilo (viaje de los datos / “can we trust AI?”) sin copiar el texto literal.</div>
+      </article>
+
+      <article id="g-mapa" class="card" style="margin-top:18px">
+        <h3>Mapa rápido: ¿qué tiempo / forma elijo?</h3>
+        <table class="rule-table">
+          <tr><th>Si querés decir…</th><th>Usá…</th><th>Nivel</th></tr>
+          <tr><td>Hecho terminado / ayer / last week</td><td>Past Simple</td><td>III U5 · IV U2</td></tr>
+          <tr><td>Ahora / en este momento</td><td>Present Continuous</td><td>III U6</td></tr>
+          <tr><td>Hábito / rutina / hecho general</td><td>Present Simple</td><td>III U7 · IV U1</td></tr>
+          <tr><td>Acción en progreso en el pasado (+ interrupción)</td><td>Past Continuous (+ Past Simple)</td><td>IV U2</td></tr>
+          <tr><td>Plan futuro decidido</td><td>be going to</td><td>III U8</td></tr>
+          <tr><td>Deseo / oferta cortés</td><td>would like to · Would you like…?</td><td>III U7–8 · IV U2</td></tr>
+          <tr><td>Regla / permiso / no obligatorio / prohibición</td><td>have to / can / don’t have to / can’t</td><td>IV U3</td></tr>
+          <tr><td>Experiencia / “alguna vez” / sin fecha</td><td>Present Perfect</td><td>IV U4</td></tr>
+          <tr><td>Desde cuándo / durante cuánto</td><td>Present Perfect + since / for</td><td>IV U4</td></tr>
+          <tr><td>Comparar dos cosas / una contra todas</td><td>comparative / superlative</td><td>III U6 / U8</td></tr>
+          <tr><td>Cómo se hace una acción</td><td>adverb of manner (-ly / well)</td><td>III U8</td></tr>
+          <tr><td>Si pasa X, pasará Y</td><td>First Conditional</td><td>Extra IV</td></tr>
+          <tr><td>Qué le hicieron a algo</td><td>Passive Voice</td><td>Extra IV</td></tr>
+        </table>
+      </article>
+    </section>
+
+    <section id="temas" class="view">
+      <h2>Práctica por temas</h2>
+      <p class="lead">Elegí el nivel y un tema (tiempos, artículos, modales, etc.). Cada drill se corrige solo y queda en el historial con tus respuestas marcadas.</p>
+      <div class="theme-filter" id="topic-course-filter">
+        <button type="button" class="active" data-course="III" onclick="setTopicCourse('III')">Inglés III</button>
+        <button type="button" data-course="IV" onclick="setTopicCourse('IV')">Inglés IV</button>
+      </div>
+      <div id="topic-groups" class="topic-groups"></div>
+      <div id="topic-panel" class="topic-panel practice-block hidden">
+        <div class="theme-head">
+          <span class="tag" id="topic-tag">Tema</span>
+          <h3 id="topic-title">Elegí un tema</h3>
+        </div>
+        <p class="topic-meta" id="topic-meta"></p>
+        <div class="toolbar">
+          <button class="btn primary" type="button" onclick="checkTopicQuiz()">Corregir</button>
+          <button class="btn" type="button" onclick="resetTopicQuiz()">Reintentar</button>
+          <button class="btn" type="button" onclick="renderTopicQuiz(true)">Mezclar</button>
+          <span id="score-topic" class="score">Sin corregir</span>
+        </div>
+        <div id="quiz-topic"></div>
+      </div>
+    </section>
+
+    <section id="vocabulario" class="view">
+      <h2>Vocabulario por nivel y unidad</h2>
+      <p class="lead">Dividido según el libro: <strong>Inglés III</strong> = SpeakOut A2 unidades 5–8 · <strong>Inglés IV</strong> = SpeakOut A2+ unidades 1–4. Cada expresión tiene significado y cuándo se usa.</p>
+      <div class="theme-filter" id="theme-filter"></div>
+      <div id="vocab-themes"></div>
+
+      <div class="practice-block">
+        <h3>Práctica · matching por significado</h3>
+        <p class="hint">Uní cada expresión con su significado en español.</p>
+        <div class="toolbar">
+          <button class="btn primary" onclick="checkMatch()">Corregir matching</button>
+          <button class="btn" onclick="renderMatch(true)">Mezclar</button>
+          <span id="score-match" class="score">Sin corregir</span>
+        </div>
+        <div id="match-box"></div>
+      </div>
+    </section>
+
+    <section id="ingles3" class="view">
+      <h2>Práctica de Inglés III</h2>
+      <p class="lead">SpeakOut A2 unidades 5–8: Past Simple, Present Continuous, comparatives, directions, articles, Present Simple vs Continuous, phone language, superlatives, be going to, hotel y adverbs of manner.</p>
+      <div class="grid">
+        <article class="card span-3 unit"><div class="unit-number">U5</div><h3>The past</h3><div class="pill-list"><span class="pill">past simple</span><span class="pill">apologies</span></div></article>
+        <article class="card span-3 unit"><div class="unit-number">U6</div><h3>Out and about</h3><div class="pill-list"><span class="pill">present continuous</span><span class="pill">comparatives</span><span class="pill">directions</span></div></article>
+        <article class="card span-3 unit"><div class="unit-number">U7</div><h3>Work</h3><div class="pill-list"><span class="pill">articles</span><span class="pill">simple vs continuous</span><span class="pill">phone</span></div></article>
+        <article class="card span-3 unit"><div class="unit-number">U8</div><h3>Travellers</h3><div class="pill-list"><span class="pill">superlatives</span><span class="pill">going to</span><span class="pill">hotel · adverbs</span></div></article>
+      </div>
+
+      <div class="practice-block">
+        <h3>1 · Multiple choice</h3>
+        <p class="hint">Gramática y vocabulario de las cuatro unidades.</p>
+        <div class="toolbar">
+          <button class="btn primary" onclick="checkQuiz('q3')">Corregir todo</button>
+          <button class="btn" onclick="resetQuiz('q3')">Reintentar</button>
+          <button class="btn" onclick="renderQuiz('q3', true)">Mezclar preguntas</button>
+          <span id="score-q3" class="score">Sin corregir</span>
+        </div>
+        <div id="quiz-q3"></div>
+      </div>
+
+      <div class="practice-block">
+        <h3>2 · Completar: verb / adverb / noun</h3>
+        <p class="hint">Completá con la forma correcta. El color indica si pedimos verbo, adverbio, adjetivo o sustantivo.</p>
+        <div class="toolbar">
+          <button class="btn primary" onclick="checkBlanks('b3')">Corregir</button>
+          <button class="btn" onclick="resetBlanks('b3')">Limpiar</button>
+          <span id="score-b3" class="score">Sin corregir</span>
+        </div>
+        <div id="blanks-b3"></div>
+      </div>
+
+      <div class="practice-block">
+        <h3>3 · Tiempos en oraciones</h3>
+        <p class="hint">Elegí la forma correcta: Past Simple, Present Continuous, Present Simple, be going to o adverbios.</p>
+        <div class="toolbar">
+          <button class="btn primary" onclick="checkBlanks('t3')">Corregir</button>
+          <button class="btn" onclick="resetBlanks('t3')">Limpiar</button>
+          <span id="score-t3" class="score">Sin corregir</span>
+        </div>
+        <div id="blanks-t3"></div>
+      </div>
+
+      <div class="practice-block">
+        <h3>4 · Story — A day at the airport</h3>
+        <p class="hint">Completá la historia: Past Simple, directions/transport, disculpas, going to y lenguaje de hotel.</p>
+        <div class="toolbar">
+          <button class="btn primary" onclick="checkStory('s3')">Corregir historia</button>
+          <button class="btn" onclick="resetStory('s3')">Limpiar</button>
+          <span id="score-s3" class="score">Sin corregir</span>
+        </div>
+        <div id="story-s3" class="story-gaps"></div>
+      </div>
+
+      <div class="practice-block">
+        <h3>5 · Essay / writing</h3>
+        <p class="hint">Escribí 90–110 palabras. Usá al menos: Past Simple, Present Continuous o Present Simple, one comparative or superlative, and be going to.</p>
+        <article class="card">
+          <span class="tag">Essay · ~100 words</span>
+          <h3>A trip last year and my next plans</h3>
+          <div class="essay-guide">
+            Plan: 1) Where you went last year (Past Simple) · 2) What you are doing these days (Present Continuous / Simple) · 3) Compare two places or ways to travel · 4) Say what you are going to do next holidays · 5) Close with a hotel request or apology example if useful.
+          </div>
+          <p><strong>Prompt:</strong> Write a short essay about a trip you took, how you usually travel in your city, and a trip you are going to take. Compare two options (e.g. bus vs train) and mention one hotel need.</p>
+          <textarea class="word-area" data-target="100" placeholder="Last summer I went to Córdoba by bus. It was cheaper than the train..."></textarea>
+          <div class="counter">0 palabras · objetivo: 90–110</div>
+        </article>
+        <article class="card" style="margin-top:14px">
+          <span class="tag">Email · ~100 words</span>
+          <h3>Email practice</h3>
+          <p><strong>Consigna:</strong> Write an email to a friend about a trip you are going to take. Explain where you went last time, how you are going to travel, what you would like to do, and ask for directions or hotel advice.</p>
+          <textarea class="word-area" placeholder="Hi ...,&#10;&#10;How are you? I'm writing to tell you about..."></textarea>
+          <div class="counter">0 palabras · objetivo: 90–110</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="ingles4" class="view">
+      <h2>Práctica de Inglés IV</h2>
+      <p class="lead">SpeakOut A2+ unidades 1–4: questions, Past Continuous, article <em>the</em>, have to / can’t, Present Perfect vs Past Simple. Extra de examen: First Conditional, Passive y vocabulario de textos (IA / ciberseguridad).</p>
+      <div class="grid">
+        <article class="card span-3 unit"><div class="unit-number">U1</div><h3>My life</h3><div class="pill-list"><span class="pill">questions</span><span class="pill">present simple</span></div></article>
+        <article class="card span-3 unit"><div class="unit-number">U2</div><h3>Help</h3><div class="pill-list"><span class="pill">past continuous</span><span class="pill">the</span><span class="pill">offers</span></div></article>
+        <article class="card span-3 unit"><div class="unit-number">U3</div><h3>Learn</h3><div class="pill-list"><span class="pill">have to</span><span class="pill">don’t have to</span><span class="pill">can’t</span></div></article>
+        <article class="card span-3 unit"><div class="unit-number">U4 + extra</div><h3>Try this</h3><div class="pill-list"><span class="pill">present perfect</span><span class="pill">conditional</span><span class="pill">passive</span></div></article>
+      </div>
+
+      <div class="practice-block">
+        <h3>1 · Multiple choice</h3>
+        <p class="hint">Gramática A2+ y vocabulario de los textos específicos.</p>
+        <div class="toolbar">
+          <button class="btn primary" onclick="checkQuiz('q4')">Corregir todo</button>
+          <button class="btn" onclick="resetQuiz('q4')">Reintentar</button>
+          <button class="btn" onclick="renderQuiz('q4', true)">Mezclar preguntas</button>
+          <span id="score-q4" class="score">Sin corregir</span>
+        </div>
+        <div id="quiz-q4"></div>
+      </div>
+
+      <div class="practice-block">
+        <h3>2 · Completar: verb / adverb / noun</h3>
+        <p class="hint">Completá con la forma correcta según Holidays, Experiences y tecnología.</p>
+        <div class="toolbar">
+          <button class="btn primary" onclick="checkBlanks('b4')">Corregir</button>
+          <button class="btn" onclick="resetBlanks('b4')">Limpiar</button>
+          <span id="score-b4" class="score">Sin corregir</span>
+        </div>
+        <div id="blanks-b4"></div>
+      </div>
+
+      <div class="practice-block">
+        <h3>3 · Tiempos en oraciones</h3>
+        <p class="hint">Present Perfect, Past Simple, First Conditional y Passive Voice.</p>
+        <div class="toolbar">
+          <button class="btn primary" onclick="checkBlanks('t4')">Corregir</button>
+          <button class="btn" onclick="resetBlanks('t4')">Limpiar</button>
+          <span id="score-t4" class="score">Sin corregir</span>
+        </div>
+        <div id="blanks-t4"></div>
+      </div>
+
+      <div class="practice-block">
+        <h3>4 · Story — A holiday that changed my plans</h3>
+        <p class="hint">Completá la historia con comparatives, Present Perfect, Past Simple y First Conditional.</p>
+        <div class="toolbar">
+          <button class="btn primary" onclick="checkStory('s4')">Corregir historia</button>
+          <button class="btn" onclick="resetStory('s4')">Limpiar</button>
+          <span id="score-s4" class="score">Sin corregir</span>
+        </div>
+        <div id="story-s4" class="story-gaps"></div>
+      </div>
+
+      <div class="practice-block">
+        <h3>5 · Essay / writing</h3>
+        <p class="hint">Escribí 90–110 palabras. Usá: one comparative or superlative, one Present Perfect with for/since, and one First Conditional.</p>
+        <article class="card">
+          <span class="tag">Essay · ~100 words</span>
+          <h3>My favourite holiday destination</h3>
+          <div class="essay-guide">
+            Plan: 1) Name the place and compare it with another city · 2) Say what you have done there · 3) Describe one past trip with Past Simple · 4) Write one First Conditional about next year · 5) Recommend the place.
+          </div>
+          <p><strong>Prompt:</strong> Write a short essay about the most interesting place you have visited. Compare it with your hometown, explain what you did there, and say what will happen if you travel there again.</p>
+          <textarea class="word-area" data-target="100" placeholder="The most interesting place I have visited is..."></textarea>
+          <div class="counter">0 palabras · objetivo: 90–110</div>
+        </article>
+        <article class="card" style="margin-top:14px">
+          <span class="tag">Email · ~100 words</span>
+          <h3>Email practice</h3>
+          <p><strong>Consigna:</strong> Write an email to a classmate describing a useful technology you have used. Say when you first used it, compare it with an older option, and explain what will happen if more people adopt it.</p>
+          <textarea class="word-area" placeholder="Hi ...,&#10;&#10;I want to tell you about a technology that..."></textarea>
+          <div class="counter">0 palabras · objetivo: 90–110</div>
+        </article>
+      </div>
+    </section>
+
+    <section id="speech3" class="view speech-view"></section>
+    <section id="speech4" class="view speech-view"></section>
+
+    <section id="historial" class="view">
+      <h2>Historial de práctica</h2>
+      <p class="lead">Solo se guardan las prácticas que corregís (temas, quiz, completar, historias, matching). En cada una se ven tus respuestas marcadas para que tu profesora las revise.</p>
+      <div class="notice"><strong>Para la profesora:</strong> abrí cada práctica y mirá qué seleccionaste o escribiste. Exportá JSON, copiá el link del reporte o imprimí esta pestaña. El historial está en tu navegador (GitHub Pages no lo guarda en el servidor).</div>
+      <div class="theme-filter" id="history-level-filter">
+        <button type="button" class="active" data-level="all" onclick="setHistoryFilter('all')">Todas</button>
+        <button type="button" data-level="III" onclick="setHistoryFilter('III')">Inglés III</button>
+        <button type="button" data-level="IV" onclick="setHistoryFilter('IV')">Inglés IV</button>
+      </div>
+      <div class="history-stats" id="history-stats"></div>
+      <div class="toolbar">
+        <button class="btn primary" onclick="exportHistory()">Descargar JSON</button>
+        <button class="btn teal" onclick="copyHistoryLink()">Copiar link del reporte</button>
+        <button class="btn" onclick="printHistory()">Imprimir / PDF</button>
+        <label class="btn" style="display:inline-flex;align-items:center;gap:8px">
+          Importar reporte
+          <input type="file" accept="application/json,.json" hidden onchange="importHistory(event)">
+        </label>
+        <button class="btn" onclick="clearHistory()" style="border-color:#f87171;color:#fca5a5">Borrar historial</button>
+      </div>
+      <div id="history-list"></div>
+    </section>
+  </main>
+
+  <footer>Material personal de estudio elaborado a partir de los archivos provistos. Los speeches son guías para hablar con tus propias palabras, no textos para leer durante el examen.</footer>
+
+  <script>
+    const topicDrills = [
+      // ===== INGLÉS III =====
+      {id:"iii-past", course:"III", group:"Tiempos", title:"Past Simple", tip:"yesterday / last / ago · didn’t + base · Did + sujeto + base?", items:[
+        {q:"Yesterday we ___ to the cinema.", o:["go","went","gone"], a:1, e:"Past Simple irregular: go → went."},
+        {q:"She ___ work yesterday because she was ill. (not)", o:["didn’t","doesn’t","wasn’t"], a:0, e:"Negativa: didn’t + infinitive."},
+        {q:"___ you see the match last night?", o:["Do","Did","Have"], a:1, e:"Pregunta en pasado: Did + subject + base."},
+        {q:"Where ___ they leave the keys?", o:["did","do","are"], a:0, e:"Wh- + did + subject + infinitive."},
+        {q:"I ___ my train this morning.", o:["miss","missed","missing"], a:1, e:"Past Simple regular: missed."},
+        {q:"He ___ home at 8 and ___ dinner. (get / have)", o:["got / had","get / had","gotten / have"], a:0, e:"Irregulars: got, had."},
+        {q:"Choose the correct excuse.", o:["My bus was late.","My bus is late yesterday.","My bus be late."], a:0, e:"Excuse típica con Past Simple."},
+        {q:"They ___ married in 2018.", o:["get","got","getting"], a:1, e:"Life event: got married."}
+      ]},
+      {id:"iii-pc", course:"III", group:"Tiempos", title:"Present Continuous", tip:"am/is/are + -ing · ahora / around now", items:[
+        {q:"Look! She ___ a blue jacket.", o:["wears","is wearing","wear"], a:1, e:"Ahora → Present Continuous."},
+        {q:"They ___ for the bus at the moment.", o:["wait","are waiting","waits"], a:1, e:"at the moment = continuous."},
+        {q:"I ___ right now. Can I call you later? (work)", o:["work","am working","working"], a:1, e:"am + -ing."},
+        {q:"He ___ TV tonight; he’s studying. (not watch)", o:["isn’t watching","doesn’t watching","not watches"], a:0, e:"Negativa continuous: isn’t + -ing."},
+        {q:"___ you ___ for someone?", o:["Do / wait","Are / waiting","Is / wait"], a:1, e:"Are + subject + -ing?"},
+        {q:"Choose the correct spelling.", o:["She is runing","She is running","She running"], a:1, e:"run → running (duplica n)."},
+        {q:"We ___ English this month.", o:["study","are studying","studied"], a:1, e:"Around now / temporary → continuous."},
+        {q:"Please be quiet. The baby ___.", o:["sleeps","is sleeping","sleep"], a:1, e:"Acción en progreso ahora."}
+      ]},
+      {id:"iii-svsc", course:"III", group:"Tiempos", title:"Present Simple vs Continuous", tip:"habits = Simple · now = Continuous", items:[
+        {q:"She usually ___ in an office.", o:["works","is working","work"], a:0, e:"usually = Present Simple."},
+        {q:"Today she ___ from home.", o:["works","is working","work"], a:1, e:"today / temporary = Continuous."},
+        {q:"I ___ to university by subway every day.", o:["go","am going","went"], a:0, e:"every day = habit."},
+        {q:"Right now I ___ for my exam.", o:["revise","am revising","revised"], a:1, e:"right now = Continuous."},
+        {q:"Water ___ at 100°C.", o:["is boiling","boils","boil"], a:1, e:"Fact / scientific truth = Simple."},
+        {q:"___ he often arrive late?", o:["Is","Does","Do"], a:1, e:"Habit with main verb arrive → Does + subject + base."},
+        {q:"Sorry, I ___ what you mean. (not understand)", o:["am not understanding","don’t understand","not understand"], a:1, e:"State verb understand → Simple."},
+        {q:"Listen! Someone ___ at the door.", o:["knocks","is knocking","knock"], a:1, e:"Listen! = happening now."}
+      ]},
+      {id:"iii-articles", course:"III", group:"Artículos", title:"Articles a / an / the / ∅", tip:"a/an 1ª mención · the específico · ∅ general", items:[
+        {q:"She’s ___ engineer.", o:["a","an","the"], a:1, e:"Sonido vocálico → an."},
+        {q:"I need ___ umbrella.", o:["a","an","the"], a:1, e:"umbrella → an."},
+        {q:"___ sun rises in the east.", o:["A","An","The"], a:2, e:"Único → the."},
+        {q:"I like ___ music when I work.", o:["a","the","— (no article)"], a:2, e:"General / uncountable → sin artículo."},
+        {q:"There is a café on the corner. ___ café opens at 8.", o:["A","An","The"], a:2, e:"Ya mencionado → the."},
+        {q:"He goes to work by ___ train.", o:["a","the","— (no article)"], a:2, e:"by train = frase fija sin artículo."},
+        {q:"She’s ___ university student.", o:["a","an","the"], a:0, e:"university = sonido /j/ consonántico → a."},
+        {q:"Please open ___ window. It’s hot in here.", o:["a","an","the"], a:2, e:"Ventana específica del lugar → the."}
+      ]},
+      {id:"iii-comp", course:"III", group:"Comparación", title:"Comparatives", tip:"-er than · more + adj · as … as", items:[
+        {q:"The bus is ___ than a taxi.", o:["cheap","cheaper","the cheapest"], a:1, e:"Comparative corto: cheaper than."},
+        {q:"This car is ___ than that one.", o:["big","bigger","more big"], a:1, e:"CVC: big → bigger."},
+        {q:"The train is ___ comfortable than the bus.", o:["more","most","much"], a:0, e:"Adjetivo largo: more + adj."},
+        {q:"The metro is ___ a car in my city.", o:["as fast as","faster that","more fast as"], a:0, e:"Igualdad: as + adj + as."},
+        {q:"My new phone is ___ than the old one.", o:["good","better","best"], a:1, e:"Irregular: good → better."},
+        {q:"This exercise is ___ than the first one.", o:["easy","easier","more easy"], a:1, e:"easy → easier."},
+        {q:"Flying is ___ expensive than the bus.", o:["more","most","—"], a:0, e:"more expensive than."},
+        {q:"Choose the correct sentence.", o:["She is taller that me.","She is taller than me.","She is more taller than me."], a:1, e:"than (no that); no doubles comparative."}
+      ]},
+      {id:"iii-super", course:"III", group:"Comparación", title:"Superlatives", tip:"the + -est · the most + adj", items:[
+        {q:"This is ___ hotel in the city.", o:["the cheapest","cheaper","most cheap"], a:0, e:"Superlativo: the cheapest."},
+        {q:"It’s ___ place I know.", o:["the most beautiful","more beautiful","beautifullest"], a:0, e:"Largo: the most + adj."},
+        {q:"He is ___ student in the class.", o:["the best","better","most best"], a:0, e:"Irregular: the best."},
+        {q:"Which is ___ option of the three?", o:["safer","the safest","more safe"], a:1, e:"De tres o más → superlative."},
+        {q:"That was ___ day of my trip.", o:["the worst","worse","badder"], a:0, e:"bad → the worst."},
+        {q:"Buenos Aires is ___ city in Argentina.", o:["the biggest","bigger","most big"], a:0, e:"the biggest."},
+        {q:"Superlatives normally need ___.", o:["a","the","an"], a:1, e:"Casi siempre llevan the."},
+        {q:"This app is ___ useful one I have.", o:["the most","more","most the"], a:0, e:"the most useful."}
+      ]},
+      {id:"iii-going", course:"III", group:"Tiempos", title:"be going to", tip:"am/is/are + going to + base · planes", items:[
+        {q:"We bought tickets. We ___ travel on Friday.", o:["are going to","go to","will to"], a:0, e:"Plan decidido → be going to."},
+        {q:"What ___ you ___ do there?", o:["are / going to","do / going to","are / go"], a:0, e:"What are you going to do…?"},
+        {q:"Look at those clouds! It ___ rain.", o:["is going to","goes to","going"], a:0, e:"Evidencia presente → going to."},
+        {q:"I ___ visit museums tomorrow. (be going to)", o:["am going to","going to","will going to"], a:0, e:"am going to + base."},
+        {q:"She ___ stay at a hotel near the station.", o:["is going to","are going to","going"], a:0, e:"is going to."},
+        {q:"They aren’t ___ come tonight.", o:["going to","go to","to going"], a:0, e:"Negativa: aren’t going to."},
+        {q:"___ he going to check in early?", o:["Is","Does","Has"], a:0, e:"Is + subject + going to…?"},
+        {q:"Choose the correct plan sentence.", o:["I’m going visit Córdoba.","I’m going to visit Córdoba.","I going to visit Córdoba."], a:1, e:"be + going to + verb."}
+      ]},
+      {id:"iii-adv", course:"III", group:"Otros", title:"Adverbs of manner", tip:"adj + ly · seem/be + adjective", items:[
+        {q:"She answered the questions ___.", o:["polite","politely","politeness"], a:1, e:"Modifica el verbo → adverb."},
+        {q:"He seemed ___ before the interview.", o:["nervous","nervously","nerves"], a:0, e:"seem + adjective."},
+        {q:"Please drive ___.", o:["careful","carefully","care"], a:1, e:"drive + adverb."},
+        {q:"The doctor spoke ___ so everyone understood.", o:["clear","clearly","clearness"], a:1, e:"clear → clearly."},
+        {q:"She sings very ___.", o:["good","well","goods"], a:1, e:"Irregular: good → well."},
+        {q:"He works ___.", o:["hard","hardly","hardily"], a:0, e:"hard = con esfuerzo; hardly = casi no."},
+        {q:"They finished the test ___.", o:["quick","quickly","quickerly"], a:1, e:"quick → quickly."},
+        {q:"I feel ___ today.", o:["happy","happily","happiness"], a:0, e:"feel + adjective."}
+      ]},
+      {id:"iii-transport", course:"III", group:"Otros", title:"Transport & directions", tip:"by bus · on foot · get on/into · turn left", items:[
+        {q:"I usually go to class ___ subway.", o:["by","on","in"], a:0, e:"by + medio de transporte."},
+        {q:"We went to the shop ___.", o:["by foot","on foot","with foot"], a:1, e:"on foot (no by foot)."},
+        {q:"She got ___ the taxi.", o:["on","into","at"], a:1, e:"get into a car/taxi."},
+        {q:"Please ___ left at the lights.", o:["turn","turning","turned"], a:0, e:"Directions: Turn left."},
+        {q:"Go straight ___ and the bank is on the right.", o:["on","in","at"], a:0, e:"go straight on."},
+        {q:"Get ___ the bus at the next stop.", o:["off","out","down"], a:0, e:"get off the bus/train."},
+        {q:"How do you ___ to work?", o:["get","go by","arrive to"], a:0, e:"get to = llegar a."},
+        {q:"The station is ___ the left.", o:["in","on","at"], a:1, e:"on the left / on the right."}
+      ]},
+
+      // ===== INGLÉS IV =====
+      {id:"iv-questions", course:"IV", group:"Preguntas", title:"Question forms", tip:"auxiliar + sujeto · Wh- · subject questions", items:[
+        {q:"___ you live near the university?", o:["Do","Are","Have"], a:0, e:"Present Simple habit → Do + subject."},
+        {q:"Where ___ you born?", o:["are","were","did"], a:1, e:"Where were you born?"},
+        {q:"What ___ she do?", o:["do","does","is"], a:1, e:"3ª persona: does."},
+        {q:"___ he a student?", o:["Do","Does","Is"], a:2, e:"be → Is he…?"},
+        {q:"Who ___ here?", o:["lives","does live","do lives"], a:0, e:"Subject question: Who + verb (no do)."},
+        {q:"What time ___ you usually get up?", o:["do","are","does"], a:0, e:"Wh- + do + subject + verb."},
+        {q:"___ they working today?", o:["Do","Are","Have"], a:1, e:"Continuous → Are + -ing."},
+        {q:"Choose the correct question.", o:["Where you live?","Where do you live?","Where does you live?"], a:1, e:"Wh- + auxiliary + subject + verb."}
+      ]},
+      {id:"iv-pastcont", course:"IV", group:"Tiempos", title:"Past Continuous + Past Simple", tip:"was/were + -ing · when/while", items:[
+        {q:"I ___ at the gate when I lost my passport.", o:["waited","was waiting","am waiting"], a:1, e:"Acción en progreso interrumpida."},
+        {q:"While we ___, the baby cried.", o:["flew","were flying","fly"], a:1, e:"while + Past Continuous."},
+        {q:"She ___ when the phone rang.", o:["cooked","was cooking","is cooking"], a:1, e:"was/were + -ing + when + Past Simple."},
+        {q:"They ___ TV at 9 last night.", o:["watched","were watching","have watched"], a:1, e:"Acción en progreso a una hora pasada."},
+        {q:"I ___ my keys while I ___ for a taxi. (lose / wait)", o:["lost / was waiting","was losing / waited","lose / waiting"], a:0, e:"Acción corta (lost) + continuous (was waiting)."},
+        {q:"___ you sleeping when I called?", o:["Did","Were","Are"], a:1, e:"Were + subject + -ing?"},
+        {q:"He wasn’t ___ ; he was reading.", o:["listen","listening","listened"], a:1, e:"Negativa: wasn’t + -ing."},
+        {q:"Choose the best narrative.", o:["I walked when it was raining.","I was walking when it started to rain.","I walk when it started to rain."], a:1, e:"Progreso + interrupción."}
+      ]},
+      {id:"iv-the", course:"IV", group:"Artículos", title:"Article the", tip:"específico / único / ya mencionado", items:[
+        {q:"Please meet me at ___ airport.", o:["a","an","the"], a:2, e:"Lugar específico conocido → the."},
+        {q:"___ sun is very strong today.", o:["A","An","The"], a:2, e:"Único → the."},
+        {q:"I saw a bag. ___ bag was open.", o:["A","An","The"], a:2, e:"Ya mencionado → the."},
+        {q:"She wants to visit ___ USA.", o:["a","the","—"], a:1, e:"the USA / the UK."},
+        {q:"John was late for ___ work.", o:["a","the","— (no article)"], a:2, e:"be late for work = sin artículo."},
+        {q:"This is ___ most useful tip.", o:["a","the","—"], a:1, e:"Superlativo → the."},
+        {q:"We crossed ___ Alps last summer.", o:["a","the","—"], a:1, e:"Cadenas montañosas: the Alps."},
+        {q:"Can you pass me ___ salt, please?", o:["a","an","the"], a:2, e:"Objeto específico en la mesa → the."}
+      ]},
+      {id:"iv-modals", course:"IV", group:"Modales", title:"have to / don’t have to / can / can’t", tip:"obligación · no necesario · permiso · prohibición", items:[
+        {q:"Students ___ take an exam at the end.", o:["have to","don’t have to","can’t to"], a:0, e:"have to = obligación/regla."},
+        {q:"You ___ wear a uniform here. Clothes are free.", o:["have to","don’t have to","can’t"], a:1, e:"don’t have to = no es necesario."},
+        {q:"You ___ use your phone in class.", o:["can","can’t","don’t have to"], a:1, e:"can’t = prohibición."},
+        {q:"You ___ revise online if you want.", o:["can","can’t","have"], a:0, e:"can = permiso/posibilidad."},
+        {q:"She ___ arrive early tomorrow. (obligation)", o:["has to","have to","can’t"], a:0, e:"3ª persona: has to."},
+        {q:"We ___ show our ID at the gate. It’s a rule.", o:["have to","don’t have to","might to"], a:0, e:"Regla externa → have to."},
+        {q:"You ___ come if you’re tired. It’s optional.", o:["have to","don’t have to","can’t"], a:1, e:"Optional = don’t have to."},
+        {q:"Choose the correct meaning of don’t have to.", o:["It is prohibited","It is not necessary","It is a strong advice"], a:1, e:"No hace falta ≠ no se puede."}
+      ]},
+      {id:"iv-pp", course:"IV", group:"Tiempos", title:"Present Perfect", tip:"have/has + participle · ever/never/already/yet", items:[
+        {q:"___ you ever ___ sushi?", o:["Did / tried","Have / tried","Has / try"], a:1, e:"Have + past participle."},
+        {q:"I have ___ finished the report.", o:["yet","already","ago"], a:1, e:"already entre have y participio."},
+        {q:"She hasn’t called ___.", o:["already","yet","since"], a:1, e:"yet al final en negativas."},
+        {q:"He has lived here ___ 2020.", o:["for","since","ago"], a:1, e:"since + punto de inicio."},
+        {q:"We have studied English ___ three years.", o:["for","since","from"], a:0, e:"for + período."},
+        {q:"She’s ___ to London twice. (be)", o:["been","gone","went"], a:0, e:"been = fue y volvió."},
+        {q:"Where’s Ana? She has ___ to the shop.", o:["been","gone","went"], a:1, e:"gone = todavía está allá."},
+        {q:"I ___ never ___ a horse.", o:["have / ridden","did / ride","has / rode"], a:0, e:"I’ve never + past participle."}
+      ]},
+      {id:"iv-ppvs", course:"IV", group:"Tiempos", title:"Present Perfect vs Past Simple", tip:"sin fecha vs yesterday/last/ago", items:[
+        {q:"I ___ Bariloche last summer.", o:["have visited","visited","visiting"], a:1, e:"last summer → Past Simple."},
+        {q:"I ___ Bariloche, but I don’t remember when.", o:["have visited","visited","visit"], a:0, e:"Experiencia sin fecha → Present Perfect."},
+        {q:"She ___ a new laptop yesterday.", o:["has bought","bought","buyed"], a:1, e:"yesterday → Past Simple."},
+        {q:"___ you finish the email yet?", o:["Did","Have","Do"], a:1, e:"yet → Present Perfect."},
+        {q:"Tom ___ to this town in 1994.", o:["has moved","moved","moves"], a:1, e:"Año concreto → Past Simple."},
+        {q:"How long ___ at this university?", o:["did you study","have you studied","you studied"], a:1, e:"How long + Present Perfect."},
+        {q:"They ___ the clients an hour ago.", o:["have met","met","meet"], a:1, e:"ago → Past Simple."},
+        {q:"Choose the correct pair.", o:["I have seen it yesterday.","I saw it yesterday. / I have seen it before.","I seen it yesterday."], a:1, e:"Fecha = Past Simple; experiencia = Perfect."}
+      ]},
+      {id:"iv-cond", course:"IV", group:"Extra examen", title:"First Conditional", tip:"If + Present Simple, will + base", items:[
+        {q:"If it rains, I ___ at home.", o:["stay","will stay","stayed"], a:1, e:"will + base en la consecuencia."},
+        {q:"If the AI ___ a threat, it will block the user.", o:["will detect","detects","detected"], a:1, e:"If + Present Simple (no will)."},
+        {q:"If John doesn’t take an umbrella, he ___ wet.", o:["gets","will get","got"], a:1, e:"First Conditional."},
+        {q:"I will call you if I ___ time.", o:["will have","have","had"], a:1, e:"Cláusula if sin will."},
+        {q:"If more people protect their data, holidays ___ safer.", o:["become","will become","became"], a:1, e:"will become."},
+        {q:"Choose the correct sentence.", o:["If it will rain, I will stay.","If it rains, I will stay.","If it rains, I stay will."], a:1, e:"If + Present, will + base."},
+        {q:"If she ___ hard, she will pass.", o:["studies","will study","studied"], a:0, e:"If + Present Simple."},
+        {q:"We ___ late if we don’t leave now.", o:["are","will be","were"], a:1, e:"Consecuencia futura con will."}
+      ]},
+      {id:"iv-passive", course:"IV", group:"Extra examen", title:"Passive Voice", tip:"be + past participle", items:[
+        {q:"AI ___ by security teams every day.", o:["uses","is used","is use"], a:1, e:"Present passive: is/are + participle."},
+        {q:"The advert ___ on Monday.", o:["released","was released","was release"], a:1, e:"Past passive: was + participle."},
+        {q:"Data ___ stolen from the server.", o:["has been","have been","was be"], a:0, e:"Present Perfect passive: has been + participle."},
+        {q:"The emails ___ yesterday.", o:["were sent","sent","are send"], a:0, e:"were + past participle."},
+        {q:"Choose the passive form of: Teams use AI.", o:["AI uses teams.","AI is used by teams.","AI used teams."], a:1, e:"Objeto → sujeto + be + participle."},
+        {q:"The system ___ every night.", o:["checks","is checked","is checking by"], a:1, e:"Presente pasivo de rutina."},
+        {q:"A new update ___ last week.", o:["was installed","installed","has install"], a:0, e:"Pasado pasivo."},
+        {q:"Passwords should ___ carefully.", o:["choose","be chosen","been choose"], a:1, e:"Modal + be + participle."}
+      ]}
+    ];
+
+    const quizData = {
+      q3: [
+        {q:"Yesterday we ___ to the cinema and ___ a great film. (go / see)", o:["went / saw","goed / seen","go / saw"], a:0, e:"Past Simple irregular: went, saw."},
+        {q:"___ did you leave home this morning?", o:["Where","When","Who"], a:1, e:"When pregunta por el momento."},
+        {q:"I’m sorry I’m late. My bus ___.", o:["was late","is late yesterday","be late"], a:0, e:"Excuse típica con Past Simple."},
+        {q:"Look! She ___ a blue jacket right now.", o:["wears","is wearing","wear"], a:1, e:"Ahora → Present Continuous."},
+        {q:"The train is ___ than the bus.", o:["more comfortable","comfortabler","most comfortable"], a:0, e:"Adjetivo largo: more + adj + than."},
+        {q:"This ticket is ___ than that one.", o:["cheap","cheaper","the cheapest"], a:1, e:"Comparative corto: cheaper than."},
+        {q:"To get to the station, ___ left and go straight on.", o:["turn","turning","turned"], a:0, e:"Directions: Turn left / right."},
+        {q:"Choose the correct transport phrase.", o:["go by foot","go on foot","ride a car"], a:1, e:"On foot; con vehículos: by bus/train."},
+        {q:"She got ___ the taxi outside the hotel.", o:["into","on","at"], a:0, e:"Get into/out of: car, taxi."},
+        {q:"She’s ___ engineer in a tech company.", o:["a","an","the"], a:1, e:"Engineer empieza con sonido vocálico → an."},
+        {q:"I like ___ music when I work.", o:["a","the","— (no article)"], a:2, e:"General / uncountable: sin artículo."},
+        {q:"She usually ___ in an office, but today she ___ from home.", o:["works / is working","is working / works","work / working"], a:0, e:"Hábito = Present Simple; ahora = Present Continuous."},
+        {q:"Could you ___ me through to Mrs Lopez, please?", o:["put","hang","pick"], a:0, e:"Put someone through = conectar la llamada."},
+        {q:"Can she ___ later? I’m in a meeting.", o:["call me back","hang up me","get off me"], a:0, e:"Call back = devolver la llamada."},
+        {q:"I would like ___ a room for two nights.", o:["to book","booking","book to"], a:0, e:"Would like + to + infinitive."},
+        {q:"This is ___ hotel in the city.", o:["the cheapest","cheaper","more cheap"], a:0, e:"Superlativo: the + adj-est."},
+        {q:"We bought the tickets, so we ___ travel on Friday.", o:["are going to","going","would"], a:0, e:"Plan decidido → be going to."},
+        {q:"What ___ you ___ do there? (be going to)", o:["are / going to","do / going to","are / go to"], a:0, e:"What are you going to do…?"},
+        {q:"At a hotel you usually ___ when you arrive and ___ when you leave.", o:["check in / check out","get on / get off","pick up / hang up"], a:0, e:"Check in / check out."},
+        {q:"Could I have a late ___, please?", o:["check-out","boarding","scale"], a:0, e:"Late check-out = salir más tarde."},
+        {q:"The receptionist answered our questions ___.", o:["patient","patiently","patience"], a:1, e:"Adverb of manner modifica el verbo."},
+        {q:"He seemed ___ before the interview.", o:["nervously","nervous","nerves"], a:1, e:"Seem + adjective."},
+        {q:"She drives very ___.", o:["careful","carefully","care"], a:1, e:"Drive + adverb: carefully."},
+        {q:"Which request is the most polite?", o:["Repeat.","Could you say that again, please?","You speak slow."], a:1, e:"Could + please = petición cortés."},
+        {q:"The metro is ___ a car in my city.", o:["as fast as","faster that","the fastest than"], a:0, e:"Igualdad: as + adj + as."},
+        {q:"Last weekend I ___ my friends and we ___ pizza.", o:["visited / cooked","visit / cook","visiting / cooking"], a:0, e:"Past Simple: visited, cooked."}
+      ],
+      q4: [
+        {q:"The south of Argentina is ___ than the north.", o:["cold","colder","the coldest"], a:1, e:"Se comparan dos regiones: comparative + than."},
+        {q:"Buenos Aires is ___ city in Argentina.", o:["the biggest","bigger","the most big"], a:0, e:"Superlativo de big: the biggest."},
+        {q:"This beach is as ___ as the one we visited last year.", o:["beautiful","more beautiful","beautiful than"], a:0, e:"La estructura es as + adjective + as."},
+        {q:"Last Friday was ___ very bad day.", o:["a","an","the"], a:0, e:"Primera mención de un sustantivo singular: a."},
+        {q:"John was late for ___ work.", o:["a","the","— (no article)"], a:2, e:"La expresión fija es be late for work, sin artículo."},
+        {q:"Students ___ take an exam at the end of the course.", o:["have to","don’t have to","can’t to"], a:0, e:"Have to = obligación / regla."},
+        {q:"You ___ wear a uniform in this school. Clothes are free.", o:["have to","don’t have to","can’t"], a:1, e:"Don’t have to = no es necesario."},
+        {q:"Where ___ you born?", o:["are","were","did"], a:1, e:"Question form: Where were you born?"},
+        {q:"This is ___ most useful app I have tried.", o:["a","the","—"], a:1, e:"Los superlativos normalmente llevan the."},
+        {q:"How long ___ at this university?", o:["did you study","have you studied","you have studied"], a:1, e:"Una acción iniciada antes y vigente ahora usa Present Perfect."},
+        {q:"She ___ in Madrid since March.", o:["lived","has lived","has live"], a:1, e:"Since + punto temporal y continuidad: has lived."},
+        {q:"We ___ a new computer last week.", o:["have bought","bought","buyed"], a:1, e:"Last week exige Past Simple."},
+        {q:"I have ___ completed the security course.", o:["yet","already","ago"], a:1, e:"Already suele ir entre have/has y el participio."},
+        {q:"They haven’t tested the new system ___.", o:["yet","already","since"], a:0, e:"Yet se usa al final de una oración negativa."},
+        {q:"If a company uses weak passwords, hackers ___ access.", o:["gain","will gain","gained"], a:1, e:"First Conditional: if + Present Simple, will + infinitive."},
+        {q:"If the AI ___ malicious activity, it will block the user.", o:["will detect","detects","detected"], a:1, e:"En la cláusula con if no se usa will."},
+        {q:"Bard ___ an incorrect answer in Google’s advertisement.", o:["give","gave","has gave"], a:1, e:"El hecho ocurrió en un momento pasado terminado: gave."},
+        {q:"While Google ___ its AI plans, investors noticed the error.", o:["presented","was presenting","has presented"], a:1, e:"Past Continuous describe la acción en progreso interrumpida."},
+        {q:"The advertisement ___ on Twitter on Monday.", o:["released","was released","was release"], a:1, e:"Voz pasiva: was + past participle."},
+        {q:"AI-powered systems ___ by security teams to detect threats.", o:["use","are used","are use"], a:1, e:"Pasiva presente: are used."},
+        {q:"Cybercriminals can remain ___ inside a network.", o:["dormant","rounded","crowded"], a:0, e:"Dormant significa inactivo u oculto durante un período."},
+        {q:"A rigorous testing process helps reduce ___ AI results.", o:["skewed","lucrative","immersive"], a:0, e:"Skewed results son resultados sesgados o distorsionados."},
+        {q:"Responsible AI should be free from harmful ___.", o:["bias","wages","shares"], a:0, e:"Bias significa sesgo."},
+        {q:"IT wages are still high ___ many other occupations.", o:["relative to","because","although"], a:0, e:"Relative to significa en comparación con."},
+        {q:"Which practice adds a second verification step?", o:["MFA","malware","a deepfake"], a:0, e:"Multi-factor authentication agrega factores de verificación."},
+        {q:"AI works best when it ___ with traditional security methods.", o:["combines","is combined","is combining by"], a:1, e:"Se requiere pasiva: is combined with."},
+        {q:"Choose the best definition of a deepfake.", o:["A strong password","Synthetic media that imitates a real person","A salary database"], a:1, e:"Un deepfake imita voz, imagen o video mediante IA."},
+        {q:"The research found that IT wage growth ___ more moderate.", o:["has become","have became","become"], a:0, e:"Present Perfect: has + become."},
+        {q:"Which sentence gives a balanced recommendation?", o:["AI must replace every security tool.","Companies should combine AI with authentication and good security practices.","Companies can ignore human monitoring."], a:1, e:"El texto recomienda combinar IA y métodos tradicionales."}
+      ]
+    };
+
+    const blankData = {
+      b3: [
+        {type:"verb", prompt:"Last Saturday we ___ to the museum. (go)", answers:["went"], tip:"Past Simple irregular: went."},
+        {type:"verb", prompt:"She ___ at home right now. (work)", answers:["is working","'s working"], tip:"Ahora → Present Continuous."},
+        {type:"adj", prompt:"The bus is ___ than a taxi. (cheap)", answers:["cheaper"], tip:"Comparative corto: cheaper."},
+        {type:"noun", prompt:"Turn left and go straight ___. The bank is on the right.", answers:["on"], tip:"Go straight on."},
+        {type:"noun", prompt:"Please go to the departure ___ and wait for your flight.", answers:["lounge"], tip:"Departure lounge."},
+        {type:"noun", prompt:"Put your bag on the ___ before check-in.", answers:["scale","scales"], tip:"Scale = balanza."},
+        {type:"verb", prompt:"She usually ___ in an office. (work)", answers:["works"], tip:"Present Simple 3ª persona: works."},
+        {type:"verb", prompt:"I would like ___ a double room, please. (book)", answers:["to book"], tip:"Would like + to + infinitive."},
+        {type:"adv", prompt:"The receptionist spoke ___ so everyone understood. (clear)", answers:["clearly"], tip:"Adverb of manner: clearly."},
+        {type:"adj", prompt:"Steve seemed ___ before the interview. (nervous / nervously)", answers:["nervous"], tip:"Seem + adjective."},
+        {type:"noun", prompt:"Please accept my sincere ___ for the delay.", answers:["apologies","apology"], tip:"Apology / apologies."},
+        {type:"verb", prompt:"Tomorrow we ___ visit the old town. (be going to)", answers:["are going to","'re going to"], tip:"Plan futuro: be going to."}
+      ],
+      t3: [
+        {type:"tense", prompt:"We ___ a great film yesterday. (see)", answers:["saw"], tip:"Yesterday → Past Simple."},
+        {type:"tense", prompt:"Look! They ___ for the bus. (wait)", answers:["are waiting","'re waiting"], tip:"Ahora → Present Continuous."},
+        {type:"tense", prompt:"I ___ to work by subway every day. (go)", answers:["go"], tip:"Hábito → Present Simple."},
+        {type:"tense", prompt:"We bought the tickets, so we ___ travel next Friday. (be going to)", answers:["are going to","'re going to"], tip:"Plan decidido → be going to."},
+        {type:"tense", prompt:"This hotel is the ___ in the area. (cheap)", answers:["cheapest"], tip:"Superlativo: the cheapest."},
+        {type:"tense", prompt:"The train is ___ comfortable than the bus. (more / most)", answers:["more"], tip:"Comparative largo: more + adj + than."},
+        {type:"tense", prompt:"He answered the phone ___. (quick)", answers:["quickly"], tip:"Quick → quickly."},
+        {type:"tense", prompt:"I ___ home late after the meeting. (get = arrive)", answers:["got"], tip:"Past Simple: got."},
+        {type:"tense", prompt:"I would like ___ to Japan one day. (go)", answers:["to go"], tip:"Would like + to infinitive."},
+        {type:"tense", prompt:"___ you ___ a jacket? It’s cold. (wear / Present Continuous)", answers:["Are you wearing","are you wearing"], tip:"Are + subject + -ing."}
+      ],
+      b4: [
+        {type:"noun", prompt:"A package ___ usually includes flights and a hotel.", answers:["holiday"], tip:"Package holiday = paquete turístico."},
+        {type:"adj", prompt:"Buenos Aires is ___ than my hometown. (big → comparative)", answers:["bigger"], tip:"Big → bigger (duplica g)."},
+        {type:"adj", prompt:"This is the ___ place I have ever visited. (beautiful)", answers:["most beautiful"], tip:"Superlativo de adjetivos largos: the most + adj."},
+        {type:"noun", prompt:"Wild ___ means sleeping in a tent away from roads and houses.", answers:["camping"], tip:"Wild camping del texto de Holidays."},
+        {type:"adj", prompt:"People from the South are as ___ as people from the North. (nice)", answers:["nice"], tip:"As + adjective + as: no se cambia el adjetivo."},
+        {type:"noun", prompt:"Multi-factor ___ adds an extra security step.", answers:["authentication"], tip:"Authentication / MFA."},
+        {type:"noun", prompt:"A ___ can imitate a real person’s voice or face.", answers:["deepfake"], tip:"Deepfake = medio sintético."},
+        {type:"adv", prompt:"Cyberattacks happen more ___ when people work from home. (frequent)", answers:["frequently"], tip:"Frequent → frequently."},
+        {type:"noun", prompt:"Responsible AI must avoid harmful ___.", answers:["bias"], tip:"Bias = sesgo."},
+        {type:"noun", prompt:"The Eden Project has huge ___ with plants from around the world.", answers:["domes"], tip:"Domes del texto de Holidays UK."},
+        {type:"verb", prompt:"She has ___ in London for three years. (be)", answers:["been"], tip:"Present Perfect: has been."},
+        {type:"adj", prompt:"The Ford Fiesta is the ___ car of the three. (small)", answers:["smallest"], tip:"Superlativo corto: the smallest."}
+      ],
+      t4: [
+        {type:"tense", prompt:"Tom ___ to this town in 1994. (move)", answers:["moved"], tip:"Año concreto → Past Simple."},
+        {type:"tense", prompt:"She ___ in Madrid since March. (live)", answers:["has lived","'s lived"], tip:"Since + punto → Present Perfect."},
+        {type:"tense", prompt:"How long ___ at this university? (you / study)", answers:["have you studied"], tip:"How long + Present Perfect."},
+        {type:"tense", prompt:"I have already ___ breakfast. (have)", answers:["had"], tip:"Already + past participle."},
+        {type:"tense", prompt:"They haven’t met the clients ___. (yet / already)", answers:["yet"], tip:"Yet en negativa."},
+        {type:"tense", prompt:"If John doesn’t take an umbrella, he ___ wet. (get)", answers:["will get","'ll get"], tip:"First Conditional: will + base."},
+        {type:"tense", prompt:"If the AI ___ a threat, it will block the user. (detect)", answers:["detects"], tip:"If + Present Simple."},
+        {type:"tense", prompt:"The advertisement ___ on Twitter on Monday. (release / passive)", answers:["was released"], tip:"Past passive: was + past participle."},
+        {type:"tense", prompt:"AI systems ___ by security teams every day. (use / passive)", answers:["are used"], tip:"Present passive: are used."},
+        {type:"tense", prompt:"Bard ___ an incorrect answer in the advert. (give)", answers:["gave"], tip:"Hecho pasado terminado → gave."}
+      ]
+    };
+
+    const storyData = {
+      s3: {
+        html: `Last Monday I <input data-i="0" placeholder="Past: go"> to Milan for a short course. First I queued at the check-in <input data-i="1" placeholder="noun"> and put my suitcase on the <input data-i="2" placeholder="noun">. “I’m sorry I’m late. My taxi was slow,” I said. The officer answered <input data-i="3" placeholder="adv">. After that I sat in the departure lounge. Right now lots of people <input data-i="4" placeholder="Present Cont: wait"> for their flights. The board shows that my plane <input data-i="5" placeholder="going to"> leave in forty minutes. When we landed, a passenger bumped into me and said, “Sorry about that.” I answered, “Don’t <input data-i="6" placeholder="worry">.” The hotel in the centre is <input data-i="7" placeholder="comparative: cheap"> than the airport hotel, and it is the <input data-i="8" placeholder="superlative: comfortable"> place near the station. Tomorrow I <input data-i="9" placeholder="would like"> visit the old town on foot.`,
+        answers: [
+          ["went"],
+          ["counter","desk"],
+          ["scale","scales"],
+          ["politely","kindly","calmly"],
+          ["are waiting"],
+          ["is going to","'s going to"],
+          ["worry"],
+          ["cheaper"],
+          ["most comfortable"],
+          ["would like to"]
+        ]
+      },
+      s4: {
+        html: `Last summer I went to Bariloche. It was <input data-i="0" placeholder="comparative: cold"> than Buenos Aires, but it was also <input data-i="1" placeholder="the + superlative: beautiful"> place I have ever visited. I <input data-i="2" placeholder="Past: stay"> in a small hotel for five days and I <input data-i="3" placeholder="Past: try"> skiing for the first time. I have loved mountains <input data-i="4" placeholder="for / since"> 2019, and I have already <input data-i="5" placeholder="PP: book"> another trip for next year. If the weather <input data-i="6" placeholder="Present: be"> good, I <input data-i="7" placeholder="will + hike"> every morning. On the last day my phone <input data-i="8" placeholder="passive: steal"> in a café, so now I use multi-factor <input data-i="9" placeholder="noun"> on all my accounts. If more people protect their data, online holidays <input data-i="10" placeholder="will + become"> safer.`,
+        answers: [
+          ["colder"],
+          ["the most beautiful"],
+          ["stayed"],
+          ["tried"],
+          ["since"],
+          ["booked"],
+          ["is"],
+          ["will hike","'ll hike"],
+          ["was stolen"],
+          ["authentication"],
+          ["will become","'ll become"]
+        ]
+      }
+    };
+
+    const speechData = {
+      speech3: {
+        level:"Inglés III",
+        title:"Reducing the Energy Consumption of Data Centres",
+        subtitle:"Estructura oral III: Introduction → Development → Conclusion · basado en tu Speech.docx",
+        thread:"Hilo: por qué los data centres consumen tanta electricidad, el caso de Irlanda, las tecnologías que ayudan a ahorrar energía y las soluciones futuras. Ensayá con el temporizador y el audio; no leas en el examen.",
+        structure:"INTRODUCTION · DEVELOPMENT · CONCLUSION",
+        slides:[
+          ["Introduction","Topic, relevance and outline"],
+          ["Part 1 · Why so much power?","Servers, heat and cooling"],
+          ["Part 2 · Ireland","A national energy issue"],
+          ["Part 3 · Technologies","UPS, data reduction, renewables"],
+          ["Part 4 · Solutions","Design, rules and users"],
+          ["Conclusion","Summary + recommendation"]
+        ],
+        sections:[
+          {title:"1 · Introduction", cue:"Welcome · introduce yourself · topic · relevance · structure · time · slides · questions.", text:`
+            <span class="phrase">Good morning, everyone.</span>
+            <span class="phrase">For those of you who don’t know me, my name is <span class="student-name">[your name]</span>, and I am a student of Information Systems Engineering.</span>
+            <span class="phrase">Today I’m going to talk about</span> a topic that affects all of us, even if we don’t always realize it: the energy consumption of data centres and how we can reduce it.
+            <span class="phrase">This topic is highly relevant because</span> we all use online services every day—streaming, shopping, reading news, and storing data in the cloud. But behind all of that, there’s a growing demand for electricity that is having a serious impact on the environment and the power grid.
+            <span class="phrase">My presentation will be divided into four main parts.</span>
+            <span class="phrase">First,</span> I’ll explain why data centres consume so much electricity.
+            <span class="phrase">Second,</span> I’ll describe the case of Ireland, where energy use by data centres is becoming a national issue.
+            <span class="phrase">Then,</span> I’ll talk about the technologies being developed to make data centres more energy-efficient.
+            <span class="phrase">Finally,</span> I’ll discuss possible solutions and future trends.
+            <span class="phrase">My presentation will take about six minutes.</span> The main ideas are on the slides, and <span class="phrase">there will be time for questions at the end.</span>`},
+          {title:"2 · Development — Why data centres consume so much electricity", cue:"Diapositiva: servidor + calor + cooling. Idea clave: una gran instalación ≈ una ciudad.",
+           bridge:`<span class="phrase">First, I’ll explain why data centres consume so much electricity.</span>`, text:`
+            Data centres are physical facilities that store and manage digital data. They are the backbone of the internet and cloud computing. Every time we stream a video, use social media, or access cloud storage, we are using a data centre.
+            The problem is that these centres need an enormous amount of electricity to run. Why? Because they contain thousands of computer servers that must work 24/7, and they generate a lot of heat. To prevent them from overheating, they need powerful cooling systems. <span class="phrase">In fact,</span> a large data centre can consume as much electricity as a small or medium-sized city.
+            The constant energy demand comes not only from the servers themselves, but also from the infrastructure that supports them—cooling, lighting, backups, and security systems. This makes data centres one of the fastest-growing sources of electricity consumption worldwide.`},
+          {title:"3 · Development — The case of Ireland", cue:"Diapositiva: mapa de Irlanda + 75 centres + 27% by 2029.",
+           bridge:`<span class="phrase">Second, I’ll describe the case of Ireland,</span> where energy use by data centres is becoming a national issue.`, text:`
+            Ireland is a very interesting example. It has become a popular location for major tech companies like Amazon and Microsoft to build data centres. At the moment, Ireland has over 75 data centres, and more are under construction.
+            The country’s electrical grid is relatively small, so the growing number of data centres is putting a lot of pressure on the system. According to energy experts, by 2029, these centres could use up to 27% of Ireland’s total electricity. That’s more than a quarter of the entire national supply.
+            <span class="phrase">As a result,</span> the Irish government had to act. Now, new data centres must show they can reduce their energy use during peak times. The government also encourages them to use renewable energy sources and innovative technology to lower their impact on the grid.`},
+          {title:"4 · Development — Technologies for efficiency", cue:"Diapositiva: UPS · Pure Storage · solar/wind.",
+           bridge:`<span class="phrase">Then, I’ll talk about the technologies</span> being developed to make data centres more energy-efficient.`, text:`
+            There are several technologies that are helping reduce the electricity consumption of data centres. One of them is called UPS—Uninterruptible Power Supply. These are backup batteries that instantly activate when the grid is under stress or there is a power cut. At Grange Castle, a data centre near Dublin, these UPS systems are connected to smart software that allows the centre to temporarily disconnect from the grid when necessary.
+            Another company, Pure Storage, is working on data reduction. Their systems identify duplicated or unnecessary data and delete it automatically. This helps reduce the amount of data that needs to be stored, which means fewer servers are needed, and less energy is used.
+            <span class="phrase">Also,</span> more and more data centres are using renewable energy like solar or wind to power their systems, which helps reduce their carbon footprint. This shift is becoming essential as companies face more pressure from governments and the public to be sustainable.`},
+          {title:"5 · Development — Solutions and future trends", cue:"Diapositiva: design · regulation · users · collaboration.",
+           bridge:`<span class="phrase">Finally, I’ll discuss possible solutions and future trends.</span>`, text:`
+            So, what can be done in the future? First, we need more energy-efficient designs for data centres—both in terms of hardware and software. Companies must continue to innovate and focus on reducing waste. Artificial intelligence could help optimize energy usage by managing resources more intelligently.
+            Second, governments might introduce stricter regulations to control how much electricity a data centre can use. They could also give tax incentives to companies that invest in green technology.
+            Third, users like us can help too. If we reduce unnecessary data—like deleting old files or limiting what we store in the cloud—we can lower demand indirectly. Every little action counts.
+            <span class="phrase">Finally,</span> the future will depend on global collaboration. The demand for data will keep growing, but if we make smart choices now, data centres can become more sustainable. As one executive said in the article: today, it’s not just about price or performance anymore. It’s all about the carbon footprint.`},
+          {title:"6 · Conclusion", cue:"Signal the end · summarize · recommend · invite questions.",
+           bridge:`<span class="phrase">That brings us to the end of my presentation.</span>`, text:`
+            <span class="phrase">To sum up:</span>
+            Data centres are essential for our digital lives, but they consume massive amounts of electricity.
+            Ireland shows how this issue can become critical when the grid is overloaded.
+            Fortunately, new technologies—such as smart UPS systems and data reduction software—are helping reduce energy use.
+            Finally, environmental awareness is growing among companies, and energy efficiency is becoming a priority.
+            So, what can we take from this? <span class="phrase">I suggest</span> we all become more conscious of our digital habits. Deleting unnecessary files, avoiding wasteful data use, and supporting green tech initiatives can all make a difference. Companies also need to keep innovating and investing in sustainable solutions.
+            <span class="phrase">Thank you all for listening. Now I’d like to open the floor for questions.</span>`}
+        ]
+      },
+      speech4: {
+        level:"Inglés IV",
+        title:"Reducing the Energy Consumption of Data Centres",
+        subtitle:"Estructura oral IV: Introduction → Development → Conclusion → Questions · mismo speech con frases de niveles anteriores",
+        thread:"Mismo tema que Inglés III, con más conectores académicos y las 4 preguntas obligatorias (2 open/direct + 2 closed/indirect).",
+        structure:"INTRODUCTION · DEVELOPMENT · CONCLUSION · QUESTIONS",
+        slides:[
+          ["Introduction","Welcome, topic, outline"],
+          ["Part 1 · Power demand","Why centres use so much electricity"],
+          ["Part 2 · Ireland","Pressure on a small grid"],
+          ["Part 3 · Technology","UPS, reduction, renewables"],
+          ["Part 4 · The future","Design, policy and users"],
+          ["Conclusion","Summary + suggestion"],
+          ["Questions","Four prompts for the examiner"]
+        ],
+        sections:[
+          {title:"1 · Introduction", cue:"Welcome · yourself · topic · relevance · structure · duration · visual support · questions.", text:`
+            <span class="phrase">Good morning, ladies and gentlemen. First of all, let me thank you all for coming here today.</span>
+            <span class="phrase">Let me just start by introducing myself. My name is <span class="student-name">[your name]</span>, and I am an Information Systems Engineering student.</span>
+            <span class="phrase">What I’d like to present to you today is</span> the energy consumption of data centres and how we can reduce it.
+            <span class="phrase">Today’s topic is of particular interest to us because</span> we all use online services every day—streaming, shopping, reading news, and storing data in the cloud. Behind those simple actions there is a growing demand for electricity with a serious impact on the environment and the power grid.
+            <span class="phrase">I’ll divide my presentation into four main parts.</span>
+            <span class="phrase">First of all,</span> I’ll explain why data centres consume so much electricity.
+            <span class="phrase">Secondly,</span> I’ll describe the case of Ireland, where this issue is becoming a national problem.
+            <span class="phrase">Then I’ll move on to</span> the technologies that make data centres more energy-efficient.
+            <span class="phrase">Finally,</span> I’ll discuss possible solutions and future trends.
+            <span class="phrase">It should take about six to seven minutes to cover these issues.</span> The key points are on the slides, and <span class="phrase">there will be time for questions after my presentation.</span>`},
+          {title:"2 · Development — Why data centres consume so much electricity", cue:"Visual: servers + cooling + city-size demand.",
+           bridge:`<span class="phrase">So, let me begin by explaining</span> why data centres consume so much electricity.`, text:`
+            Data centres are physical facilities that store and manage digital data. They are the backbone of the internet and cloud computing. Every time we stream a video, use social media, or access cloud storage, we are using a data centre.
+            The problem is that these centres need an enormous amount of electricity to run. They contain thousands of computer servers that must work 24/7, and they generate a lot of heat. To prevent them from overheating, they need powerful cooling systems. <span class="phrase">As you can see on this slide,</span> a large data centre can consume as much electricity as a small or medium-sized city.
+            <span class="phrase">What’s more,</span> the constant energy demand comes not only from the servers themselves, but also from cooling, lighting, backups and security systems. This makes data centres one of the fastest-growing sources of electricity consumption worldwide.`},
+          {title:"3 · Development — The case of Ireland", cue:"Visual: 75+ centres · 27% by 2029 · government rules.",
+           bridge:`<span class="phrase">This takes me to my second point:</span> the case of Ireland.`, text:`
+            Ireland is a very interesting example. It has become a popular location for major tech companies like Amazon and Microsoft to build data centres. At the moment, Ireland has over 75 data centres, and more are under construction.
+            The country’s electrical grid is relatively small, so the growing number of data centres is putting a lot of pressure on the system. According to energy experts, by 2029 these centres could use up to 27% of Ireland’s total electricity—more than a quarter of the national supply.
+            <span class="phrase">As a result,</span> the Irish government had to act. New data centres must show they can reduce their energy use during peak times. <span class="phrase">In addition,</span> the government encourages renewable energy and innovative technology to lower their impact on the grid.`},
+          {title:"4 · Development — Technologies for efficiency", cue:"Visual: UPS · Pure Storage · renewables.",
+           bridge:`<span class="phrase">Let’s now have a closer look at</span> the technologies that are helping reduce electricity consumption.`, text:`
+            One important technology is UPS—Uninterruptible Power Supply. These backup batteries activate instantly when the grid is under stress or there is a power cut. At Grange Castle, near Dublin, UPS systems are connected to smart software that allows the centre to temporarily disconnect from the grid when necessary.
+            Another company, Pure Storage, works on data reduction. Their systems identify duplicated or unnecessary data and delete it automatically. Fewer servers are needed, and less energy is used.
+            <span class="phrase">On the other hand,</span> more and more data centres are using renewable energy like solar or wind, which helps reduce their carbon footprint. This shift is becoming essential as companies face pressure from governments and the public to be sustainable.`},
+          {title:"5 · Development — Solutions and future trends", cue:"Visual: efficient design · regulation · digital habits · collaboration.",
+           bridge:`<span class="phrase">Finally, I would like to draw your attention to</span> possible solutions and future trends.`, text:`
+            First, we need more energy-efficient designs for data centres—both in hardware and software. Artificial intelligence could help optimize energy usage by managing resources more intelligently.
+            Second, governments might introduce stricter regulations and tax incentives for companies that invest in green technology.
+            Third, users like us can help too. If we delete old files or limit unnecessary cloud storage, we can lower demand indirectly. Every little action counts.
+            <span class="phrase">In other words,</span> the future will depend on global collaboration. The demand for data will keep growing, but if we make smart choices now, data centres can become more sustainable. As one executive said: today, it’s not just about price or performance anymore. It’s all about the carbon footprint.`},
+          {title:"6 · Conclusion", cue:"Signal the end · summarize · suggest · invite questions.",
+           bridge:`<span class="phrase">Well, this brings me to the end of my presentation.</span>`, text:`
+            <span class="phrase">Just to summarize the main points of my talk:</span>
+            Data centres are essential for our digital lives, but they consume massive amounts of electricity.
+            Ireland shows how this issue can become critical when the grid is overloaded.
+            Fortunately, new technologies—such as smart UPS systems and data reduction software—are helping reduce energy use.
+            Finally, environmental awareness is growing, and energy efficiency is becoming a priority.
+            <span class="phrase">What I’d like to suggest is</span> that we become more conscious of our digital habits, while companies keep innovating and investing in sustainable solutions.
+            <span class="phrase">Thank you all for listening. Now I’d like to open the floor for questions. Here are a few to get us started.</span>`}
+        ],
+        questions:[
+          ["Open · direct","Do you think governments should regulate the power consumption of data centres more strictly?","In my view, yes. Clear rules can protect the national grid, especially in countries with limited capacity. However, regulation should also encourage innovation and renewable energy, not only punish companies."],
+          ["Open · direct","Would you be willing to pay more for cloud services if they were powered by renewable energy?","That’s an interesting question. Personally, I would accept a small increase if the company is transparent about its energy sources. In the long term, greener services can also reduce environmental costs for everyone."],
+          ["Closed · indirect","Could you tell us whether users can really help reduce data-centre energy use?","Certainly. Yes, they can. If people delete unnecessary files and avoid storing everything in the cloud, demand falls indirectly. It is a small action, but it matters when millions of users do it."],
+          ["Closed · indirect","Do you know if data centres can be fully green in the next ten years?","If I understood the question correctly, it will be difficult for all of them to be fully green in ten years. However, with better design, renewables and smarter software, many centres can become much more sustainable."]
+        ]
+      }
+    };
+
+    const vocabThemes = [
+      // ===== INGLÉS III · SpeakOut A2 unidades 5–8 =====
+      {
+        id:"iii-u5",
+        course:"III",
+        title:"III · Unit 5 · The past",
+        level:"SpeakOut A2 · U5",
+        blurb:"Life events, excuses y Past Simple (regular / irregular).",
+        items:[
+          {term:"get married", es:"casarse", use:"Life event: I got married in 2019."},
+          {term:"leave school / leave a job", es:"dejar el colegio / dejar un trabajo", use:"Eventos de vida en pasado: She left school at 18."},
+          {term:"pass your exams / driving test", es:"aprobar los exámenes / el examen de manejo", use:"Logros: He passed his driving test last year."},
+          {term:"meet your best friend", es:"conocer a tu mejor amigo/a", use:"Past Simple: I met my best friend at university."},
+          {term:"learn to drive / swim", es:"aprender a manejar / nadar", use:"Habilidades aprendidas: I learnt to drive when I was 19."},
+          {term:"become a doctor / teacher", es:"llegar a ser médico/a / profesor/a", use:"Cambio de vida o carrera: She became a teacher."},
+          {term:"I missed my train / bus", es:"perdí el tren / colectivo", use:"Excuse típica cuando llegás tarde."},
+          {term:"My wifi was down", es:"se cayó el wifi", use:"Excuse digital moderna: no pude entregar el trabajo."},
+          {term:"I left my bag in a taxi", es:"dejé mi bolso en un taxi", use:"Excuse: perdiste algo y por eso llegaste tarde o no trajiste el trabajo."},
+          {term:"I didn’t hear my alarm", es:"no escuché la alarma", use:"Excuse por llegar tarde."}
+        ]
+      },
+      {
+        id:"iii-u6",
+        course:"III",
+        title:"III · Unit 6 · Out and about",
+        level:"SpeakOut A2 · U6",
+        blurb:"Clothes & appearance, adjetivos comunes y transport collocations.",
+        items:[
+          {term:"jumper / T-shirt / jacket / shirt", es:"buzo / remera / campera / camisa", use:"Clothes: describir qué lleva puesta una persona."},
+          {term:"long / short hair", es:"pelo largo / corto", use:"Appearance: She’s got long hair."},
+          {term:"beard / moustache", es:"barba / bigote", use:"Appearance masculina: He’s got a beard."},
+          {term:"cheap ↔ expensive", es:"barato ↔ caro", use:"Comparar viajes o precios: The bus is cheaper than a taxi."},
+          {term:"comfortable ↔ uncomfortable", es:"cómodo ↔ incómodo", use:"Describir un viaje o asiento."},
+          {term:"safe ↔ dangerous", es:"seguro ↔ peligroso", use:"Hablar de caminos o ciudades."},
+          {term:"quiet ↔ noisy", es:"tranquilo ↔ ruidoso", use:"Describir un lugar o viaje."},
+          {term:"fast / quick ↔ slow", es:"rápido ↔ lento", use:"Comparar medios de transporte."},
+          {term:"go by car / bus / train / plane", es:"ir en auto / colectivo / tren / avión", use:"Transport collocation: by + medio."},
+          {term:"get to work / school", es:"llegar al trabajo / a la facultad", use:"How do you get to work?"}
+        ]
+      },
+      {
+        id:"iii-u7",
+        course:"III",
+        title:"III · Unit 7 · Work",
+        level:"SpeakOut A2 · U7",
+        blurb:"Skills & qualities, phrasal verbs y lenguaje de teléfono.",
+        items:[
+          {term:"skills", es:"habilidades", use:"En trabajo: What skills do you need for this job?"},
+          {term:"qualities", es:"cualidades / rasgos", use:"Personalidad laboral: patient, friendly, organised…"},
+          {term:"organised / patient / friendly", es:"organizado / paciente / amable", use:"Cualidades para describir a un buen trabajador."},
+          {term:"look for a job", es:"buscar trabajo", use:"Phrasal: I’m looking for a job."},
+          {term:"fill in a form", es:"completar un formulario", use:"Trámites de trabajo o inscripción."},
+          {term:"turn on / turn off", es:"prender / apagar", use:"Equipos: Turn on your computer."},
+          {term:"I’m calling to check…", es:"llamo para consultar…", use:"Inicio de llamada para pedir información."},
+          {term:"put someone through", es:"pasar / conectar la llamada", use:"Recepción: Could you put me through to Mr Brown?"},
+          {term:"call back", es:"devolver la llamada", use:"Can she call me back later?"},
+          {term:"Would you like to…?", es:"¿Te gustaría…?", use:"Ofrecer o invitar: Would you like to apply for this job?"}
+        ]
+      },
+      {
+        id:"iii-u8",
+        course:"III",
+        title:"III · Unit 8 · Travellers",
+        level:"SpeakOut A2 · U8",
+        blurb:"Describing places, travel activities, hotel language y be going to.",
+        items:[
+          {term:"sightseeing / visiting famous places", es:"hacer turismo / visitar lugares famosos", use:"Qué te gusta hacer de vacaciones."},
+          {term:"take photos", es:"sacar fotos", use:"Travel activity: I enjoy taking photos."},
+          {term:"try the local food", es:"probar la comida local", use:"Preferencias de viaje."},
+          {term:"go on an organised tour", es:"hacer un tour organizado", use:"Contraste con look around alone."},
+          {term:"look around the town", es:"recorrer / mirar el pueblo", use:"Explorar sin guía fija."},
+          {term:"use a guidebook / app", es:"usar una guía / app", use:"Cómo te orientás en un lugar nuevo."},
+          {term:"book a room", es:"reservar una habitación", use:"Hotel: First you book a room."},
+          {term:"check in / check out", es:"registrarse / dejar el hotel", use:"Llegada y salida del hotel."},
+          {term:"order room service", es:"pedir servicio a la habitación", use:"Pedir comida al hotel."},
+          {term:"pay your bill", es:"pagar la cuenta", use:"Al final de la estadía."},
+          {term:"be going to", es:"ir a (plan futuro)", use:"Planes: We’re going to visit museums."},
+          {term:"the most beautiful / the cheapest", es:"el/la más hermoso/a / barato/a", use:"Superlativos para recomendar un lugar."}
+        ]
+      },
+
+      // ===== INGLÉS IV · SpeakOut A2+ unidades 1–4 =====
+      {
+        id:"iv-u1",
+        course:"IV",
+        title:"IV · Unit 1 · My life",
+        level:"SpeakOut A2+ · U1",
+        blurb:"Common verbs y everyday activities (preguntas sobre tu vida).",
+        items:[
+          {term:"everyday activities", es:"actividades cotidianas", use:"Describir rutina: get up, go to work, cook, study…"},
+          {term:"get up / go to bed", es:"levantarse / acostarse", use:"Rutina diaria."},
+          {term:"spend time with friends", es:"pasar tiempo con amigos", use:"Hablar de vida social."},
+          {term:"do exercise / go to the gym", es:"hacer ejercicio / ir al gimnasio", use:"Hábitos de salud."},
+          {term:"have something in common", es:"tener algo en común", use:"Something in common: We both like football."},
+          {term:"Where were you born?", es:"¿Dónde naciste?", use:"Pregunta típica del unit opener / vlog."},
+          {term:"live / work / study", es:"vivir / trabajar / estudiar", use:"Datos personales básicos."},
+          {term:"free time", es:"tiempo libre", use:"What do you do in your free time?"}
+        ]
+      },
+      {
+        id:"iv-u2",
+        course:"IV",
+        title:"IV · Unit 2 · Help",
+        level:"SpeakOut A2+ · U2",
+        blurb:"Animals, air travel / airport y Past Simple + Continuous.",
+        items:[
+          {term:"rescue", es:"rescate / rescatar", use:"Historias: animal rescues."},
+          {term:"tail / fur / wings / shell", es:"cola / pelaje / alas / caparazón", use:"Partes de animales."},
+          {term:"boarding pass", es:"tarjeta de embarque", use:"Airport language."},
+          {term:"check-in desk", es:"mostrador de check-in", use:"En el aeropuerto, antes de seguridad."},
+          {term:"departure / arrival", es:"salida / llegada", use:"Horarios y carteles del aeropuerto."},
+          {term:"luggage / suitcase", es:"equipaje / valija", use:"Viaje en avión."},
+          {term:"gate / security", es:"puerta de embarque / control de seguridad", use:"Pasos del aeropuerto."},
+          {term:"Past Continuous", es:"pasado continuo", use:"Acción en progreso: I was waiting when…"},
+          {term:"make / accept an offer", es:"hacer / aceptar una oferta", use:"How can I help? — That’s kind of you."},
+          {term:"travel mistake", es:"error de viaje", use:"Historias: wrong gate, lost passport, missed flight…"}
+        ]
+      },
+      {
+        id:"iv-u3",
+        course:"IV",
+        title:"IV · Unit 3 · Learn",
+        level:"SpeakOut A2+ · U3",
+        blurb:"Knowing / thinking, school subjects y have to / don’t have to / can’t.",
+        items:[
+          {term:"have to", es:"tener que (obligación)", use:"Regla externa: Students have to wear a uniform."},
+          {term:"don’t have to", es:"no es necesario", use:"No obligación: You don’t have to come tomorrow."},
+          {term:"can’t", es:"no se puede / prohibido", use:"Prohibición: You can’t use your phone in class."},
+          {term:"subject (at university)", es:"materia / asignatura", use:"What subjects do you study?"},
+          {term:"know / understand / think", es:"saber / entender / pensar", use:"Verbos de conocimiento y opinión."},
+          {term:"learn / study / revise", es:"aprender / estudiar / repasar", use:"Hábitos de estudio."},
+          {term:"take an exam", es:"rendir un examen", use:"Evaluaciones."},
+          {term:"get good marks / grades", es:"sacar buenas notas", use:"Resultados académicos."},
+          {term:"helpful / useful", es:"útil / que ayuda", use:"Describir recursos de aprendizaje."},
+          {term:"remember / forget", es:"recordar / olvidar", use:"I can’t remember this word."}
+        ]
+      },
+      {
+        id:"iv-u4",
+        course:"IV",
+        title:"IV · Unit 4 · Try this",
+        level:"SpeakOut A2+ · U4",
+        blurb:"Present Perfect, experiencias y participios irregulares.",
+        items:[
+          {term:"Have you ever…?", es:"¿Alguna vez…?", use:"Experiencias de vida: Have you ever tried sushi?"},
+          {term:"I’ve never…", es:"Nunca…", use:"I’ve never ridden a horse."},
+          {term:"already", es:"ya", use:"Entre have/has y el participio: I have already finished."},
+          {term:"yet", es:"aún / todavía", use:"Al final en negativas/preguntas: I haven’t finished yet."},
+          {term:"for / since", es:"durante / desde", use:"for three years · since 2020."},
+          {term:"just", es:"recién / acaba de", use:"Acción reciente: She has just arrived."},
+          {term:"been / gone", es:"estado / ido", use:"been = fue y volvió; gone = todavía está allá."},
+          {term:"try something new", es:"probar algo nuevo", use:"Tema del unit: When did you last try something new?"},
+          {term:"world record", es:"récord mundial", use:"Textos de logros / experiencias extremas."},
+          {term:"Past Simple vs Present Perfect", es:"pasado vs experiencia", use:"Past Simple + when (yesterday). Present Perfect sin tiempo exacto."}
+        ]
+      },
+
+      // ===== ORAL =====
+      {
+        id:"oral-datacentres",
+        course:"Oral",
+        title:"Oral · Data centres (speech)",
+        level:"Examen oral",
+        blurb:"Vocabulario clave de tu presentación sobre consumo energético.",
+        items:[
+          {term:"data centre", es:"centro de datos", use:"Lugar físico donde vive 'la nube'."},
+          {term:"power grid", es:"red eléctrica", use:"Presión sobre el sistema eléctrico de un país."},
+          {term:"cooling system", es:"sistema de refrigeración", use:"Por qué los servidores gastan tanta energía."},
+          {term:"UPS", es:"alimentación ininterrumpida", use:"Baterías de respaldo ante cortes."},
+          {term:"carbon footprint", es:"huella de carbono", use:"Impacto ambiental."},
+          {term:"renewable energy", es:"energía renovable", use:"Solar, wind, etc."},
+          {term:"data reduction", es:"reducción de datos", use:"Borrar duplicados para usar menos energía."},
+          {term:"peak times", es:"horas pico", use:"Máximo consumo eléctrico."},
+          {term:"energy-efficient", es:"eficiente energéticamente", use:"Diseños que gastan menos."},
+          {term:"backbone", es:"columna vertebral / base", use:"Los data centres sostienen internet."}
+        ]
+      },
+      {
+        id:"oral-phrases",
+        course:"Oral",
+        title:"Oral · Frases académicas",
+        level:"Examen oral",
+        blurb:"Frases para Introduction, Development y Conclusion.",
+        items:[
+          {term:"Today I’m going to talk about…", es:"Hoy voy a hablar de…", use:"Introduction: presentar el tema."},
+          {term:"This topic is highly relevant because…", es:"Este tema es muy relevante porque…", use:"Introduction: justificar relevancia."},
+          {term:"I’ll divide my presentation into…", es:"Dividiré mi presentación en…", use:"Introduction: estructura."},
+          {term:"First / Second / Then / Finally", es:"Primero / Segundo / Luego / Por último", use:"Development: ordenar partes."},
+          {term:"As a result,", es:"Como resultado,", use:"Mostrar consecuencia."},
+          {term:"That brings us to the end…", es:"Esto nos lleva al final…", use:"Conclusion: cerrar."},
+          {term:"To sum up,", es:"Para resumir,", use:"Conclusion: sintetizar."},
+          {term:"I’d like to open the floor for questions", es:"Abro el espacio a preguntas", use:"Conclusion / Questions."}
+        ]
+      }
+    ];
+
+    let activeThemeFilter = "all";
+
+    const HISTORY_KEY = "uai-ingles-history-v2";
+    const PROFILE_KEY = "uai-ingles-profile-v1";
+    const VOICE_KEY = "uai-ingles-voice-uri";
+    const GRADED_TYPES = new Set(["quiz","blanks","story","match"]);
+    const NATURAL_VOICES = [
+      {id:"en", label:"English US · natural (recomendada)"},
+      {id:"en-GB", label:"English UK · natural"},
+      {id:"en-AU", label:"English AU · natural"}
+    ];
+    const state = {
+      timers:{},
+      remaining:{speech3:420, speech4:420},
+      timerStartedAt:{},
+      matchItems:[],
+      chosenVoiceURI: localStorage.getItem(VOICE_KEY) || "natural:en",
+      currentAudio:null,
+      playGen:0,
+      audioWaitResolve:null,
+      topicCourse:"III",
+      activeTopicId:null,
+      historyFilter:"all"
+    };
+
+    function getProfile() {
+      try { return JSON.parse(localStorage.getItem(PROFILE_KEY) || "{}"); }
+      catch { return {}; }
+    }
+    function saveProfile() {
+      const name = (document.getElementById("student-profile-name")?.value || "").trim();
+      const level = document.getElementById("student-profile-level")?.value || "III+IV";
+      const voiceURI = document.getElementById("voice-select")?.value || state.chosenVoiceURI || "";
+      if (voiceURI) setChosenVoice(voiceURI);
+      localStorage.setItem(PROFILE_KEY, JSON.stringify({name, level, voiceURI}));
+      document.querySelectorAll(".name-input").forEach(inp => { inp.value = name; });
+      ["speech3","speech4"].forEach(id => {
+        if (document.getElementById(id)?.innerHTML) setStudentName(id, name || "[your name]");
+      });
+      alert("Perfil guardado. Aparecerá en el historial con tus prácticas.");
+    }
+    function loadProfile() {
+      const p = getProfile();
+      const nameEl = document.getElementById("student-profile-name");
+      const levelEl = document.getElementById("student-profile-level");
+      if (nameEl && p.name) nameEl.value = p.name;
+      if (levelEl && p.level) levelEl.value = p.level;
+      try {
+        localStorage.removeItem("uai-ingles-voice-pref");
+        const saved = p.voiceURI || localStorage.getItem(VOICE_KEY) || "";
+        const validNatural = NATURAL_VOICES.some(v => saved === `natural:${v.id}`);
+        if (validNatural) state.chosenVoiceURI = saved;
+        else {
+          state.chosenVoiceURI = "natural:en";
+          localStorage.setItem(VOICE_KEY, state.chosenVoiceURI);
+        }
+      } catch {}
+      fillVoiceSelect();
+    }
+    function setChosenVoice(uri) {
+      stopSpeech();
+      state.chosenVoiceURI = uri || "natural:en";
+      localStorage.setItem(VOICE_KEY, state.chosenVoiceURI);
+      document.querySelectorAll("#voice-select, .speech-voice-select").forEach(sel => {
+        if (sel && [...sel.options].some(o => o.value === state.chosenVoiceURI)) sel.value = state.chosenVoiceURI;
+      });
+      updateVoiceStatus();
+    }
+    function fillVoiceSelect() {
+      const options = NATURAL_VOICES.map(v =>
+        `<option value="natural:${v.id}">${escapeHtml(v.label)}</option>`
+      ).join("");
+      document.querySelectorAll("#voice-select, .speech-voice-select").forEach(sel => {
+        if (!sel) return;
+        const prev = state.chosenVoiceURI || "natural:en";
+        sel.innerHTML = options;
+        if (prev && [...sel.options].some(o => o.value === prev)) sel.value = prev;
+        else {
+          sel.value = "natural:en";
+          state.chosenVoiceURI = "natural:en";
+          localStorage.setItem(VOICE_KEY, state.chosenVoiceURI);
+        }
+      });
+      updateVoiceStatus();
+    }
+    function updateVoiceStatus() {
+      const el = document.getElementById("voice-status");
+      if (!el) return;
+      const label = NATURAL_VOICES.find(v => v.id === getVoiceLang())?.label || "English US";
+      el.textContent = `Lector: ${label} · internet requerido · Escuchar / Detener controlan un solo audio.`;
+    }
+    async function previewVoice() {
+      await speakText("Good morning everyone. Today I'm going to talk about data centres and how we can reduce their energy consumption.");
+    }
+
+    function getHistory() {
+      try {
+        const list = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
+        return Array.isArray(list) ? list.filter(x => GRADED_TYPES.has(x.type)) : [];
+      } catch { return []; }
+    }
+    function setHistory(list) {
+      const clean = list.filter(x => GRADED_TYPES.has(x.type)).slice(0, 200);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(clean));
+      renderHistory();
+    }
+    function addHistory(entry) {
+      if (!GRADED_TYPES.has(entry.type)) return;
+      const p = getProfile();
+      const list = getHistory();
+      list.unshift({
+        id: Date.now() + "-" + Math.random().toString(36).slice(2,7),
+        at: new Date().toISOString(),
+        student: p.name || "Sin nombre",
+        level: entry.level || p.level || "—",
+        type: entry.type,
+        label: entry.label,
+        detail: entry.detail || "",
+        score: entry.score || "",
+        pct: entry.pct ?? null,
+        answers: entry.answers || []
+      });
+      setHistory(list);
+    }
+    function renderAnswerDetails(answers) {
+      if (!answers?.length) return `<p class="hint">Sin detalle de respuestas en este registro.</p>`;
+      return `<ol class="answer-list">${answers.map((a,i) => `
+        <li class="${a.ok ? "ok" : "bad"}">
+          <div class="q">${i+1}. ${escapeHtml(a.q)}</div>
+          <div><span class="mark ${a.ok ? "ok" : "bad"}">${a.ok ? "✓ Correcto" : "✗ Incorrecto"}</span>
+          · Marcaste: <strong>${escapeHtml(a.selected || "(sin responder)")}</strong>
+          ${a.ok ? "" : ` · Correcta: <strong>${escapeHtml(a.correct || "—")}</strong>`}</div>
+        </li>`).join("")}</ol>`;
+    }
+    function historyMatchesFilter(entry, filter) {
+      if (!filter || filter === "all") return true;
+      const level = String(entry.level || "");
+      if (filter === "III") return level.includes("III");
+      if (filter === "IV") return level.includes("IV");
+      return true;
+    }
+    function setHistoryFilter(level) {
+      state.historyFilter = level || "all";
+      document.querySelectorAll("#history-level-filter button").forEach(b => {
+        b.classList.toggle("active", b.dataset.level === state.historyFilter);
+      });
+      renderHistory();
+    }
+    function renderHistory() {
+      const all = getHistory();
+      const list = all.filter(e => historyMatchesFilter(e, state.historyFilter));
+      const stats = document.getElementById("history-stats");
+      const box = document.getElementById("history-list");
+      if (!stats || !box) return;
+      const byType = (t) => list.filter(x => x.type === t).length;
+      const topics = list.filter(x => String(x.detail||"").includes("Tema")).length;
+      const avg = (() => {
+        const scored = list.filter(x => typeof x.pct === "number");
+        if (!scored.length) return "—";
+        return Math.round(scored.reduce((a,b)=>a+b.pct,0)/scored.length) + "%";
+      })();
+      const iiiCount = all.filter(e => historyMatchesFilter(e, "III")).length;
+      const ivCount = all.filter(e => historyMatchesFilter(e, "IV")).length;
+      stats.innerHTML = `
+        <div class="stat-box"><b>${list.length}</b><span>En este filtro</span></div>
+        <div class="stat-box"><b>${topics}</b><span>Temas corregidos</span></div>
+        <div class="stat-box"><b>${iiiCount} / ${ivCount}</b><span>Total III / IV</span></div>
+        <div class="stat-box"><b>${avg}</b><span>Promedio de aciertos</span></div>`;
+      if (!all.length) {
+        box.innerHTML = `<div class="empty-state">Todavía no hay prácticas corregidas. Completá un tema, quiz, blanks, historia o matching y tocá <strong>Corregir</strong>.</div>`;
+        return;
+      }
+      if (!list.length) {
+        box.innerHTML = `<div class="empty-state">No hay prácticas de Inglés ${escapeHtml(state.historyFilter)} todavía.</div>`;
+        return;
+      }
+      const grouped = {III:[], IV:[], other:[]};
+      list.forEach(e => {
+        const lv = String(e.level || "");
+        if (lv === "III") grouped.III.push(e);
+        else if (lv === "IV") grouped.IV.push(e);
+        else if (lv.includes("III") && lv.includes("IV")) grouped.other.push(e);
+        else if (lv.includes("III")) grouped.III.push(e);
+        else if (lv.includes("IV")) grouped.IV.push(e);
+        else grouped.other.push(e);
+      });
+      const renderGroup = (title, items) => {
+        if (!items.length) return "";
+        return `<h3 style="margin:22px 0 10px;color:#5eead4">${title}</h3>
+          ${items.map(e => {
+            const d = new Date(e.at);
+            const fecha = d.toLocaleString("es-AR", {dateStyle:"short", timeStyle:"short"});
+            return `<details class="history-card">
+              <summary>
+                <span class="tag">${escapeHtml(e.label)}</span>
+                <span>${escapeHtml(fecha)}</span>
+                <span>${escapeHtml(e.student)}</span>
+                <span>Nivel ${escapeHtml(e.level)}</span>
+                <strong style="color:var(--teal)">${escapeHtml(e.score || "—")}</strong>
+              </summary>
+              <p class="hint" style="margin:10px 0 0">${escapeHtml(e.detail || "")}</p>
+              ${renderAnswerDetails(e.answers)}
+            </details>`;
+          }).join("")}`;
+      };
+      box.innerHTML = `
+        <p style="color:var(--muted);margin:0 0 14px">Abrí cada práctica para ver exactamente qué marcaste. Los temas aparecen como <strong>III · Past Simple</strong>, <strong>IV · Modals</strong>, etc.</p>
+        ${state.historyFilter === "all" ? (
+          renderGroup("Inglés III", grouped.III) +
+          renderGroup("Inglés IV", grouped.IV) +
+          renderGroup("Otros / ambos", grouped.other)
+        ) : list.map(e => {
+          const d = new Date(e.at);
+          const fecha = d.toLocaleString("es-AR", {dateStyle:"short", timeStyle:"short"});
+          return `<details class="history-card">
+            <summary>
+              <span class="tag">${escapeHtml(e.label)}</span>
+              <span>${escapeHtml(fecha)}</span>
+              <span>${escapeHtml(e.student)}</span>
+              <span>Nivel ${escapeHtml(e.level)}</span>
+              <strong style="color:var(--teal)">${escapeHtml(e.score || "—")}</strong>
+            </summary>
+            <p class="hint" style="margin:10px 0 0">${escapeHtml(e.detail || "")}</p>
+            ${renderAnswerDetails(e.answers)}
+          </details>`;
+        }).join("")}`;
+    }
+    function escapeHtml(s) {
+      return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+    }
+    function exportHistory() {
+      const payload = {
+        exportedAt: new Date().toISOString(),
+        profile: getProfile(),
+        history: getHistory(),
+        note: "Reporte de práctica — Finales Inglés III/IV UAI"
+      };
+      const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
+      const a = document.createElement("a");
+      a.href = URL.createObjectURL(blob);
+      a.download = `historial-ingles-${(getProfile().name||"estudiante").replace(/\s+/g,"_").toLowerCase()}.json`;
+      a.click();
+      URL.revokeObjectURL(a.href);
+    }
+    function importHistory(ev) {
+      const file = ev.target.files?.[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = () => {
+        try {
+          const data = JSON.parse(reader.result);
+          const incoming = Array.isArray(data) ? data : (data.history || []);
+          if (!Array.isArray(incoming)) throw new Error("Formato inválido");
+          if (data.profile) localStorage.setItem(PROFILE_KEY, JSON.stringify(data.profile));
+          loadProfile();
+          const merged = [...incoming, ...getHistory()];
+          const seen = new Set();
+          const unique = merged.filter(x => {
+            const k = x.id || (x.at + x.label + x.score);
+            if (seen.has(k)) return false;
+            seen.add(k);
+            return true;
+          });
+          setHistory(unique);
+          alert(`Importadas ${incoming.length} sesiones.`);
+        } catch (err) {
+          alert("No se pudo importar el archivo: " + err.message);
+        }
+        ev.target.value = "";
+      };
+      reader.readAsText(file);
+    }
+    async function copyHistoryLink() {
+      const payload = {profile:getProfile(), history:getHistory().slice(0,80)};
+      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
+      const url = `${location.origin}${location.pathname}#reporte=${encoded}`;
+      try {
+        await navigator.clipboard.writeText(url);
+        alert("Link copiado. Tu profesora puede abrirlo e importará el reporte automáticamente.");
+      } catch {
+        prompt("Copiá este link:", url);
+      }
+    }
+    function printHistory() {
+      navigate("historial");
+      setTimeout(() => window.print(), 200);
+    }
+    function clearHistory() {
+      if (!confirm("¿Borrar todo el historial de este navegador?")) return;
+      localStorage.removeItem(HISTORY_KEY);
+      renderHistory();
+    }
+    function loadReportFromHash() {
+      const m = location.hash.match(/#reporte=(.+)/);
+      if (!m) return;
+      try {
+        const data = JSON.parse(decodeURIComponent(escape(atob(m[1]))));
+        if (data.profile) localStorage.setItem(PROFILE_KEY, JSON.stringify(data.profile));
+        if (Array.isArray(data.history)) setHistory(data.history);
+        loadProfile();
+        navigate("historial");
+        history.replaceState(null, "", location.pathname + location.search);
+      } catch (e) {
+        console.warn("No se pudo leer el reporte del link", e);
+      }
+    }
+
+    function navigate(id) {
+      document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === id));
+      document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.view === id));
+      if (id === "historial") renderHistory();
+      window.scrollTo({top: document.querySelector(".topnav").offsetTop, behavior:"smooth"});
+    }
+    document.querySelectorAll(".nav-btn").forEach(b => b.addEventListener("click", () => navigate(b.dataset.view)));
+
+    function renderQuiz(id, shuffle=false) {
+      let data = [...quizData[id]];
+      if (shuffle) data.sort(() => Math.random() - .5);
+      const saved = JSON.parse(localStorage.getItem("progress-"+id) || "{}");
+      document.getElementById("quiz-"+id).innerHTML = data.map((item,i) => `
+        <article class="exercise" data-answer="${item.a}" data-explanation="${item.e.replaceAll('"',"&quot;")}">
+          <div class="question"><span class="qnum">${i+1}</span>${item.q}</div>
+          <div class="options">${item.o.map((o,j) => `<label class="option"><input type="radio" name="${id}-${i}" value="${j}"> <span>${o}</span></label>`).join("")}</div>
+          <div class="feedback"></div>
+        </article>`).join("");
+      if (saved.best) document.getElementById("score-"+id).textContent = `Mejor resultado: ${saved.best}/${quizData[id].length}`;
+    }
+
+    function getTopic(id) {
+      return topicDrills.find(t => t.id === id) || null;
+    }
+    function setTopicCourse(course) {
+      state.topicCourse = course;
+      document.querySelectorAll("#topic-course-filter button").forEach(b => {
+        b.classList.toggle("active", b.dataset.course === course);
+      });
+      renderTopicGroups();
+      const stillVisible = getTopic(state.activeTopicId)?.course === course;
+      if (!stillVisible) {
+        state.activeTopicId = null;
+        document.getElementById("topic-panel")?.classList.add("hidden");
+        document.getElementById("quiz-topic").innerHTML = "";
+        document.getElementById("score-topic").textContent = "Sin corregir";
+      } else {
+        renderTopicGroups();
+        openTopic(state.activeTopicId, false);
+      }
+    }
+    function renderTopicGroups() {
+      const box = document.getElementById("topic-groups");
+      if (!box) return;
+      const list = topicDrills.filter(t => t.course === state.topicCourse);
+      const groups = [...new Set(list.map(t => t.group))];
+      box.innerHTML = groups.map(g => {
+        const topics = list.filter(t => t.group === g);
+        return `<div class="topic-group">
+          <h4>${escapeHtml(g)}</h4>
+          <div class="topic-btns">
+            ${topics.map(t => `<button type="button" data-id="${t.id}" class="${state.activeTopicId===t.id?"active":""}" onclick="openTopic('${t.id}')">${escapeHtml(t.title)}</button>`).join("")}
+          </div>
+        </div>`;
+      }).join("");
+    }
+    function openTopic(id, shuffle=false) {
+      const topic = getTopic(id);
+      if (!topic) return;
+      state.activeTopicId = id;
+      state.topicCourse = topic.course;
+      document.querySelectorAll("#topic-course-filter button").forEach(b => {
+        b.classList.toggle("active", b.dataset.course === topic.course);
+      });
+      renderTopicGroups();
+      const panel = document.getElementById("topic-panel");
+      panel.classList.remove("hidden");
+      document.getElementById("topic-tag").textContent = `Inglés ${topic.course} · ${topic.group}`;
+      document.getElementById("topic-title").textContent = topic.title;
+      document.getElementById("topic-meta").textContent = `${topic.tip} · ${topic.items.length} preguntas · al corregir se guarda en Historial`;
+      renderTopicQuiz(shuffle);
+      panel.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+    function renderTopicQuiz(shuffle=false) {
+      const topic = getTopic(state.activeTopicId);
+      const box = document.getElementById("quiz-topic");
+      const score = document.getElementById("score-topic");
+      if (!topic || !box) return;
+      let data = [...topic.items];
+      if (shuffle) data.sort(() => Math.random() - .5);
+      box.innerHTML = data.map((item,i) => `
+        <article class="exercise" data-answer="${item.a}" data-explanation="${item.e.replaceAll('"','&quot;')}">
+          <div class="question"><span class="qnum">${i+1}</span>${item.q}</div>
+          <div class="options">${item.o.map((o,j) => `<label class="option"><input type="radio" name="topic-${topic.id}-${i}" value="${j}"> <span>${o}</span></label>`).join("")}</div>
+          <div class="feedback"></div>
+        </article>`).join("");
+      const saved = JSON.parse(localStorage.getItem("progress-topic-"+topic.id) || "{}");
+      score.textContent = saved.best ? `Mejor resultado: ${saved.best}/${topic.items.length}` : "Sin corregir";
+    }
+    function checkTopicQuiz() {
+      const topic = getTopic(state.activeTopicId);
+      if (!topic) { alert("Elegí un tema primero."); return; }
+      const cards = [...document.querySelectorAll("#quiz-topic .exercise")];
+      if (!cards.length) return;
+      let ok = 0;
+      const answers = [];
+      cards.forEach((card, i) => {
+        const chosen = card.querySelector("input:checked");
+        const right = Number(card.dataset.answer);
+        const options = [...card.querySelectorAll(".option span")].map(s => s.textContent);
+        const selected = chosen ? options[Number(chosen.value)] : "";
+        const correctText = options[right];
+        const success = chosen && Number(chosen.value) === right;
+        card.classList.toggle("correct", !!success);
+        card.classList.toggle("wrong", !success);
+        if (success) ok++;
+        card.querySelector(".feedback").innerHTML = success
+          ? `✓ Correcto. ${card.dataset.explanation}`
+          : `✗ Respuesta: <strong>${correctText}</strong>. ${card.dataset.explanation}`;
+        const qText = card.querySelector(".question")?.textContent?.replace(/^\d+/, "").trim() || `Pregunta ${i+1}`;
+        answers.push({q:qText, selected: selected || "(sin responder)", correct: correctText, ok: !!success});
+      });
+      const total = cards.length;
+      const pct = Math.round(ok/total*100);
+      document.getElementById("score-topic").textContent = `${ok}/${total} · ${pct}%`;
+      const key = "progress-topic-"+topic.id;
+      const old = JSON.parse(localStorage.getItem(key) || "{}");
+      localStorage.setItem(key, JSON.stringify({best:Math.max(old.best||0,ok), last:ok}));
+      addHistory({
+        type:"quiz",
+        label: `${topic.course} · ${topic.title}`,
+        detail: `Tema · ${topic.group} · práctica por separado`,
+        score: `${ok}/${total} (${pct}%)`,
+        pct,
+        level: topic.course,
+        answers
+      });
+    }
+    function resetTopicQuiz() {
+      document.querySelectorAll("#quiz-topic input").forEach(i => i.checked = false);
+      document.querySelectorAll("#quiz-topic .exercise").forEach(c => c.classList.remove("correct","wrong"));
+      document.querySelectorAll("#quiz-topic .feedback").forEach(f => f.innerHTML = "");
+      const topic = getTopic(state.activeTopicId);
+      const saved = topic ? JSON.parse(localStorage.getItem("progress-topic-"+topic.id) || "{}") : {};
+      document.getElementById("score-topic").textContent = saved.best && topic
+        ? `Mejor resultado: ${saved.best}/${topic.items.length}`
+        : "Sin corregir";
+    }
+    function checkQuiz(id) {
+      const cards = [...document.querySelectorAll(`#quiz-${id} .exercise`)];
+      let ok = 0;
+      const answers = [];
+      cards.forEach((card, i) => {
+        const chosen = card.querySelector("input:checked");
+        const right = Number(card.dataset.answer);
+        const options = [...card.querySelectorAll(".option span")].map(s => s.textContent);
+        const selected = chosen ? options[Number(chosen.value)] : "";
+        const correctText = options[right];
+        const success = chosen && Number(chosen.value) === right;
+        card.classList.remove("correct","wrong");
+        card.classList.add(success ? "correct" : "wrong");
+        if (success) ok++;
+        card.querySelector(".feedback").innerHTML = success ? `✓ Correcto. ${card.dataset.explanation}` : `✗ Respuesta: <strong>${correctText}</strong>. ${card.dataset.explanation}`;
+        const qText = card.querySelector(".question")?.textContent?.replace(/^\d+/, "").trim() || `Pregunta ${i+1}`;
+        answers.push({q:qText, selected: selected || "(sin responder)", correct: correctText, ok: !!success});
+      });
+      const total = cards.length;
+      const pct = Math.round(ok/total*100);
+      document.getElementById("score-"+id).textContent = `${ok}/${total} · ${pct}%`;
+      const old = JSON.parse(localStorage.getItem("progress-"+id) || "{}");
+      localStorage.setItem("progress-"+id, JSON.stringify({best:Math.max(old.best||0,ok), last:ok}));
+      addHistory({
+        type:"quiz",
+        label: id === "q3" ? "Quiz Inglés III" : "Quiz Inglés IV",
+        detail: "Multiple choice · se guardó cada opción marcada",
+        score: `${ok}/${total} (${pct}%)`,
+        pct,
+        level: id === "q3" ? "III" : "IV",
+        answers
+      });
+    }
+    function resetQuiz(id) {
+      document.querySelectorAll(`#quiz-${id} input`).forEach(i => i.checked=false);
+      document.querySelectorAll(`#quiz-${id} .exercise`).forEach(c => c.classList.remove("correct","wrong"));
+      document.getElementById("score-"+id).textContent = "Sin corregir";
+    }
+
+    function stripPhrase(html) {
+      return (html || "").replace(/<\/?span class="phrase">/g, "").trim();
+    }
+    function sectionToParagraph(s, idx, speechId) {
+      const bridge = s.bridge
+        ? `<span class="link">${stripPhrase(s.bridge)}</span> `
+        : "";
+      const body = s.text.replace(/\s+/g, " ").trim();
+      return `<div class="speech-section" data-section="${idx}">
+        <div class="section-speak">
+          <button class="btn small" type="button" onclick="speakSection('${speechId}',${idx})">▶ Escuchar sección</button>
+          <span class="tag">${escapeHtml(s.title)}</span>
+        </div>
+        <p id="${speechId}-p-${idx}">${bridge}${body}</p>
+      </div>`;
+    }
+    function renderSpeech(id) {
+      const d = speechData[id];
+      const questions = d.questions ? `<div class="questions-box"><h3>Las 4 preguntas que debés llevar (Inglés IV)</h3><ol>${d.questions.map(q=>`<li><span class="tag">${q[0]}</span><br><strong>${q[1]}</strong><br><span class="strategy">Answer strategy:</span> ${q[2]}</li>`).join("")}</ol>
+        <p><strong>Frases de estrategia:</strong> “If I understood your question correctly…” · “That’s an interesting question.” · “As far as I know…” · “Could you please repeat the question?” · “Let me give you an example.”</p>
+      </div>` : "";
+      const fullText = d.sections.map((s,i) => sectionToParagraph(s,i,id)).join("");
+      const profileName = getProfile().name || "";
+      document.getElementById(id).innerHTML = `
+        <span class="tag">${d.level} · Oral</span>
+        <h2>${d.title}</h2>
+        <p class="lead">${d.subtitle}</p>
+        <div class="thread-banner"><span class="thread-icon">🎙</span><div><strong>${d.structure}</strong><p>${d.thread}</p></div></div>
+        <div class="speech-controls">
+          <div><label>Tu nombre para personalizar el speech<input class="name-input" value="${escapeHtml(profileName)}" placeholder="Escribí tu nombre" oninput="setStudentName('${id}',this.value)"></label></div>
+          <div class="toolbar" style="margin:0">
+            <button class="btn small" onclick="window.print()">Imprimir</button>
+          </div>
+        </div>
+        <div class="toolbar">
+          <div class="timer-panel"><span id="timer-${id}" class="timer">07:00</span><button class="btn small" onclick="toggleTimer('${id}')">Iniciar / pausar</button><button class="btn small" onclick="resetTimer('${id}')">Reiniciar</button></div>
+          <button class="btn teal" onclick="speakSpeech('${id}')">▶ Escuchar speech completo</button>
+          <button class="btn" onclick="stopSpeech()">■ Detener audio</button>
+          <label style="font-size:13px;font-weight:800;color:#cbd5e1">Voz EN
+            <select class="speech-voice-select" onchange="setChosenVoice(this.value)" style="margin-left:6px;border:1px solid #334155;border-radius:8px;padding:6px 8px;background:var(--surface);color:var(--ink)"></select>
+          </label>
+          <span class="score">Objetivo: 5–7 minutos · solo inglés</span>
+        </div>
+        <div class="progress-wrap"><div id="progress-${id}" class="progress-bar"></div></div>
+        <div class="legend">
+          <span><i class="lg-phrase"></i> Amarillo = frases académicas</span>
+          <span><i class="lg-link"></i> Celeste = conexión entre partes</span>
+        </div>
+        <div class="speech-layout">
+          <aside class="slide-deck">${d.slides.map((s,i)=>`<div class="slide-thumb ${i===0?"active":""}" onclick="goSection('${id}',${i},this)"><small>SLIDE ${i+1}</small><strong>${s[0]}</strong><span>${s[1]}</span></div>`).join("")}</aside>
+          <div id="body-${id}">
+            <article class="speech-one" id="${id}-text">${fullText}</article>
+            ${questions}
+          </div>
+        </div>`;
+      if (profileName) setStudentName(id, profileName);
+      fillVoiceSelect();
+    }
+    function setStudentName(id, value) {
+      document.querySelectorAll(`#${id} .student-name`).forEach(el => el.textContent = value.trim() || "[your name]");
+    }
+    function goSection(id, i, el) {
+      const target = document.getElementById(`${id}-p-${i}`) || document.querySelectorAll(`#${id}-text p`)[i];
+      target?.scrollIntoView({behavior:"smooth", block:"center"});
+      el.parentElement.querySelectorAll(".slide-thumb").forEach(x=>x.classList.remove("active"));
+      el.classList.add("active");
+    }
+    function cleanSpeechText(el) {
+      return (el?.textContent || "").replace(/\s+/g, " ").trim();
+    }
+    function getVoiceLang() {
+      const raw = state.chosenVoiceURI || "natural:en";
+      const id = raw.startsWith("natural:") ? raw.slice(8) : raw;
+      return NATURAL_VOICES.some(x => x.id === id) ? id : "en";
+    }
+    function isPlayActive(gen) {
+      return gen === state.playGen;
+    }
+    function hardStopAudio() {
+      const audio = state.currentAudio;
+      state.currentAudio = null;
+      const pending = state.audioWaitResolve;
+      state.audioWaitResolve = null;
+      if (audio) {
+        try {
+          audio.onended = null;
+          audio.onerror = null;
+          audio.pause();
+          audio.removeAttribute("src");
+          audio.load();
+        } catch {}
+      }
+      if (pending) pending("cancelled");
+    }
+    function stopSpeech() {
+      state.playGen += 1; // invalida cualquier reproducción en curso
+      hardStopAudio();
+      document.querySelectorAll(".speaking-line").forEach(el => el.classList.remove("speaking-line"));
+    }
+    function chunkForTTS(text, maxLen=160) {
+      const parts = String(text).match(/[^.!?]+[.!?]+\s*|[^.!?]+$/g) || [text];
+      const chunks = [];
+      let buf = "";
+      for (const part of parts) {
+        const next = (buf + " " + part).trim();
+        if (next.length > maxLen && buf) {
+          chunks.push(buf.trim());
+          buf = part.trim();
+        } else {
+          buf = next;
+        }
+      }
+      if (buf.trim()) chunks.push(buf.trim());
+      return chunks.filter(Boolean);
+    }
+    function playAudioUrl(url, gen) {
+      return new Promise((resolve, reject) => {
+        if (!isPlayActive(gen)) { resolve("cancelled"); return; }
+        hardStopAudio();
+        if (!isPlayActive(gen)) { resolve("cancelled"); return; }
+
+        const audio = new Audio();
+        state.currentAudio = audio;
+        audio.preload = "auto";
+
+        let settled = false;
+        const finish = (result) => {
+          if (settled) return;
+          settled = true;
+          if (state.audioWaitResolve === finish) state.audioWaitResolve = null;
+          if (state.currentAudio === audio) state.currentAudio = null;
+          resolve(result);
+        };
+        state.audioWaitResolve = finish;
+
+        audio.onended = () => finish("ended");
+        audio.onerror = () => {
+          if (!isPlayActive(gen)) finish("cancelled");
+          else {
+            settled = true;
+            if (state.audioWaitResolve === finish) state.audioWaitResolve = null;
+            if (state.currentAudio === audio) state.currentAudio = null;
+            reject(new Error("No se pudo reproducir el audio"));
+          }
+        };
+        audio.src = url;
+        const p = audio.play();
+        if (p && typeof p.then === "function") {
+          p.catch(err => {
+            if (!isPlayActive(gen)) finish("cancelled");
+            else {
+              settled = true;
+              if (state.audioWaitResolve === finish) state.audioWaitResolve = null;
+              if (state.currentAudio === audio) state.currentAudio = null;
+              reject(err);
+            }
+          });
+        }
+      });
+    }
+    function wait(ms, gen) {
+      return new Promise(resolve => {
+        if (!isPlayActive(gen)) { resolve("cancelled"); return; }
+        const t = setTimeout(() => resolve(isPlayActive(gen) ? "ok" : "cancelled"), ms);
+        // guardamos cleanup simple en el timer id no hace falta
+        void t;
+      });
+    }
+    async function speakText(text, opts={}) {
+      const cleaned = String(text || "")
+        .replace(/\s+/g, " ")
+        .replace(/\s*—\s*/g, ". ")
+        .replace(/\s*–\s*/g, ". ")
+        .trim();
+      if (!cleaned) return;
+
+      // Nueva sesión: corta todo lo anterior y evita que queden audios viejos
+      const gen = ++state.playGen;
+      hardStopAudio();
+      document.querySelectorAll(".speaking-line").forEach(el => el.classList.remove("speaking-line"));
+
+      const lang = getVoiceLang();
+      const chunks = chunkForTTS(cleaned, 160);
+      if (opts.onstart) opts.onstart();
+
+      try {
+        for (const chunk of chunks) {
+          if (!isPlayActive(gen)) return;
+          const url = "https://translate.google.com/translate_tts?ie=UTF-8&client=tw-ob"
+            + "&tl=" + encodeURIComponent(lang)
+            + "&q=" + encodeURIComponent(chunk);
+          const result = await playAudioUrl(url, gen);
+          if (result === "cancelled" || !isPlayActive(gen)) return;
+          const pause = await wait(160, gen);
+          if (pause === "cancelled" || !isPlayActive(gen)) return;
+        }
+        if (isPlayActive(gen) && opts.onend) opts.onend();
+      } catch (err) {
+        if (!isPlayActive(gen)) return;
+        console.warn(err);
+        alert("No se pudo reproducir el audio. Revisá tu conexión a internet e intentá de nuevo.");
+      }
+    }
+    async function speakSpeech(id) {
+      const el = document.getElementById(`${id}-text`);
+      const text = cleanSpeechText(el);
+      if (!text) return;
+      await speakText(text);
+    }
+    async function speakSection(id, idx) {
+      const p = document.getElementById(`${id}-p-${idx}`);
+      if (!p) return;
+      p.scrollIntoView({behavior:"smooth", block:"center"});
+      await speakText(cleanSpeechText(p), {
+        onstart: () => {
+          document.querySelectorAll(`#${id} .speaking-line`).forEach(el => el.classList.remove("speaking-line"));
+          p.classList.add("speaking-line");
+        },
+        onend: () => p.classList.remove("speaking-line")
+      });
+    }
+    function toggleTimer(id) {
+      if (state.timers[id]) {
+        clearInterval(state.timers[id]);
+        state.timers[id]=null;
+        return;
+      }
+      state.timerStartedAt[id] = Date.now();
+      state.timers[id]=setInterval(()=>{
+        state.remaining[id]--;
+        updateTimer(id);
+        if(state.remaining[id]<=0){
+          clearInterval(state.timers[id]);
+          state.timers[id]=null;
+        }
+      },1000);
+    }
+    function resetTimer(id) { clearInterval(state.timers[id]); state.timers[id]=null; state.remaining[id]=420; updateTimer(id); }
+    function updateTimer(id) {
+      const n=Math.max(0,state.remaining[id]), m=Math.floor(n/60), s=n%60;
+      const t = document.getElementById("timer-"+id);
+      const p = document.getElementById("progress-"+id);
+      if (t) t.textContent=`${String(m).padStart(2,"0")}:${String(s).padStart(2,"0")}`;
+      if (p) p.style.width=`${(420-n)/420*100}%`;
+    }
+    function norm(s) {
+      return String(s || "").trim().toLowerCase().replace(/[’‘]/g, "'").replace(/\s+/g, " ");
+    }
+    function matchAnswer(user, answers) {
+      const u = norm(user);
+      return answers.some(a => norm(a) === u);
+    }
+    function renderBlanks(id) {
+      const box = document.getElementById("blanks-" + id);
+      if (!box) return;
+      box.innerHTML = blankData[id].map((item, i) => `
+        <div class="blank-row" data-i="${i}">
+          <span class="type-tag ${item.type}">${item.type}</span>
+          <div class="prompt">${item.prompt}</div>
+          <input autocomplete="off" spellcheck="false" placeholder="tu respuesta">
+          <div class="note"></div>
+        </div>`).join("");
+    }
+    function checkBlanks(id) {
+      const rows = [...document.querySelectorAll(`#blanks-${id} .blank-row`)];
+      let ok = 0;
+      const answers = [];
+      rows.forEach((row, i) => {
+        const item = blankData[id][i];
+        const input = row.querySelector("input");
+        const selected = (input.value || "").trim();
+        const good = matchAnswer(selected, item.answers);
+        row.classList.toggle("ok", good);
+        row.classList.toggle("bad", !good);
+        row.querySelector(".note").textContent = good
+          ? `✓ ${item.tip}`
+          : `✗ ${item.answers[0]} — ${item.tip}`;
+        if (good) ok++;
+        answers.push({
+          q: item.prompt,
+          selected: selected || "(sin responder)",
+          correct: item.answers[0],
+          ok: good
+        });
+      });
+      const pct = Math.round(ok/rows.length*100);
+      document.getElementById("score-" + id).textContent = `${ok}/${rows.length}`;
+      const labels = {b3:"Completar III", t3:"Tiempos III", b4:"Completar IV", t4:"Tiempos IV"};
+      addHistory({
+        type:"blanks",
+        label: labels[id] || id,
+        detail: "Fill in the blanks · se guardó cada respuesta escrita",
+        score: `${ok}/${rows.length} (${pct}%)`,
+        pct,
+        level: id.includes("3") ? "III" : "IV",
+        answers
+      });
+    }
+    function resetBlanks(id) {
+      document.querySelectorAll(`#blanks-${id} .blank-row`).forEach(row => {
+        row.classList.remove("ok", "bad");
+        row.querySelector("input").value = "";
+        row.querySelector(".note").textContent = "";
+      });
+      document.getElementById("score-" + id).textContent = "Sin corregir";
+    }
+    function renderStory(id) {
+      const box = document.getElementById("story-" + id);
+      if (!box) return;
+      box.innerHTML = storyData[id].html;
+    }
+    function checkStory(id) {
+      const inputs = [...document.querySelectorAll(`#story-${id} input`)];
+      let ok = 0;
+      const answers = [];
+      inputs.forEach((input, i) => {
+        const selected = (input.value || "").trim();
+        const correct = storyData[id].answers[i][0];
+        const good = matchAnswer(selected, storyData[id].answers[i]);
+        input.classList.toggle("ok", good);
+        input.classList.toggle("bad", !good);
+        if (!good) input.title = "Respuesta: " + correct;
+        else input.title = "";
+        if (good) ok++;
+        answers.push({
+          q: `Gap ${i+1}` + (input.placeholder ? ` (${input.placeholder})` : ""),
+          selected: selected || "(sin responder)",
+          correct,
+          ok: good
+        });
+      });
+      const pct = Math.round(ok/inputs.length*100);
+      document.getElementById("score-" + id).textContent = `${ok}/${inputs.length}`;
+      addHistory({
+        type:"story",
+        label: id === "s3" ? "Story III" : "Story IV",
+        detail: "Historia con gaps · se guardó cada palabra escrita",
+        score: `${ok}/${inputs.length} (${pct}%)`,
+        pct,
+        level: id === "s3" ? "III" : "IV",
+        answers
+      });
+    }
+    function resetStory(id) {
+      document.querySelectorAll(`#story-${id} input`).forEach(input => {
+        input.value = "";
+        input.classList.remove("ok", "bad");
+        input.title = "";
+      });
+      document.getElementById("score-" + id).textContent = "Sin corregir";
+    }
+
+    function allVocabItems() {
+      return filteredThemes().flatMap(t => t.items.map(item => ({...item, theme:t.title, level:t.level, themeId:t.id, course:t.course})));
+    }
+    function filteredThemes() {
+      if (activeThemeFilter === "all") return vocabThemes;
+      if (activeThemeFilter === "iii") return vocabThemes.filter(t => t.course === "III");
+      if (activeThemeFilter === "iv") return vocabThemes.filter(t => t.course === "IV");
+      if (activeThemeFilter === "oral") return vocabThemes.filter(t => t.course === "Oral");
+      return vocabThemes.filter(t => t.id === activeThemeFilter);
+    }
+    function renderThemeFilter() {
+      const box = document.getElementById("theme-filter");
+      if (!box) return;
+      const courseFirst = [
+        {id:"all", label:"Todas"},
+        {id:"iii", label:"Inglés III · A2 u.5–8"},
+        {id:"iv", label:"Inglés IV · A2+ u.1–4"},
+        {id:"oral", label:"Oral"}
+      ];
+      const themeButtons = (["all","iii","iv","oral"].includes(activeThemeFilter)
+        ? filteredThemes()
+        : vocabThemes.filter(t => t.course === (vocabThemes.find(x=>x.id===activeThemeFilter)||{}).course)
+      ).map(t => ({id:t.id, label:t.title.replace(/^III · |^IV · |^Oral · /, "")}));
+      box.innerHTML = [...courseFirst, ...themeButtons].map(b =>
+        `<button type="button" class="btn small ${activeThemeFilter===b.id?"active":""}" onclick="filterTheme('${b.id}')">${escapeHtml(b.label)}</button>`
+      ).join("");
+    }
+    function filterTheme(id) {
+      activeThemeFilter = id;
+      renderThemeFilter();
+      renderVocabThemes();
+      renderMatch();
+    }
+    function renderVocabThemes() {
+      const box = document.getElementById("vocab-themes");
+      if (!box) return;
+      const themes = filteredThemes();
+      if (!themes.length) {
+        box.innerHTML = `<div class="empty-state">No hay temas para este filtro.</div>`;
+        return;
+      }
+      box.innerHTML = themes.map(theme => `
+        <div class="theme-block" id="v-${theme.id}">
+          <div class="theme-head">
+            <h3>${escapeHtml(theme.title)}</h3>
+            <span class="tag">${escapeHtml(theme.level)}</span>
+          </div>
+          <p class="hint" style="margin-top:0">${escapeHtml(theme.blurb)}</p>
+          <div class="flash-grid">
+            ${theme.items.map(item => `
+              <article class="flash-card">
+                <div class="term">${escapeHtml(item.term)}</div>
+                <span class="meta-label">Significado</span>
+                <div class="meaning">${escapeHtml(item.es)}</div>
+                <span class="meta-label">Cuándo se usa</span>
+                <div class="usage">${escapeHtml(item.use)}</div>
+                <div style="margin-top:12px">
+                  <button class="btn small" type="button" data-say="${escapeHtml(item.term)}" onclick="speakText(this.dataset.say)">▶ Audio</button>
+                </div>
+              </article>
+            `).join("")}
+          </div>
+        </div>
+      `).join("");
+    }
+
+    function renderMatch(shuffle=false) {
+      let pool = allVocabItems();
+      if (activeThemeFilter !== "all") pool = pool.filter(p => p.themeId === activeThemeFilter);
+      pool = pool.sort(() => Math.random() - .5).slice(0, 10);
+      if (shuffle) pool.sort(() => Math.random() - .5);
+      state.matchItems = pool;
+      const defs = pool.map(p => p.es).sort(() => Math.random() - .5);
+      const box = document.getElementById("match-box");
+      box.innerHTML = pool.map((item,i) => `
+        <div class="match-row" data-i="${i}">
+          <div>
+            <strong>${escapeHtml(item.term)}</strong>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">${escapeHtml(item.theme)}</div>
+          </div>
+          <select>
+            <option value="">Elegí significado…</option>
+            ${defs.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join("")}
+          </select>
+        </div>`).join("");
+      document.getElementById("score-match").textContent = "Sin corregir";
+    }
+    function checkMatch() {
+      const rows = [...document.querySelectorAll("#match-box .match-row")];
+      let ok = 0;
+      const answers = [];
+      rows.forEach((row,i) => {
+        const sel = row.querySelector("select");
+        const selected = sel.value || "";
+        const correct = state.matchItems[i].es;
+        const good = selected === correct;
+        row.classList.toggle("ok", good);
+        row.classList.toggle("bad", !good);
+        if (good) ok++;
+        answers.push({
+          q: state.matchItems[i].term,
+          selected: selected || "(sin responder)",
+          correct,
+          ok: good
+        });
+      });
+      const pct = Math.round(ok/rows.length*100);
+      document.getElementById("score-match").textContent = `${ok}/${rows.length} · ${pct}%`;
+      addHistory({
+        type:"match",
+        label:"Matching vocabulario",
+        detail: ({all:"Todas", iii:"Inglés III", iv:"Inglés IV", oral:"Oral"}[activeThemeFilter] || vocabThemes.find(t=>t.id===activeThemeFilter)?.title || activeThemeFilter),
+        score: `${ok}/${rows.length} (${pct}%)`,
+        pct,
+        level: "III+IV",
+        answers
+      });
+    }
+
+    document.querySelectorAll(".word-area").forEach(area => {
+      area.addEventListener("input", () => {
+        const words=area.value.trim()?area.value.trim().split(/\s+/).length:0;
+        const out=area.nextElementSibling; out.textContent=`${words} palabras · objetivo: 90–110`;
+        out.style.color=words>=90&&words<=110?"var(--green)":words>110?"var(--red)":"var(--muted)";
+      });
+    });
+
+    try { localStorage.removeItem("uai-ingles-history-v1"); } catch {}
+    loadProfile();
+    loadReportFromHash();
+    renderQuiz("q3"); renderQuiz("q4");
+    renderBlanks("b3"); renderBlanks("t3"); renderBlanks("b4"); renderBlanks("t4");
+    renderStory("s3"); renderStory("s4");
+    renderThemeFilter();
+    renderVocabThemes();
+    renderMatch();
+    renderTopicGroups();
+    renderSpeech("speech3"); renderSpeech("speech4");
+    renderHistory();
+    fillVoiceSelect();
+</script>
+</body>
+</html>
