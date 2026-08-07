@@ -510,6 +510,31 @@
       margin: 0 0 22px;
     }
     .theme-filter button.active { background: var(--teal); color: #042f2e; border-color: var(--teal); }
+    .history-name-filter {
+      display: grid;
+      grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+      gap: 12px;
+      margin: 0 0 12px;
+    }
+    .history-name-filter label {
+      display: block;
+      font-weight: 800;
+      font-size: 13px;
+      color: #cbd5e1;
+    }
+    .history-name-filter input,
+    .history-name-filter select {
+      width: 100%;
+      margin-top: 6px;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 10px 12px;
+      background: var(--surface);
+      color: var(--ink);
+    }
+    @media (max-width: 700px) {
+      .history-name-filter { grid-template-columns: 1fr; }
+    }
     .topic-groups { display: grid; gap: 14px; margin: 0 0 18px; }
     .topic-group {
       background: rgba(24, 35, 56, .55);
@@ -1496,6 +1521,16 @@
         <button type="button" data-level="III" onclick="setHistoryFilter('III')">Inglés III</button>
         <button type="button" data-level="IV" onclick="setHistoryFilter('IV')">Inglés IV</button>
       </div>
+      <div class="history-name-filter">
+        <label>Filtrar por nombre
+          <input id="history-name-search" type="search" placeholder="Escribí un nombre…" autocomplete="off" oninput="setHistoryNameQuery(this.value)">
+        </label>
+        <label>Estudiante
+          <select id="history-name-select" onchange="setHistoryStudent(this.value)">
+            <option value="all">Todos los estudiantes</option>
+          </select>
+        </label>
+      </div>
       <div class="theme-filter" id="history-student-filter" style="margin-top:8px"></div>
       <div class="history-stats" id="history-stats"></div>
       <div class="toolbar">
@@ -2193,6 +2228,7 @@
       activeTopicId:null,
       historyFilter:"all",
       historyStudent:"all",
+      historyNameQuery:"",
       sharedHistory:[],
       historySyncing:false,
       historyLastSync:null,
@@ -2508,6 +2544,18 @@
     }
     function setHistoryStudent(student) {
       state.historyStudent = student || "all";
+      if (state.historyStudent !== "all") state.historyNameQuery = "";
+      const search = document.getElementById("history-name-search");
+      const select = document.getElementById("history-name-select");
+      if (search && state.historyStudent !== "all") search.value = "";
+      if (select) select.value = state.historyStudent;
+      renderHistory();
+    }
+    function setHistoryNameQuery(query) {
+      state.historyNameQuery = String(query || "").trim();
+      if (state.historyNameQuery) state.historyStudent = "all";
+      const select = document.getElementById("history-name-select");
+      if (select) select.value = "all";
       renderHistory();
     }
     function renderHistoryCard(e) {
@@ -2526,22 +2574,50 @@
         ${renderAnswerDetails(e.answers)}
       </details>`;
     }
+    function normalizeStudentName(name) {
+      return String(name || "Sin nombre").trim() || "Sin nombre";
+    }
+    function historyMatchesName(entry) {
+      const student = normalizeStudentName(entry.student);
+      if (state.historyStudent && state.historyStudent !== "all") {
+        return student === state.historyStudent;
+      }
+      const q = state.historyNameQuery.toLowerCase();
+      if (!q) return true;
+      return student.toLowerCase().includes(q);
+    }
     function renderHistory() {
       const all = getHistory();
       const byLevel = all.filter(e => historyMatchesFilter(e, state.historyFilter));
-      const students = [...new Set(byLevel.map(e => e.student || "Sin nombre"))].sort((a,b) => a.localeCompare(b, "es"));
-      const list = state.historyStudent === "all"
-        ? byLevel
-        : byLevel.filter(e => (e.student || "Sin nombre") === state.historyStudent);
+      const students = [...new Set(byLevel.map(e => normalizeStudentName(e.student)))].sort((a,b) => a.localeCompare(b, "es"));
+      if (state.historyStudent !== "all" && !students.includes(state.historyStudent)) {
+        state.historyStudent = "all";
+      }
+      const list = byLevel.filter(historyMatchesName);
+      const visibleStudents = [...new Set(list.map(e => normalizeStudentName(e.student)))].sort((a,b) => a.localeCompare(b, "es"));
       const stats = document.getElementById("history-stats");
       const box = document.getElementById("history-list");
       const studentFilter = document.getElementById("history-student-filter");
+      const nameSelect = document.getElementById("history-name-select");
+      const nameSearch = document.getElementById("history-name-search");
       if (!stats || !box) return;
 
-      if (studentFilter) {
-        studentFilter.innerHTML = `<button type="button" class="${state.historyStudent==="all"?"active":""}" onclick="setHistoryStudent('all')">Todos los estudiantes (${byLevel.length})</button>` +
+      if (nameSearch && document.activeElement !== nameSearch) {
+        nameSearch.value = state.historyNameQuery;
+      }
+      if (nameSelect) {
+        nameSelect.innerHTML = `<option value="all">Todos los estudiantes (${byLevel.length})</option>` +
           students.map(name => {
-            const count = byLevel.filter(e => (e.student || "Sin nombre") === name).length;
+            const count = byLevel.filter(e => normalizeStudentName(e.student) === name).length;
+            return `<option value="${escapeHtml(name)}">${escapeHtml(name)} (${count})</option>`;
+          }).join("");
+        nameSelect.value = state.historyStudent || "all";
+      }
+
+      if (studentFilter) {
+        studentFilter.innerHTML = `<button type="button" class="${state.historyStudent==="all"&&!state.historyNameQuery?"active":""}" onclick="setHistoryStudent('all')">Todos (${byLevel.length})</button>` +
+          students.map(name => {
+            const count = byLevel.filter(e => normalizeStudentName(e.student) === name).length;
             const active = state.historyStudent === name ? "active" : "";
             return `<button type="button" class="${active}" data-student="${escapeHtml(name)}" onclick="setHistoryStudent(this.dataset.student)">${escapeHtml(name)} (${count})</button>`;
           }).join("");
@@ -2555,7 +2631,7 @@
       })();
       stats.innerHTML = `
         <div class="stat-box"><b>${list.length}</b><span>En este filtro</span></div>
-        <div class="stat-box"><b>${students.length}</b><span>Estudiantes</span></div>
+        <div class="stat-box"><b>${visibleStudents.length}</b><span>Estudiantes</span></div>
         <div class="stat-box"><b>${topics}</b><span>Temas corregidos</span></div>
         <div class="stat-box"><b>${avg}</b><span>Promedio de aciertos</span></div>`;
 
@@ -2564,18 +2640,22 @@
         return;
       }
       if (!list.length) {
-        box.innerHTML = `<div class="empty-state">No hay prácticas con este filtro.</div>`;
+        box.innerHTML = `<div class="empty-state">No hay prácticas con ese nombre o filtro.</div>`;
         return;
       }
 
-      if (state.historyStudent === "all") {
-        box.innerHTML = students.map(name => {
-          const items = list.filter(e => (e.student || "Sin nombre") === name);
+      if (state.historyStudent === "all" && !state.historyNameQuery) {
+        box.innerHTML = visibleStudents.map(name => {
+          const items = list.filter(e => normalizeStudentName(e.student) === name);
           return `<h3 style="margin:22px 0 10px;color:#5eead4">${escapeHtml(name)} · ${items.length}</h3>
             ${items.map(renderHistoryCard).join("")}`;
         }).join("");
       } else {
-        box.innerHTML = list.map(renderHistoryCard).join("");
+        const title = state.historyStudent !== "all"
+          ? state.historyStudent
+          : `Resultados para “${state.historyNameQuery}”`;
+        box.innerHTML = `<h3 style="margin:12px 0 10px;color:#5eead4">${escapeHtml(title)} · ${list.length}</h3>
+          ${list.map(renderHistoryCard).join("")}`;
       }
     }
     function exportHistory() {
