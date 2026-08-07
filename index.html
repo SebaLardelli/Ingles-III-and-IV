@@ -1489,24 +1489,22 @@
 
     <section id="historial" class="view">
       <h2>Historial de práctica</h2>
-      <p class="lead">Solo se guardan las prácticas que corregís (temas, quiz, completar, historias, matching). En cada una se ven tus respuestas marcadas para que tu profesora las revise.</p>
-      <div class="notice"><strong>Para la profesora:</strong> abrí cada práctica y mirá qué seleccionaste o escribiste. Exportá JSON, copiá el link del reporte o imprimí esta pestaña. El historial está en tu navegador (GitHub Pages no lo guarda en el servidor).</div>
+      <p class="lead">Historial <strong>compartido en tiempo real</strong> (Supabase): la profesora y el resto ven las prácticas apenas corregís. Guardá tu nombre en el perfil antes de practicar.</p>
+      <div class="notice" id="history-sync-notice"><strong>En vivo:</strong> esta pestaña se actualiza sola. La profesora puede dejarla abierta y ver lo que vas haciendo.</div>
       <div class="theme-filter" id="history-level-filter">
         <button type="button" class="active" data-level="all" onclick="setHistoryFilter('all')">Todas</button>
         <button type="button" data-level="III" onclick="setHistoryFilter('III')">Inglés III</button>
         <button type="button" data-level="IV" onclick="setHistoryFilter('IV')">Inglés IV</button>
       </div>
+      <div class="theme-filter" id="history-student-filter" style="margin-top:8px"></div>
       <div class="history-stats" id="history-stats"></div>
       <div class="toolbar">
+        <button class="btn teal" type="button" onclick="refreshSharedHistory()">↻ Actualizar</button>
         <button class="btn primary" onclick="exportHistory()">Descargar JSON</button>
-        <button class="btn teal" onclick="copyHistoryLink()">Copiar link del reporte</button>
         <button class="btn" onclick="printHistory()">Imprimir / PDF</button>
-        <label class="btn" style="display:inline-flex;align-items:center;gap:8px">
-          Importar reporte
-          <input type="file" accept="application/json,.json" hidden onchange="importHistory(event)">
-        </label>
-        <button class="btn" onclick="clearHistory()" style="border-color:#f87171;color:#fca5a5">Borrar historial</button>
+        <button class="btn" onclick="clearMyHistory()" style="border-color:#f87171;color:#fca5a5">Borrar solo lo mío</button>
       </div>
+      <p id="history-sync-status" class="hint" style="margin:0 0 14px">Conectando historial en tiempo real…</p>
       <div id="history-list"></div>
     </section>
   </main>
@@ -1514,6 +1512,7 @@
   <footer>Material personal de estudio elaborado a partir de los archivos provistos. Los speeches son guías para hablar con tus propias palabras, no textos para leer durante el examen.</footer>
 
   <script src="https://js.puter.com/v2/"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script>
     const topicDrills = [
       // ===== INGLÉS III =====
@@ -2170,6 +2169,12 @@
     const PROFILE_KEY = "uai-ingles-profile-v1";
     const VOICE_KEY = "uai-ingles-voice-uri";
     const GRADED_TYPES = new Set(["quiz","blanks","story","match"]);
+    // Supabase · historial compartido en tiempo real (permanente, gratis).
+    // 1) Creá un proyecto en https://supabase.com/dashboard
+    // 2) Corré el SQL de supabase-setup.sql
+    // 3) Project Settings → API → pegá URL y anon key acá
+    const SUPABASE_URL = "https://erxokiehqoeienisqdom.supabase.co";
+    const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVyeG9raWVocW9laWVuaXNxZG9tIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwOTgyNTAsImV4cCI6MjEwMTY3NDI1MH0._7cwbKDswLR8mphucJA6-VZOwYsE1bLEpzWAVqC-XiQ";
     const NATURAL_VOICES = [
       {id:"en", label:"English US · natural (recomendada)", voice:"Joanna", language:"en-US"},
       {id:"en-GB", label:"English UK · natural", voice:"Amy", language:"en-GB"},
@@ -2186,7 +2191,14 @@
       audioWaitResolve:null,
       topicCourse:"III",
       activeTopicId:null,
-      historyFilter:"all"
+      historyFilter:"all",
+      historyStudent:"all",
+      sharedHistory:[],
+      historySyncing:false,
+      historyLastSync:null,
+      historySyncError:null,
+      supabase:null,
+      historyChannel:null
     };
 
     function getProfile() {
@@ -2259,25 +2271,187 @@
       await speakText("Good morning everyone. Today I'm going to talk about data centres and how we can reduce their energy consumption.");
     }
 
-    function getHistory() {
+    function escapeHtml(s) {
+      return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+    }
+    function isSupabaseConfigured() {
+      return Boolean(SUPABASE_URL && SUPABASE_ANON_KEY && window.supabase?.createClient);
+    }
+    function getSupabase() {
+      if (!isSupabaseConfigured()) return null;
+      if (!state.supabase) {
+        state.supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+          realtime: { params: { eventsPerSecond: 5 } }
+        });
+      }
+      return state.supabase;
+    }
+    function rowToHistoryItem(row) {
+      return {
+        id: row.id,
+        at: row.at,
+        student: row.student,
+        level: row.level || "—",
+        type: row.type,
+        label: row.label || "",
+        detail: row.detail || "",
+        score: row.score || "",
+        pct: row.pct ?? null,
+        answers: Array.isArray(row.answers) ? row.answers : []
+      };
+    }
+    function historyItemToRow(item) {
+      return {
+        id: item.id,
+        at: item.at,
+        student: item.student,
+        level: item.level || null,
+        type: item.type,
+        label: item.label || "",
+        detail: item.detail || "",
+        score: item.score || "",
+        pct: typeof item.pct === "number" ? item.pct : null,
+        answers: item.answers || []
+      };
+    }
+    function normalizeHistoryList(list) {
+      if (!Array.isArray(list)) return [];
+      return list
+        .filter(x => x && GRADED_TYPES.has(x.type))
+        .sort((a, b) => String(b.at || "").localeCompare(String(a.at || "")))
+        .slice(0, 500);
+    }
+    function getLocalHistory() {
       try {
-        const list = JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]");
-        return Array.isArray(list) ? list.filter(x => GRADED_TYPES.has(x.type)) : [];
+        return normalizeHistoryList(JSON.parse(localStorage.getItem(HISTORY_KEY) || "[]"));
       } catch { return []; }
     }
-    function setHistory(list) {
-      const clean = list.filter(x => GRADED_TYPES.has(x.type)).slice(0, 200);
+    function saveLocalHistory(list) {
+      const clean = normalizeHistoryList(list);
       localStorage.setItem(HISTORY_KEY, JSON.stringify(clean));
-      renderHistory();
+      return clean;
     }
-    function addHistory(entry) {
+    function getHistory() {
+      return normalizeHistoryList(state.sharedHistory.length ? state.sharedHistory : getLocalHistory());
+    }
+    function mergeHistoryLists(...lists) {
+      const map = new Map();
+      lists.flat().forEach(item => {
+        if (!item) return;
+        const key = item.id || `${item.at}|${item.student}|${item.label}|${item.score}`;
+        if (!map.has(key)) map.set(key, item);
+      });
+      return normalizeHistoryList([...map.values()]);
+    }
+    function setHistorySyncStatus(msg, isError=false) {
+      state.historySyncError = isError ? msg : null;
+      const el = document.getElementById("history-sync-status");
+      if (el) {
+        el.textContent = msg;
+        el.style.color = isError ? "var(--red)" : "var(--muted)";
+      }
+      const notice = document.getElementById("history-sync-notice");
+      if (notice && !isSupabaseConfigured()) {
+        notice.innerHTML = `<strong>Falta configurar Supabase:</strong> creá un proyecto gratis en
+          <a href="https://supabase.com/dashboard" target="_blank" rel="noopener">supabase.com</a>,
+          corré el archivo <code>supabase-setup.sql</code> en el SQL Editor, y pegá
+          <code>SUPABASE_URL</code> + <code>SUPABASE_ANON_KEY</code> en <code>index.html</code>
+          (Project Settings → API).`;
+      }
+    }
+    async function pullSharedHistory() {
+      const sb = getSupabase();
+      if (!sb) throw new Error("Supabase no configurado");
+      const { data, error } = await sb
+        .from("practice_history")
+        .select("*")
+        .order("at", { ascending: false })
+        .limit(500);
+      if (error) throw new Error(error.message);
+      const entries = normalizeHistoryList((data || []).map(rowToHistoryItem));
+      state.sharedHistory = entries;
+      saveLocalHistory(entries);
+      return entries;
+    }
+    async function insertSharedHistoryItem(item) {
+      const sb = getSupabase();
+      if (!sb) throw new Error("Supabase no configurado");
+      const { error } = await sb.from("practice_history").upsert(historyItemToRow(item), { onConflict: "id" });
+      if (error) throw new Error(error.message);
+    }
+    async function deleteSharedHistoryByStudent(student) {
+      const sb = getSupabase();
+      if (!sb) throw new Error("Supabase no configurado");
+      const { error } = await sb.from("practice_history").delete().eq("student", student);
+      if (error) throw new Error(error.message);
+    }
+    function startHistoryRealtime() {
+      const sb = getSupabase();
+      if (!sb) return;
+      if (state.historyChannel) {
+        try { sb.removeChannel(state.historyChannel); } catch {}
+        state.historyChannel = null;
+      }
+      state.historyChannel = sb.channel("practice-history-live")
+        .on("postgres_changes", { event: "*", schema: "public", table: "practice_history" }, async () => {
+          try {
+            await pullSharedHistory();
+            state.historyLastSync = new Date();
+            const when = state.historyLastSync.toLocaleTimeString("es-AR", {hour:"2-digit", minute:"2-digit"});
+            setHistorySyncStatus(`En vivo · ${state.sharedHistory.length} prácticas · actualizado ${when}`);
+            renderHistory();
+          } catch (err) {
+            console.warn(err);
+          }
+        })
+        .subscribe((status) => {
+          if (status === "SUBSCRIBED") {
+            setHistorySyncStatus(`En vivo (Supabase) · ${getHistory().length} prácticas`);
+          }
+        });
+    }
+    async function refreshSharedHistory() {
+      if (state.historySyncing) return getHistory();
+      state.historySyncing = true;
+      setHistorySyncStatus("Actualizando historial compartido…");
+      try {
+        if (!isSupabaseConfigured()) {
+          state.sharedHistory = getLocalHistory();
+          setHistorySyncStatus("Supabase no configurado. Mostrando historial local de este navegador.", true);
+          renderHistory();
+          return state.sharedHistory;
+        }
+        const remote = await pullSharedHistory();
+        state.historyLastSync = new Date();
+        const when = state.historyLastSync.toLocaleTimeString("es-AR", {hour:"2-digit", minute:"2-digit"});
+        setHistorySyncStatus(`Historial compartido · ${remote.length} prácticas · actualizado ${when}`);
+        startHistoryRealtime();
+        renderHistory();
+        return remote;
+      } catch (err) {
+        console.warn(err);
+        state.sharedHistory = getLocalHistory();
+        setHistorySyncStatus(`Sin sync en la nube: ${err.message}. Mostrando copia local.`, true);
+        renderHistory();
+        return state.sharedHistory;
+      } finally {
+        state.historySyncing = false;
+      }
+    }
+    async function addHistory(entry) {
       if (!GRADED_TYPES.has(entry.type)) return;
       const p = getProfile();
-      const list = getHistory();
-      list.unshift({
+      const student = (p.name || "").trim();
+      if (!student) {
+        alert("Antes de corregir, guardá tu nombre en el perfil (Inicio). Así la profesora puede ver quién practicó.");
+        navigate("inicio");
+        document.getElementById("student-profile-name")?.focus();
+        return;
+      }
+      const item = {
         id: Date.now() + "-" + Math.random().toString(36).slice(2,7),
         at: new Date().toISOString(),
-        student: p.name || "Sin nombre",
+        student,
         level: entry.level || p.level || "—",
         type: entry.type,
         label: entry.label,
@@ -2285,8 +2459,28 @@
         score: entry.score || "",
         pct: entry.pct ?? null,
         answers: entry.answers || []
-      });
-      setHistory(list);
+      };
+      const localMerged = mergeHistoryLists([item], getLocalHistory());
+      saveLocalHistory(localMerged);
+      state.sharedHistory = mergeHistoryLists([item], state.sharedHistory);
+      renderHistory();
+
+      if (!isSupabaseConfigured()) {
+        setHistorySyncStatus("Práctica guardada solo en este navegador. Configurá Supabase para compartirla en vivo.", true);
+        return;
+      }
+      setHistorySyncStatus("Subiendo tu práctica…");
+      try {
+        await insertSharedHistoryItem(item);
+        await pullSharedHistory();
+        state.historyLastSync = new Date();
+        setHistorySyncStatus(`Práctica compartida en vivo · ${state.sharedHistory.length} en total · ${state.historyLastSync.toLocaleTimeString("es-AR", {hour:"2-digit", minute:"2-digit"})}`);
+        startHistoryRealtime();
+        renderHistory();
+      } catch (err) {
+        console.warn(err);
+        setHistorySyncStatus(`Se guardó en tu navegador, pero no se pudo compartir: ${err.message}`, true);
+      }
     }
     function renderAnswerDetails(answers) {
       if (!answers?.length) return `<p class="hint">Sin detalle de respuestas en este registro.</p>`;
@@ -2312,169 +2506,130 @@
       });
       renderHistory();
     }
+    function setHistoryStudent(student) {
+      state.historyStudent = student || "all";
+      renderHistory();
+    }
+    function renderHistoryCard(e) {
+      const d = new Date(e.at);
+      const fecha = d.toLocaleString("es-AR", {dateStyle:"short", timeStyle:"short"});
+      const mine = (getProfile().name || "").trim() && e.student === (getProfile().name || "").trim();
+      return `<details class="history-card">
+        <summary>
+          <span class="tag">${escapeHtml(e.label)}</span>
+          <span>${escapeHtml(fecha)}</span>
+          <span>${escapeHtml(e.student)}${mine ? " · vos" : ""}</span>
+          <span>Nivel ${escapeHtml(e.level)}</span>
+          <strong style="color:var(--teal)">${escapeHtml(e.score || "—")}</strong>
+        </summary>
+        <p class="hint" style="margin:10px 0 0">${escapeHtml(e.detail || "")}</p>
+        ${renderAnswerDetails(e.answers)}
+      </details>`;
+    }
     function renderHistory() {
       const all = getHistory();
-      const list = all.filter(e => historyMatchesFilter(e, state.historyFilter));
+      const byLevel = all.filter(e => historyMatchesFilter(e, state.historyFilter));
+      const students = [...new Set(byLevel.map(e => e.student || "Sin nombre"))].sort((a,b) => a.localeCompare(b, "es"));
+      const list = state.historyStudent === "all"
+        ? byLevel
+        : byLevel.filter(e => (e.student || "Sin nombre") === state.historyStudent);
       const stats = document.getElementById("history-stats");
       const box = document.getElementById("history-list");
+      const studentFilter = document.getElementById("history-student-filter");
       if (!stats || !box) return;
-      const byType = (t) => list.filter(x => x.type === t).length;
+
+      if (studentFilter) {
+        studentFilter.innerHTML = `<button type="button" class="${state.historyStudent==="all"?"active":""}" onclick="setHistoryStudent('all')">Todos los estudiantes (${byLevel.length})</button>` +
+          students.map(name => {
+            const count = byLevel.filter(e => (e.student || "Sin nombre") === name).length;
+            const active = state.historyStudent === name ? "active" : "";
+            return `<button type="button" class="${active}" data-student="${escapeHtml(name)}" onclick="setHistoryStudent(this.dataset.student)">${escapeHtml(name)} (${count})</button>`;
+          }).join("");
+      }
+
       const topics = list.filter(x => String(x.detail||"").includes("Tema")).length;
       const avg = (() => {
         const scored = list.filter(x => typeof x.pct === "number");
         if (!scored.length) return "—";
         return Math.round(scored.reduce((a,b)=>a+b.pct,0)/scored.length) + "%";
       })();
-      const iiiCount = all.filter(e => historyMatchesFilter(e, "III")).length;
-      const ivCount = all.filter(e => historyMatchesFilter(e, "IV")).length;
       stats.innerHTML = `
         <div class="stat-box"><b>${list.length}</b><span>En este filtro</span></div>
+        <div class="stat-box"><b>${students.length}</b><span>Estudiantes</span></div>
         <div class="stat-box"><b>${topics}</b><span>Temas corregidos</span></div>
-        <div class="stat-box"><b>${iiiCount} / ${ivCount}</b><span>Total III / IV</span></div>
         <div class="stat-box"><b>${avg}</b><span>Promedio de aciertos</span></div>`;
+
       if (!all.length) {
-        box.innerHTML = `<div class="empty-state">Todavía no hay prácticas corregidas. Completá un tema, quiz, blanks, historia o matching y tocá <strong>Corregir</strong>.</div>`;
+        box.innerHTML = `<div class="empty-state">Todavía no hay prácticas compartidas. Completá un ejercicio, tocá <strong>Corregir</strong> y aparecerá acá para todos.</div>`;
         return;
       }
       if (!list.length) {
-        box.innerHTML = `<div class="empty-state">No hay prácticas de Inglés ${escapeHtml(state.historyFilter)} todavía.</div>`;
+        box.innerHTML = `<div class="empty-state">No hay prácticas con este filtro.</div>`;
         return;
       }
-      const grouped = {III:[], IV:[], other:[]};
-      list.forEach(e => {
-        const lv = String(e.level || "");
-        if (lv === "III") grouped.III.push(e);
-        else if (lv === "IV") grouped.IV.push(e);
-        else if (lv.includes("III") && lv.includes("IV")) grouped.other.push(e);
-        else if (lv.includes("III")) grouped.III.push(e);
-        else if (lv.includes("IV")) grouped.IV.push(e);
-        else grouped.other.push(e);
-      });
-      const renderGroup = (title, items) => {
-        if (!items.length) return "";
-        return `<h3 style="margin:22px 0 10px;color:#5eead4">${title}</h3>
-          ${items.map(e => {
-            const d = new Date(e.at);
-            const fecha = d.toLocaleString("es-AR", {dateStyle:"short", timeStyle:"short"});
-            return `<details class="history-card">
-              <summary>
-                <span class="tag">${escapeHtml(e.label)}</span>
-                <span>${escapeHtml(fecha)}</span>
-                <span>${escapeHtml(e.student)}</span>
-                <span>Nivel ${escapeHtml(e.level)}</span>
-                <strong style="color:var(--teal)">${escapeHtml(e.score || "—")}</strong>
-              </summary>
-              <p class="hint" style="margin:10px 0 0">${escapeHtml(e.detail || "")}</p>
-              ${renderAnswerDetails(e.answers)}
-            </details>`;
-          }).join("")}`;
-      };
-      box.innerHTML = `
-        <p style="color:var(--muted);margin:0 0 14px">Abrí cada práctica para ver exactamente qué marcaste. Los temas aparecen como <strong>III · Past Simple</strong>, <strong>IV · Modals</strong>, etc.</p>
-        ${state.historyFilter === "all" ? (
-          renderGroup("Inglés III", grouped.III) +
-          renderGroup("Inglés IV", grouped.IV) +
-          renderGroup("Otros / ambos", grouped.other)
-        ) : list.map(e => {
-          const d = new Date(e.at);
-          const fecha = d.toLocaleString("es-AR", {dateStyle:"short", timeStyle:"short"});
-          return `<details class="history-card">
-            <summary>
-              <span class="tag">${escapeHtml(e.label)}</span>
-              <span>${escapeHtml(fecha)}</span>
-              <span>${escapeHtml(e.student)}</span>
-              <span>Nivel ${escapeHtml(e.level)}</span>
-              <strong style="color:var(--teal)">${escapeHtml(e.score || "—")}</strong>
-            </summary>
-            <p class="hint" style="margin:10px 0 0">${escapeHtml(e.detail || "")}</p>
-            ${renderAnswerDetails(e.answers)}
-          </details>`;
-        }).join("")}`;
-    }
-    function escapeHtml(s) {
-      return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;"}[c]));
+
+      if (state.historyStudent === "all") {
+        box.innerHTML = students.map(name => {
+          const items = list.filter(e => (e.student || "Sin nombre") === name);
+          return `<h3 style="margin:22px 0 10px;color:#5eead4">${escapeHtml(name)} · ${items.length}</h3>
+            ${items.map(renderHistoryCard).join("")}`;
+        }).join("");
+      } else {
+        box.innerHTML = list.map(renderHistoryCard).join("");
+      }
     }
     function exportHistory() {
       const payload = {
         exportedAt: new Date().toISOString(),
         profile: getProfile(),
         history: getHistory(),
-        note: "Reporte de práctica — Finales Inglés III/IV UAI"
+        note: "Reporte compartido — Finales Inglés III/IV UAI"
       };
       const blob = new Blob([JSON.stringify(payload, null, 2)], {type:"application/json"});
       const a = document.createElement("a");
       a.href = URL.createObjectURL(blob);
-      a.download = `historial-ingles-${(getProfile().name||"estudiante").replace(/\s+/g,"_").toLowerCase()}.json`;
+      a.download = `historial-ingles-compartido.json`;
       a.click();
       URL.revokeObjectURL(a.href);
-    }
-    function importHistory(ev) {
-      const file = ev.target.files?.[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = () => {
-        try {
-          const data = JSON.parse(reader.result);
-          const incoming = Array.isArray(data) ? data : (data.history || []);
-          if (!Array.isArray(incoming)) throw new Error("Formato inválido");
-          if (data.profile) localStorage.setItem(PROFILE_KEY, JSON.stringify(data.profile));
-          loadProfile();
-          const merged = [...incoming, ...getHistory()];
-          const seen = new Set();
-          const unique = merged.filter(x => {
-            const k = x.id || (x.at + x.label + x.score);
-            if (seen.has(k)) return false;
-            seen.add(k);
-            return true;
-          });
-          setHistory(unique);
-          alert(`Importadas ${incoming.length} sesiones.`);
-        } catch (err) {
-          alert("No se pudo importar el archivo: " + err.message);
-        }
-        ev.target.value = "";
-      };
-      reader.readAsText(file);
-    }
-    async function copyHistoryLink() {
-      const payload = {profile:getProfile(), history:getHistory().slice(0,80)};
-      const encoded = btoa(unescape(encodeURIComponent(JSON.stringify(payload))));
-      const url = `${location.origin}${location.pathname}#reporte=${encoded}`;
-      try {
-        await navigator.clipboard.writeText(url);
-        alert("Link copiado. Tu profesora puede abrirlo e importará el reporte automáticamente.");
-      } catch {
-        prompt("Copiá este link:", url);
-      }
     }
     function printHistory() {
       navigate("historial");
       setTimeout(() => window.print(), 200);
     }
-    function clearHistory() {
-      if (!confirm("¿Borrar todo el historial de este navegador?")) return;
-      localStorage.removeItem(HISTORY_KEY);
-      renderHistory();
+    async function clearMyHistory() {
+      const name = (getProfile().name || "").trim();
+      if (!name) {
+        alert("Guardá tu nombre en el perfil para borrar solo tus prácticas.");
+        return;
+      }
+      if (!confirm(`¿Borrar del historial compartido todas las prácticas de "${name}"?`)) return;
+      try {
+        if (isSupabaseConfigured()) {
+          await deleteSharedHistoryByStudent(name);
+          await pullSharedHistory();
+          setHistorySyncStatus(`Se borraron tus prácticas. Quedan ${state.sharedHistory.length} en total.`);
+        } else {
+          const next = getHistory().filter(e => e.student !== name);
+          state.sharedHistory = next;
+          saveLocalHistory(next);
+          setHistorySyncStatus("Se borraron en este navegador. Configurá Supabase para borrarlas también en la nube.", true);
+        }
+        renderHistory();
+      } catch (err) {
+        alert("No se pudo borrar: " + err.message);
+      }
     }
     function loadReportFromHash() {
-      const m = location.hash.match(/#reporte=(.+)/);
-      if (!m) return;
-      try {
-        const data = JSON.parse(decodeURIComponent(escape(atob(m[1]))));
-        if (data.profile) localStorage.setItem(PROFILE_KEY, JSON.stringify(data.profile));
-        if (Array.isArray(data.history)) setHistory(data.history);
-        loadProfile();
-        navigate("historial");
+      /* legacy links ya no importan historial local; el historial es compartido */
+      if (/#reporte=/.test(location.hash)) {
         history.replaceState(null, "", location.pathname + location.search);
-      } catch (e) {
-        console.warn("No se pudo leer el reporte del link", e);
       }
     }
 
     function navigate(id) {
       document.querySelectorAll(".view").forEach(v => v.classList.toggle("active", v.id === id));
       document.querySelectorAll(".nav-btn").forEach(b => b.classList.toggle("active", b.dataset.view === id));
-      if (id === "historial") renderHistory();
+      if (id === "historial") refreshSharedHistory();
       window.scrollTo({top: document.querySelector(".topnav").offsetTop, behavior:"smooth"});
     }
     document.querySelectorAll(".nav-btn").forEach(b => b.addEventListener("click", () => navigate(b.dataset.view)));
@@ -3227,8 +3382,9 @@
     renderMatch();
     renderTopicGroups();
     renderSpeech("speech3"); renderSpeech("speech4");
-    renderHistory();
     fillVoiceSelect();
+    renderHistory();
+    refreshSharedHistory();
 </script>
 </body>
 </html>
