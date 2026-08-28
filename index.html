@@ -727,6 +727,42 @@
     .answer-list .mark { font-weight: 800; }
     .answer-list .mark.ok { color: #6ee7b7; }
     .answer-list .mark.bad { color: #fca5a5; }
+
+    .speech-edit-box {
+      display: grid;
+      gap: 8px;
+      margin: 0 0 18px;
+    }
+    .speech-edit-box label {
+      font-weight: 800;
+      font-size: 12px;
+      color: #cbd5e1;
+    }
+    .speech-edit-box textarea {
+      width: 100%;
+      min-height: 110px;
+      border: 1px solid #334155;
+      border-radius: 10px;
+      padding: 12px;
+      resize: vertical;
+      background: var(--surface);
+      color: var(--ink);
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: 16px;
+      line-height: 1.55;
+    }
+    .speech-edit-box textarea.speech-edit-bridge { min-height: 64px; }
+    .speech-edited-badge {
+      display: inline-block;
+      margin-left: 8px;
+      padding: 3px 8px;
+      border-radius: 999px;
+      border: 1px solid rgba(251,191,36,.45);
+      background: rgba(251,191,36,.12);
+      color: #fde68a;
+      font-size: 12px;
+      font-weight: 800;
+    }
     .section-speak {
       display: inline-flex;
       gap: 6px;
@@ -743,7 +779,7 @@
       .match-row { grid-template-columns: 1fr; }
     }
     @media print {
-      .hero, .topnav, .toolbar, .speech-controls, .slide-deck, footer, .timer-panel, .legend, .thread-banner, .progress-wrap, .profile-bar, .section-speak { display: none !important; }
+      .hero, .topnav, .toolbar, .speech-controls, .slide-deck, footer, .timer-panel, .legend, .thread-banner, .progress-wrap, .profile-bar, .section-speak, .speech-edit-box, .speech-edited-badge { display: none !important; }
       main { max-width: none; padding: 0; }
       .view { display: none !important; }
       .view.active { display: block !important; }
@@ -2236,6 +2272,8 @@ const presentationSlides = [
       }
     };
 
+    const speechDefaults = JSON.parse(JSON.stringify(speechData));
+
     const vocabThemes = [
       // ===== INGLÉS III · SpeakOut A2 unidades 5–8 =====
       {
@@ -2438,6 +2476,7 @@ const presentationSlides = [
     const PROFILE_KEY = "uai-ingles-profile-v1";
     const VOICE_KEY = "uai-ingles-voice-uri";
     const SPEED_KEY = "uai-ingles-speech-rate";
+    const SPEECH_EDIT_KEY = "uai-ingles-speech-edits-v1";
     const SPEECH_RATE_OPTIONS = [
       {value:0.7, label:"Lenta · 0.7x"},
       {value:0.85, label:"Tranquila · 0.85x"},
@@ -2473,6 +2512,7 @@ const presentationSlides = [
       matchItems:[],
       chosenVoiceURI: localStorage.getItem(VOICE_KEY) || "natural:en",
       speechRate: loadSavedSpeechRate(),
+      speechEditing: null,
       currentAudio:null,
       playGen:0,
       audioWaitResolve:null,
@@ -3173,6 +3213,42 @@ const presentationSlides = [
     function stripPhrase(html) {
       return (html || "").replace(/<\/?span class="phrase">/g, "").trim();
     }
+    function sectionHtmlToPlain(html) {
+      const div = document.createElement("div");
+      div.innerHTML = String(html || "");
+      return (div.textContent || "").replace(/\s+/g, " ").trim();
+    }
+    function plainToSpeechHtml(text) {
+      return escapeHtml(String(text || "").trim()).replace(/\n+/g, "<br>");
+    }
+    function loadSpeechEdits() {
+      try { return JSON.parse(localStorage.getItem(SPEECH_EDIT_KEY) || "{}") || {}; }
+      catch { return {}; }
+    }
+    function persistSpeechEdits(all) {
+      try { localStorage.setItem(SPEECH_EDIT_KEY, JSON.stringify(all || {})); } catch {}
+    }
+    function speechHasEdits(id) {
+      const ed = loadSpeechEdits()[id];
+      return !!(ed && Array.isArray(ed.sections) && ed.sections.some(s => s && ((s.text && s.text.trim()) || (s.bridge && s.bridge.trim()) || (s.title && s.title.trim()))));
+    }
+    function getActiveSpeech(id) {
+      const base = JSON.parse(JSON.stringify(speechDefaults[id] || speechData[id]));
+      const ed = loadSpeechEdits()[id];
+      if (!ed || !Array.isArray(ed.sections)) return base;
+      ed.sections.forEach((secEdit, i) => {
+        if (!secEdit || !base.sections[i]) return;
+        if (typeof secEdit.title === "string" && secEdit.title.trim()) base.sections[i].title = secEdit.title.trim();
+        if (typeof secEdit.bridge === "string") {
+          const b = secEdit.bridge.trim();
+          base.sections[i].bridge = b ? `<span class="link">${escapeHtml(b)}</span>` : "";
+        }
+        if (typeof secEdit.text === "string") {
+          base.sections[i].text = plainToSpeechHtml(secEdit.text);
+        }
+      });
+      return base;
+    }
     function slidePreviewHtml(idx) {
       if (typeof presentationSlides === "undefined" || !presentationSlides[idx]) return "";
       const s = presentationSlides[idx];
@@ -3182,12 +3258,33 @@ const presentationSlides = [
         ${img ? `<img class="slide-img" src="${img}" alt="Diapositiva ${s.n}: ${escapeHtml(s.title)}">` : `<h4>${escapeHtml(s.title)}</h4>`}
       </div>`;
     }
-    function sectionToParagraph(s, idx, speechId) {
+    function sectionToParagraph(s, idx, speechId, editing) {
+      const slideBit = (speechId === "speech3") ? slidePreviewHtml(idx) : "";
+      if (editing) {
+        const bridgePlain = sectionHtmlToPlain(s.bridge || "");
+        const textPlain = sectionHtmlToPlain(s.text || "");
+        return `<div class="speech-section" data-section="${idx}">
+          ${slideBit}
+          <div class="section-speak">
+            <span class="tag">${escapeHtml(s.title)}</span>
+          </div>
+          <div class="speech-edit-box">
+            <label>Título de la sección
+              <input class="speech-edit-title" data-idx="${idx}" value="${escapeHtml(s.title || "")}" style="width:100%;border:1px solid #334155;border-radius:10px;padding:10px;background:var(--surface);color:var(--ink)">
+            </label>
+            <label>Puente / transición (opcional)
+              <textarea class="speech-edit-bridge" data-idx="${idx}" placeholder="Ej: First, I’ll explain…">${escapeHtml(bridgePlain)}</textarea>
+            </label>
+            <label>Texto que vas a decir
+              <textarea class="speech-edit-text" data-idx="${idx}" placeholder="Escribí el texto de esta parte…">${escapeHtml(textPlain)}</textarea>
+            </label>
+          </div>
+        </div>`;
+      }
       const bridge = s.bridge
         ? `<span class="link">${stripPhrase(s.bridge)}</span> `
         : "";
       const body = s.text.replace(/\s+/g, " ").trim();
-      const slideBit = (speechId === "speech3") ? slidePreviewHtml(idx) : "";
       return `<div class="speech-section" data-section="${idx}">
         ${slideBit}
         <div class="section-speak">
@@ -3197,27 +3294,78 @@ const presentationSlides = [
         <p id="${speechId}-p-${idx}">${bridge}${body}</p>
       </div>`;
     }
+    function startSpeechEdit(id) {
+      stopSpeech();
+      state.speechEditing = id;
+      renderSpeech(id);
+      document.getElementById(id)?.scrollIntoView({behavior:"smooth", block:"start"});
+    }
+    function cancelSpeechEdit(id) {
+      state.speechEditing = null;
+      renderSpeech(id);
+    }
+    function saveSpeechEdits(id) {
+      const root = document.getElementById(id);
+      if (!root) return;
+      const d = speechDefaults[id] || speechData[id];
+      const sections = d.sections.map((s, i) => {
+        const titleEl = root.querySelector(`.speech-edit-title[data-idx="${i}"]`);
+        const bridgeEl = root.querySelector(`.speech-edit-bridge[data-idx="${i}"]`);
+        const textEl = root.querySelector(`.speech-edit-text[data-idx="${i}"]`);
+        return {
+          title: (titleEl?.value || s.title || "").trim(),
+          bridge: (bridgeEl?.value || "").trim(),
+          text: (textEl?.value || "").trim()
+        };
+      });
+      const all = loadSpeechEdits();
+      all[id] = { sections, savedAt: new Date().toISOString() };
+      persistSpeechEdits(all);
+      state.speechEditing = null;
+      renderSpeech(id);
+    }
+    function resetSpeechEdits(id) {
+      if (!confirm("¿Restaurar el speech original y borrar tus ediciones guardadas en este navegador?")) return;
+      const all = loadSpeechEdits();
+      delete all[id];
+      persistSpeechEdits(all);
+      state.speechEditing = null;
+      renderSpeech(id);
+    }
     function renderSpeech(id) {
-      const d = speechData[id];
-      const questions = d.questions ? `<div class="questions-box"><h3>Las 4 preguntas que debés llevar (Inglés IV)</h3><ol>${d.questions.map(q=>`<li><span class="tag">${q[0]}</span><br><strong>${q[1]}</strong><br><span class="strategy">Answer strategy:</span> ${q[2]}</li>`).join("")}</ol>
+      const editing = state.speechEditing === id;
+      const source = getActiveSpeech(id);
+      const questions = source.questions ? `<div class="questions-box"><h3>Las 4 preguntas que debés llevar (Inglés IV)</h3><ol>${source.questions.map(q=>`<li><span class="tag">${q[0]}</span><br><strong>${q[1]}</strong><br><span class="strategy">Answer strategy:</span> ${q[2]}</li>`).join("")}</ol>
         <p><strong>Frases de estrategia:</strong> “If I understood your question correctly…” · “That’s an interesting question.” · “As far as I know…” · “Could you please repeat the question?” · “Let me give you an example.”</p>
       </div>` : "";
-      const fullText = d.sections.map((s,i) => sectionToParagraph(s,i,id)).join("");
+      const fullText = source.sections.map((s,i) => sectionToParagraph(s,i,id, editing)).join("");
       const profileName = getProfile().name || "";
+      const edited = speechHasEdits(id);
+      const editToolbar = editing ? `
+            <button class="btn primary" type="button" onclick="saveSpeechEdits('${id}')">Guardar cambios</button>
+            <button class="btn" type="button" onclick="cancelSpeechEdit('${id}')">Cancelar</button>
+            <button class="btn" type="button" onclick="resetSpeechEdits('${id}')" style="border-color:#f87171;color:#fca5a5">Restaurar original</button>
+          ` : `
+            <button class="btn" type="button" onclick="startSpeechEdit('${id}')">✎ Editar speech</button>
+            ${edited ? `<button class="btn small" type="button" onclick="resetSpeechEdits('${id}')">Restaurar original</button>` : ""}
+          `;
       document.getElementById(id).innerHTML = `
-        <span class="tag">${d.level} · Oral</span>
-        <h2>${d.title}</h2>
-        <p class="lead">${d.subtitle}</p>
-        <div class="thread-banner"><span class="thread-icon">🎙</span><div><strong>${d.structure}</strong><p>${d.thread}</p></div></div>
+        <span class="tag">${source.level} · Oral</span>
+        ${edited ? `<span class="speech-edited-badge">Editado en este navegador</span>` : ""}
+        <h2>${source.title}</h2>
+        <p class="lead">${source.subtitle}</p>
+        <div class="thread-banner"><span class="thread-icon">🎙</span><div><strong>${source.structure}</strong><p>${source.thread}</p></div></div>
         <div class="speech-controls">
           <div><label>Tu nombre para personalizar el speech<input class="name-input" value="${escapeHtml(profileName)}" placeholder="Escribí tu nombre" oninput="setStudentName('${id}',this.value)"></label></div>
           <div class="toolbar" style="margin:0">
+            ${editToolbar}
             <button class="btn small" onclick="window.print()">Imprimir</button>
           </div>
         </div>
+        ${editing ? `<div class="notice"><strong>Modo edición:</strong> cambiá el texto de cada sección y dale a <em>Guardar cambios</em>. Queda guardado solo en este navegador (no modifica GitHub). El audio usa tu versión editada.</div>` : ""}
         <div class="toolbar">
           <div class="timer-panel"><span id="timer-${id}" class="timer">07:00</span><button class="btn small" onclick="toggleTimer('${id}')">Iniciar / pausar</button><button class="btn small" onclick="resetTimer('${id}')">Reiniciar</button></div>
-          <button class="btn teal" onclick="speakSpeech('${id}')">▶ Escuchar speech completo</button>
+          <button class="btn teal" onclick="speakSpeech('${id}')" ${editing ? "disabled" : ""}>▶ Escuchar speech completo</button>
           <button class="btn" onclick="stopSpeech()">■ Detener audio</button>
           <label style="font-size:13px;font-weight:800;color:#cbd5e1">Voz EN
             <select class="speech-voice-select" onchange="setChosenVoice(this.value)" style="margin-left:6px;border:1px solid #334155;border-radius:8px;padding:6px 8px;background:var(--surface);color:var(--ink)">
@@ -3243,7 +3391,7 @@ const presentationSlides = [
           <span><i class="lg-link"></i> Celeste = conexión entre partes</span>
         </div>
         <div class="speech-layout">
-          <aside class="slide-deck">${d.slides.map((s,i)=>`<div class="slide-thumb ${i===0?"active":""}" onclick="goSection('${id}',${i},this)"><small>SLIDE ${i+1}</small><strong>${s[0]}</strong><span>${s[1]}</span></div>`).join("")}</aside>
+          <aside class="slide-deck">${source.slides.map((s,i)=>`<div class="slide-thumb ${i===0?"active":""}" onclick="goSection('${id}',${i},this)"><small>SLIDE ${i+1}</small><strong>${s[0]}</strong><span>${s[1]}</span></div>`).join("")}</aside>
           <div id="body-${id}">
             <article class="speech-one" id="${id}-text">${fullText}</article>
             ${questions}
@@ -3263,12 +3411,15 @@ const presentationSlides = [
       if (profileName) setStudentName(id, profileName);
       fillVoiceSelect();
       renderQuiz(id === "speech3" ? "pres" : "pres4");
+      updateTimer(id);
     }
     function setStudentName(id, value) {
       document.querySelectorAll(`#${id} .student-name`).forEach(el => el.textContent = value.trim() || "[your name]");
     }
     function goSection(id, i, el) {
-      const target = document.getElementById(`${id}-p-${i}`) || document.querySelectorAll(`#${id}-text p`)[i];
+      const target = document.getElementById(`${id}-p-${i}`)
+        || document.querySelector(`#${id} .speech-section[data-section="${i}"]`)
+        || document.querySelectorAll(`#${id}-text p`)[i];
       target?.scrollIntoView({behavior:"smooth", block:"center"});
       el.parentElement.querySelectorAll(".slide-thumb").forEach(x=>x.classList.remove("active"));
       el.classList.add("active");
