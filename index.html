@@ -808,6 +808,17 @@
             </select>
           </label>
         </div>
+        <div>
+          <label>Velocidad del bot
+            <select id="speech-rate-select" onchange="setSpeechRate(this.value)">
+              <option value="0.7">Lenta · 0.7x</option>
+              <option value="0.85">Tranquila · 0.85x</option>
+              <option value="1" selected>Normal · 1x</option>
+              <option value="1.15">Rápida · 1.15x</option>
+              <option value="1.35">Muy rápida · 1.35x</option>
+            </select>
+          </label>
+        </div>
         <button class="btn primary" type="button" onclick="saveProfile()">Guardar perfil</button>
         <button class="btn" type="button" onclick="navigate('historial')">Ver historial</button>
         <button class="btn small" type="button" onclick="previewVoice()">Probar voz</button>
@@ -2426,6 +2437,23 @@ const presentationSlides = [
     const HISTORY_KEY = "uai-ingles-history-v2";
     const PROFILE_KEY = "uai-ingles-profile-v1";
     const VOICE_KEY = "uai-ingles-voice-uri";
+    const SPEED_KEY = "uai-ingles-speech-rate";
+    const SPEECH_RATE_OPTIONS = [
+      {value:0.7, label:"Lenta · 0.7x"},
+      {value:0.85, label:"Tranquila · 0.85x"},
+      {value:1, label:"Normal · 1x"},
+      {value:1.15, label:"Rápida · 1.15x"},
+      {value:1.35, label:"Muy rápida · 1.35x"}
+    ];
+    function clampSpeechRate(rate) {
+      const r = Number(rate);
+      if (!Number.isFinite(r)) return 1;
+      return Math.min(1.5, Math.max(0.6, Math.round(r * 100) / 100));
+    }
+    function loadSavedSpeechRate() {
+      try { return clampSpeechRate(localStorage.getItem(SPEED_KEY) || 1); }
+      catch { return 1; }
+    }
     const GRADED_TYPES = new Set(["quiz","blanks","story","match","email"]);
     // Supabase · historial compartido en tiempo real (permanente, gratis).
     // 1) Creá un proyecto en https://supabase.com/dashboard
@@ -2444,6 +2472,7 @@ const presentationSlides = [
       timerStartedAt:{},
       matchItems:[],
       chosenVoiceURI: localStorage.getItem(VOICE_KEY) || "natural:en",
+      speechRate: loadSavedSpeechRate(),
       currentAudio:null,
       playGen:0,
       audioWaitResolve:null,
@@ -2503,6 +2532,40 @@ const presentationSlides = [
       });
       updateVoiceStatus();
     }
+    function getSpeechRate() {
+      return clampSpeechRate(state.speechRate);
+    }
+    function setSpeechRate(rate, opts={}) {
+      state.speechRate = clampSpeechRate(rate);
+      try { localStorage.setItem(SPEED_KEY, String(state.speechRate)); } catch {}
+      const want = String(state.speechRate);
+      document.querySelectorAll("#speech-rate-select, .speech-rate-select").forEach(sel => {
+        if (!sel) return;
+        if ([...sel.options].some(o => o.value === want)) sel.value = want;
+        else {
+          const nums = [...sel.options].map(o => Number(o.value)).filter(Number.isFinite);
+          if (!nums.length) return;
+          const closest = nums.reduce((best, n) => Math.abs(n - state.speechRate) < Math.abs(best - state.speechRate) ? n : best, nums[0]);
+          sel.value = String(closest);
+        }
+      });
+      if (state.currentAudio) {
+        try { state.currentAudio.playbackRate = state.speechRate; } catch {}
+      }
+      if (!opts.silent) updateVoiceStatus();
+    }
+    function fillSpeechRateSelect() {
+      const options = SPEECH_RATE_OPTIONS.map(o =>
+        `<option value="${o.value}">${escapeHtml(o.label)}</option>`
+      ).join("");
+      document.querySelectorAll("#speech-rate-select, .speech-rate-select").forEach(sel => {
+        if (!sel) return;
+        sel.innerHTML = options;
+        const want = String(getSpeechRate());
+        if ([...sel.options].some(o => o.value === want)) sel.value = want;
+        else sel.value = "1";
+      });
+    }
     function fillVoiceSelect() {
       const options = NATURAL_VOICES.map(v =>
         `<option value="natural:${v.id}">${escapeHtml(v.label)}</option>`
@@ -2518,13 +2581,14 @@ const presentationSlides = [
           localStorage.setItem(VOICE_KEY, state.chosenVoiceURI);
         }
       });
+      fillSpeechRateSelect();
       updateVoiceStatus();
     }
     function updateVoiceStatus() {
       const el = document.getElementById("voice-status");
       if (!el) return;
       const cfg = NATURAL_VOICES.find(v => v.id === getVoiceLang()) || NATURAL_VOICES[0];
-      el.textContent = `Lector: ${cfg.label} · voz ${cfg.voice} · internet requerido.`;
+      el.textContent = `Lector: ${cfg.label} · voz ${cfg.voice} · velocidad ${getSpeechRate()}x · internet requerido.`;
     }
     async function previewVoice() {
       await speakText("Good morning everyone. Today I'm going to talk about data centres and how we can reduce their energy consumption.");
@@ -3162,6 +3226,15 @@ const presentationSlides = [
               <option value="natural:en-AU">English AU · natural</option>
             </select>
           </label>
+          <label style="font-size:13px;font-weight:800;color:#cbd5e1">Velocidad
+            <select class="speech-rate-select" onchange="setSpeechRate(this.value)" style="margin-left:6px;border:1px solid #334155;border-radius:8px;padding:6px 8px;background:var(--surface);color:var(--ink)">
+              <option value="0.7">0.7x</option>
+              <option value="0.85">0.85x</option>
+              <option value="1" selected>1x</option>
+              <option value="1.15">1.15x</option>
+              <option value="1.35">1.35x</option>
+            </select>
+          </label>
           <span class="score">Objetivo: 5–7 minutos · solo inglés</span>
         </div>
         <div class="progress-wrap"><div id="progress-${id}" class="progress-bar"></div></div>
@@ -3277,6 +3350,7 @@ const presentationSlides = [
             reject(new Error("No se pudo reproducir el audio"));
           }
         };
+        try { audio.playbackRate = getSpeechRate(); } catch {}
         const p = audio.play();
         if (p && typeof p.then === "function") {
           p.catch(err => {
@@ -3358,7 +3432,7 @@ const presentationSlides = [
         const u = new SpeechSynthesisUtterance(text);
         const cfg = getNaturalVoiceConfig();
         u.lang = cfg.language || "en-US";
-        u.rate = 0.95;
+        u.rate = getSpeechRate();
         const voices = speechSynthesis.getVoices().filter(v => /^en([-_]|$)/i.test(v.lang || ""));
         const preferred = voices.find(v => (v.lang || "").toLowerCase().startsWith(u.lang.toLowerCase().slice(0, 2))) || voices[0];
         if (preferred) u.voice = preferred;
