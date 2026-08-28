@@ -379,6 +379,35 @@
     .type-tag.adj { color: #fcd34d; border-color: #fbbf24; }
     .type-tag.noun { color: #86efac; border-color: #4ade80; }
     .type-tag.tense { color: #7dd3fc; border-color: #38bdf8; }
+
+    .email-quote {
+      border-left: 4px solid var(--teal);
+      background: rgba(45, 212, 191, .06);
+      padding: 14px 18px;
+      border-radius: 0 12px 12px 0;
+      color: #cbd5e1;
+      white-space: pre-line;
+      margin: 12px 0 16px;
+      font-size: 15px;
+    }
+    .email-check-row { display:flex; gap:8px; align-items:flex-start; padding:6px 0; }
+    .email-check-row .mark { flex:0 0 auto; font-weight:900; }
+    .email-check-row.ok .mark { color: var(--green); }
+    .email-check-row.bad .mark { color: var(--red); }
+    .email-issue { padding:8px 10px; margin:6px 0; border-radius:8px; background:rgba(248,113,113,.08); border:1px solid rgba(248,113,113,.25); color:#fca5a5; font-size:14px; }
+    .email-model { display:none; margin-top:10px; }
+    .email-model.open { display:block; }
+    .email-structure {
+      background: rgba(99,102,241,.08);
+      border: 1px solid rgba(129,140,248,.35);
+      border-radius: 12px;
+      padding: 12px 14px;
+      margin: 0 0 18px;
+      color: #c7d2fe;
+      font-size: 14px;
+    }
+    .email-structure ol { margin: 8px 0 0; padding-left: 18px; }
+    .email-structure li { margin: 4px 0; }
     .essay-guide {
       background: rgba(45,212,191,.07);
       border: 1px dashed rgba(45,212,191,.35);
@@ -746,6 +775,7 @@
       <button class="nav-btn" data-view="ingles4">Práctica IV</button>
       <button class="nav-btn" data-view="speech3">Speech III</button>
       <button class="nav-btn" data-view="speech4">Speech IV</button>
+      <button class="nav-btn" data-view="emails">Emails</button>
       <button class="nav-btn" data-view="historial">Historial</button>
     </div>
   </nav>
@@ -1519,13 +1549,6 @@
           <textarea class="word-area" data-target="100" placeholder="Last summer I went to Córdoba by bus. It was cheaper than the train..."></textarea>
           <div class="counter">0 palabras · objetivo: 90–110</div>
         </article>
-        <article class="card" style="margin-top:14px">
-          <span class="tag">Email · ~100 words</span>
-          <h3>Email practice</h3>
-          <p><strong>Consigna:</strong> Write an email to a friend about a trip you are going to take. Explain where you went last time, how you are going to travel, what you would like to do, and ask for directions or hotel advice.</p>
-          <textarea class="word-area" placeholder="Hi ...,&#10;&#10;How are you? I'm writing to tell you about..."></textarea>
-          <div class="counter">0 palabras · objetivo: 90–110</div>
-        </article>
       </div>
     </section>
 
@@ -1609,6 +1632,26 @@
 
     <section id="speech3" class="view speech-view"></section>
     <section id="speech4" class="view speech-view"></section>
+
+
+    <section id="emails" class="view">
+      <h2>Práctica de emails</h2>
+      <p class="lead">Mismo formato que te da la profesora: leés el email de un amigo, respondés (~100 palabras) sobre <strong>tu ciudad o región</strong> y el corrector revisa si tocaste los puntos pedidos (mejor época, actividades, ropa, porque…). Cada vez que pulses <strong>Nuevo email</strong> cambia el amigo, el destino y el vocabulario.</p>
+      <div class="email-structure">
+        <strong>Estructura del ejercicio (modelo de la profesora)</strong>
+        <ol>
+          <li>Leés el email entrante (saludo → visita → 3 preguntas: <em>when / what to do / clothes</em>).</li>
+          <li>Respondés: saludo → “great news” → recomendás época + <em>because</em> → actividades → ropa/clima → cierre.</li>
+          <li>Usá: <em>You should… / I recommend… / The best time is… / You can visit…</em></li>
+        </ol>
+      </div>
+      <div class="notice"><strong>Frases útiles:</strong> You should… / You shouldn't… / I recommend… / The best time to visit is… / There aren't so many tourists… / You can visit… / Bring warm / light clothes because…</div>
+      <div class="toolbar" style="margin-bottom:14px">
+        <button class="btn teal" type="button" onclick="newEmailPrompt()">↻ Nuevo email</button>
+        <span id="email-scenario-tag" class="score">Sin generar</span>
+      </div>
+      <div id="email-prompts"></div>
+    </section>
 
     <section id="historial" class="view">
       <h2>Historial de práctica</h2>
@@ -2383,7 +2426,7 @@ const presentationSlides = [
     const HISTORY_KEY = "uai-ingles-history-v2";
     const PROFILE_KEY = "uai-ingles-profile-v1";
     const VOICE_KEY = "uai-ingles-voice-uri";
-    const GRADED_TYPES = new Set(["quiz","blanks","story","match"]);
+    const GRADED_TYPES = new Set(["quiz","blanks","story","match","email"]);
     // Supabase · historial compartido en tiempo real (permanente, gratis).
     // 1) Creá un proyecto en https://supabase.com/dashboard
     // 2) Corré el SQL de supabase-setup.sql
@@ -3645,6 +3688,336 @@ const presentationSlides = [
         answers
       });
     }
+
+
+    function pick(arr) { return arr[Math.floor(Math.random() * arr.length)]; }
+    function wordCount(text) {
+      const t = (text || "").trim();
+      return t ? t.split(/\s+/).length : 0;
+    }
+
+    const EMAIL_CATEGORY_LABELS = {
+      season: "Mencionás una estación o un mes",
+      reason: "Explicás el porqué (because / since / so)",
+      activities: "Sugerís actividades para hacer",
+      clothes: "Recomendás qué ropa llevar",
+      weather: "Describís cómo es el clima",
+      places: "Nombrás lugares o ciudades",
+      food: "Mencionás comida típica",
+      advice: "Das una recomendación clara (should / shouldn't / recommend)",
+      hotel: "Usás lenguaje de hotel / viaje",
+      transport: "Mencionás transporte o direcciones"
+    };
+    const EMAIL_KEYWORDS = {
+      season: ["january","february","march","april","may","june","july","august","september","october","november","december","spring","summer","autumn","fall","winter","season","month"],
+      reason: ["because","since","so","that's why","therefore","as it"],
+      activities: ["visit","go","do","see","try","eat","walk","swim","ride","tour","museum","park","beach","restaurant","shop","concert","hike","explore","enjoy","climb","photos","looking around"],
+      clothes: ["clothes","wear","bring","pack","jacket","coat","t-shirt","tshirt","shirt","shorts","jeans","shoes","sunscreen","umbrella","sweater","jumper","scarf","gloves","hat","cap","sunglasses","boots","swimsuit"],
+      weather: ["weather","rain","sunny","hot","cold","warm","cool","humid","dry","snow","mild","temperature"],
+      places: ["city","cities","town","museum","park","river","beach","mountain","lake","centre","center","square","market","coast","forest","national"],
+      food: ["food","eat","restaurant","try","dish","traditional","delicious","tasty","asado","empanadas","pizza","ice-cream","local"],
+      advice: ["should","shouldn't","recommend","don't miss","must","make sure","i think"],
+      hotel: ["hotel","book","check in","check out","room","reservation","hostel"],
+      transport: ["bus","train","taxi","metro","walk","on foot","get on","get off","turn left","turn right","straight"]
+    };
+    const COMMON_MISTAKES = [
+      {re:/\b(very|so|really)\s+taste\b/i, msg:"“very taste” no existe. Usá “tasty” (rico/sabroso): “very tasty”."},
+      {re:/\bthe eat\b/i, msg:"“the eat” no es correcto — “eat” es verbo. Usá “the food”."},
+      {re:/\b(weather('?s)?\s+(is\s+)?(very|usually)?\s*clean)\b/i, msg:"“clean weather” no es natural. Usá “nice/good/clear weather”."},
+      {re:/\bwant funny\b/i, msg:"“funny” = gracioso. Si querés decir divertido, usá “fun”."},
+      {re:/[!?]\s*,/, msg:"No se pone coma después de “!” o “?”."},
+      {re:/,\s+It\b/, msg:"Después de una coma, “it” va en minúscula: “…, it's very hot”."},
+      {re:/\b[Bb]uenos aires\b/, msg:"“Buenos Aires” lleva mayúscula en ambas palabras."},
+      {re:/(^|\n)\s*(see you soon|best wishes|take care|thanks|regards)\b/m, msg:"Los cierres van con mayúscula: “See you soon” / “Best wishes”."},
+      {re:/\bi\b/, msg:"El pronombre “I” siempre va con mayúscula."},
+      {re:/[a-z] (Spring|Summer|Autumn|Winter|Fall)\b/, msg:"Las estaciones van en minúscula, salvo al empezar la oración."},
+      {re:/\s{2,}/, msg:"Hay espacios dobles — revisalos antes de entregar."},
+      {re:/,[A-Za-z]/, msg:"Falta un espacio después de una coma."},
+      {re:/\bin the coast\b/i, msg:"Se dice “on the coast”, no “in the coast”."}
+    ];
+
+    const EMAIL_DESTINATIONS = [
+      {
+        id:"rosario", place:"Rosario", region:"my city, Rosario", country:"Argentina",
+        popular:"summer, from December to February", recommend:"autumn, maybe in April",
+        reason:"there aren't so many tourists and the weather is pleasant",
+        activity:"you can walk along the Paraná River and visit the Monumento a la Bandera",
+        clothes:"light clothes and a jacket because evenings can be cool",
+        weather:"mild and sometimes windy",
+        food:"local pizza and asado",
+        hotel:"book a hotel near the river",
+        transport:"go by bus or on foot around the centre"
+      },
+      {
+        id:"ba", place:"Buenos Aires", region:"Buenos Aires, the capital", country:"Argentina",
+        popular:"spring, from September to November", recommend:"October",
+        reason:"the weather is lovely and there are cultural events everywhere",
+        activity:"you can look around San Telmo, visit museums and try a tango show",
+        clothes:"comfortable shoes and a light jacket because it can change quickly",
+        weather:"warm during the day and cooler at night",
+        food:"empanadas and ice-cream",
+        hotel:"check in at a hotel in Palermo",
+        transport:"take the metro or go by bus"
+      },
+      {
+        id:"bariloche", place:"Bariloche", region:"Bariloche, in the mountains", country:"Argentina",
+        popular:"summer, from December to March", recommend:"winter, maybe in July",
+        reason:"you can enjoy the snow and there are fewer tourists midweek",
+        activity:"you can visit the lake, take photos and try hot chocolate in town",
+        clothes:"warm clothes, a coat, gloves and waterproof boots because it is very cold",
+        weather:"cold and sometimes snowy",
+        food:"chocolate and local desserts",
+        hotel:"book a room with a lake view",
+        transport:"go by bus from the airport and walk around the centre"
+      },
+      {
+        id:"mendoza", place:"Mendoza", region:"Mendoza, near the Andes", country:"Argentina",
+        popular:"summer", recommend:"March or April",
+        reason:"the harvest season is beautiful and it isn't too hot",
+        activity:"you can visit vineyards, go hiking and look around the city parks",
+        clothes:"sunglasses, a hat and comfortable shoes; bring a jumper for the evening",
+        weather:"sunny and dry",
+        food:"local wine and asado",
+        hotel:"book a hotel near the main square",
+        transport:"go by taxi or on an organised tour to the vineyards"
+      },
+      {
+        id:"mdq", place:"Mar del Plata", region:"Mar del Plata, on the coast", country:"Argentina",
+        popular:"January and February", recommend:"March",
+        reason:"there aren't so many tourists and the beach is still nice",
+        activity:"you can walk along the coast, visit the beach and try food trucks at night",
+        clothes:"a swimsuit, sunscreen, a cap and a light jumper for the evening",
+        weather:"warm and sometimes windy",
+        food:"seafood and ice-cream",
+        hotel:"check in early because popular hotels fill quickly",
+        transport:"get off the bus near the centre and go straight on to the beach"
+      },
+      {
+        id:"cordoba", place:"Córdoba", region:"Córdoba", country:"Argentina",
+        popular:"summer", recommend:"spring, from September to November",
+        reason:"the weather is mild and you can explore without extreme heat",
+        activity:"you can visit the Jesuit churches, walk in the hills and try local restaurants",
+        clothes:"t-shirts, jeans and comfortable shoes; pack a light jacket",
+        weather:"pleasant and sometimes rainy",
+        food:"empanadas and local dishes",
+        hotel:"pay your bill at reception before you check out",
+        transport:"go by bus between towns or walk around the centre"
+      },
+      {
+        id:"patagonia", place:"Patagonia", region:"the south of Argentina, in Patagonia", country:"Argentina",
+        popular:"summer, from October to March", recommend:"autumn, maybe in April",
+        reason:"there aren't so many tourists at that time and the autumn leaves are beautiful",
+        activity:"you can visit a national park near us and take amazing photos",
+        clothes:"warm clothes because the weather can be very cold",
+        weather:"cold and windy",
+        food:"local lamb and hot chocolate",
+        hotel:"book a room early in small towns",
+        transport:"go by bus between towns and walk when you arrive"
+      },
+      {
+        id:"iguazu", place:"Iguazú", region:"Iguazú, near the waterfalls and the forest", country:"Argentina",
+        popular:"winter", recommend:"April or May",
+        reason:"it is less humid and there are fewer tourists",
+        activity:"you can visit the waterfalls, walk in the forest and take a boat tour",
+        clothes:"light clothes, a raincoat and comfortable shoes because it can rain",
+        weather:"warm and humid",
+        food:"local fish and tropical fruit",
+        hotel:"book a hotel with early check-in if you want to see sunrise",
+        transport:"get on a local bus to the park entrance"
+      }
+    ];
+
+    const EMAIL_FRIENDS = ["Matt","Emma","Lucy","Ben","Sam","Daniel","Sofia","Tom","Anna","Chris"];
+    const EMAIL_OPENERS = [
+      "How are you? I'm fine and work is good.",
+      "How are you? Everything is fine here.",
+      "Hope you're well! Work is busy but good.",
+      "How are things? I'm fine, thanks."
+    ];
+    const EMAIL_DURATIONS = ["for two weeks","for a week","for ten days","for a long weekend","next month for 14 days"];
+    const EMAIL_FOCUSES = [
+      {id:"classic", label:"Best time to visit", needs:["season","reason","activities","clothes","advice"], extraQ:null},
+      {id:"food", label:"Visit + local food", needs:["season","reason","activities","clothes","food","advice"], extraQ:"What local food should I try?"},
+      {id:"hotel", label:"Visit + hotel tips", needs:["season","activities","clothes","hotel","advice"], extraQ:"Where should I stay? Any hotel tips?"},
+      {id:"transport", label:"Visit + getting around", needs:["season","activities","clothes","transport","advice"], extraQ:"How can I get around the city?"},
+      {id:"weather", label:"Visit + weather focus", needs:["season","reason","weather","clothes","activities","advice"], extraQ:"What's the weather usually like?"}
+    ];
+
+    let currentEmail = null;
+
+    function buildIncomingEmail(friend, dest, duration, opener, focus, yourName) {
+      const lines = [
+        `Hi ${yourName},`,
+        "",
+        opener,
+        `Can you help me? I want to come to ${dest.place} next year, ${duration}. When is the best time to come? What are some good things to do? What clothes should I bring?`
+      ];
+      if (focus.extraQ) lines[lines.length - 1] += " " + focus.extraQ;
+      lines.push("", "Best wishes,", friend);
+      return lines.join("\n");
+    }
+
+    function buildModelReply(friend, dest, focus, yourName) {
+      const parts = [
+        `Hi ${friend},`,
+        "",
+        "It's good to hear from you. We're well, thanks.",
+        `It's great news about your visit. When should you come? Well, it depends. In ${dest.region}, many people think the best time is ${dest.popular}. But I think you should come in ${dest.recommend}. ${dest.reason[0].toUpperCase() + dest.reason.slice(1)}.`,
+        `${dest.activity[0].toUpperCase() + dest.activity.slice(1)}. You should bring ${dest.clothes}.`
+      ];
+      if (focus.needs.includes("food")) {
+        parts.push(`Also, you have to try ${dest.food} — it's really tasty!`);
+      }
+      if (focus.needs.includes("hotel")) {
+        parts.push(`For your stay, ${dest.hotel}.`);
+      }
+      if (focus.needs.includes("transport")) {
+        parts.push(`To get around, ${dest.transport}.`);
+      }
+      if (focus.needs.includes("weather") && !/weather|cold|hot|warm|mild|humid|snow|rain|sunny/.test(parts.join(" ").toLowerCase())) {
+        parts.push(`The weather is usually ${dest.weather}.`);
+      }
+      parts.push("", "Best wishes,", yourName);
+      return parts.join("\n");
+    }
+
+    function buildBullets(dest, focus) {
+      const bullets = [
+        `Recommend the best time / season to visit ${dest.place} (and say why).`,
+        "Suggest some good things to do (activities / places).",
+        "Say what clothes they should bring (and mention the weather if useful)."
+      ];
+      if (focus.needs.includes("food")) bullets.push(`Recommend local food to try (${dest.food}).`);
+      if (focus.needs.includes("hotel")) bullets.push("Give one hotel tip (book / check in / room…).");
+      if (focus.needs.includes("transport")) bullets.push("Explain how to get around (bus, on foot, directions…).");
+      bullets.push("Use polite email structure: greeting → answer the questions → closing.");
+      return bullets;
+    }
+
+    function generateEmailScenario() {
+      const profile = (typeof getProfile === "function" ? getProfile() : {}) || {};
+      const yourName = (profile.name || "").trim() || "Alex";
+      const friend = pick(EMAIL_FRIENDS);
+      const dest = pick(EMAIL_DESTINATIONS);
+      const focus = pick(EMAIL_FOCUSES);
+      const duration = pick(EMAIL_DURATIONS);
+      const opener = pick(EMAIL_OPENERS);
+      return {
+        id: "dyn",
+        title: `${focus.label} · ${dest.place}`,
+        from: friend,
+        yourName,
+        dest,
+        focus,
+        promptHtml: buildIncomingEmail(friend, dest, duration, opener, focus, yourName),
+        bullets: buildBullets(dest, focus),
+        needs: focus.needs,
+        model: buildModelReply(friend, dest, focus, yourName),
+        tip: `Read the email. When does a local recommend travelling to ${dest.place}? Why? Then write your own reply about your city or region (you can adapt this ${dest.place} model).`
+      };
+    }
+
+    function newEmailPrompt() {
+      currentEmail = generateEmailScenario();
+      renderEmailPractice();
+    }
+
+    function renderEmailPractice() {
+      const box = document.getElementById("email-prompts");
+      if (!box) return;
+      if (!currentEmail) currentEmail = generateEmailScenario();
+      const p = currentEmail;
+      const tag = document.getElementById("email-scenario-tag");
+      if (tag) tag.textContent = p.title;
+      box.innerHTML = `
+        <article class="card" style="margin-bottom:22px">
+          <span class="tag">WRITING · write an email about the best time to visit</span>
+          <h3 style="margin-top:8px">${escapeHtml(p.title)}</h3>
+          <p class="hint" style="margin:0 0 8px">${escapeHtml(p.tip)}</p>
+          <p class="hint" style="margin:0 0 4px"><strong>Email from ${escapeHtml(p.from)}:</strong></p>
+          <div class="email-quote">${escapeHtml(p.promptHtml)}</div>
+          <p class="hint" style="margin:0 0 6px"><strong>B · Write a reply to ${escapeHtml(p.from)} about your city or region. Include:</strong></p>
+          <ul class="checklist">${p.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>
+          <textarea id="email-text-dyn" class="word-area" data-target="100" placeholder="Hi ${escapeHtml(p.from)},&#10;&#10;It's good to hear from you..."></textarea>
+          <div class="counter" id="email-counter-dyn">0 palabras · objetivo: 100+</div>
+          <div class="toolbar">
+            <button class="btn primary" type="button" onclick="checkEmail()">Corregir</button>
+            <button class="btn" type="button" onclick="toggleEmailModel()">Ver / ocultar modelo (estructura)</button>
+            <button class="btn" type="button" onclick="newEmailPrompt()">Otro escenario</button>
+            <span id="email-score-dyn" class="score">Sin corregir</span>
+          </div>
+          <div id="email-result-dyn"></div>
+          <div id="email-model-dyn" class="email-model card" style="margin-top:10px;background:rgba(45,212,191,.05)">
+            <span class="tag">Modelo de respuesta (estructura tipo Vicente → Matt)</span>
+            <p class="hint">Esto es un ejemplo de cómo armar la respuesta. No copies literal: adaptá a <em>tu</em> ciudad con tus propias palabras.</p>
+            <div class="email-quote" style="border-left-color:#5eead4">${escapeHtml(p.model)}</div>
+          </div>
+        </article>`;
+      const area = document.getElementById("email-text-dyn");
+      area?.addEventListener("input", () => {
+        const words = wordCount(area.value);
+        const out = document.getElementById("email-counter-dyn");
+        if (out) {
+          out.textContent = `${words} palabras · objetivo: 100+`;
+          out.style.color = words >= 100 ? "var(--green)" : "var(--muted)";
+        }
+      });
+    }
+
+    function toggleEmailModel() {
+      document.getElementById("email-model-dyn")?.classList.toggle("open");
+    }
+
+    function checkEmail() {
+      const prompt = currentEmail;
+      const area = document.getElementById("email-text-dyn");
+      const resultBox = document.getElementById("email-result-dyn");
+      if (!prompt || !area || !resultBox) return;
+      const text = area.value.trim();
+      const lower = text.toLowerCase();
+      const words = wordCount(text);
+      if (!text) {
+        resultBox.innerHTML = `<div class="exercise wrong"><div class="feedback" style="display:block">Escribí tu respuesta antes de corregir.</div></div>`;
+        return;
+      }
+      const needResults = (prompt.needs || []).map(cat => {
+        const kws = EMAIL_KEYWORDS[cat] || [];
+        const found = kws.some(k => lower.includes(k.toLowerCase()));
+        return {label: EMAIL_CATEGORY_LABELS[cat] || cat, found};
+      });
+      const issues = COMMON_MISTAKES.filter(m => m.re.test(text)).map(m => m.msg);
+      const covered = needResults.filter(r => r.found).length;
+      const wordOk = words >= 100;
+      const greetingOk = /^(hi|hello|dear)\b/i.test(text);
+      const closingOk = /(best wishes|see you|take care|regards|love)\s*,?\s*\n?\s*\w+/i.test(text);
+      let score = 0;
+      const max = needResults.length + 3;
+      score += covered;
+      if (wordOk) score++;
+      if (greetingOk) score++;
+      if (closingOk) score++;
+      const pct = Math.round(score / max * 100);
+      resultBox.innerHTML = `
+        <div class="exercise ${pct >= 70 ? "correct" : "wrong"}" style="margin-top:12px">
+          <div class="feedback" style="display:block;margin-bottom:8px">
+            ${wordOk ? "✓" : "✗"} Palabras: <strong>${words}</strong> (mínimo 100)${greetingOk ? "" : " · Falta un saludo claro (Hi…)"}${closingOk ? "" : " · Falta un cierre (Best wishes, …)"}
+          </div>
+          ${needResults.map(r => `<div class="email-check-row ${r.found ? "ok" : "bad"}"><span class="mark">${r.found ? "✓" : "✗"}</span><span>${escapeHtml(r.label)}</span></div>`).join("")}
+        </div>
+        ${issues.length ? `<div class="exercise wrong" style="margin-top:10px"><div class="question" style="margin-bottom:6px">Revisá estas expresiones:</div>${issues.map(m => `<div class="email-issue">${escapeHtml(m)}</div>`).join("")}</div>` : `<div class="exercise correct" style="margin-top:10px"><div class="feedback" style="display:block">✓ No encontré errores típicos habituales en este texto.</div></div>`}
+      `;
+      document.getElementById("email-score-dyn").textContent = `${pct}% · ${words} palabras`;
+      addHistory({
+        type: "email",
+        label: `Email · ${prompt.title}`,
+        detail: `Respuesta a ${prompt.from} · ${covered}/${needResults.length} puntos de contenido`,
+        score: `${pct}% · ${words} palabras`,
+        pct,
+        level: (typeof getProfile === "function" ? getProfile().level : null) || "III",
+        answers: needResults.map(r => ({q: r.label, selected: r.found ? "cubierto" : "faltante", correct: "cubierto", ok: r.found}))
+      });
+    }
+
 
     document.querySelectorAll(".word-area").forEach(area => {
       area.addEventListener("input", () => {
