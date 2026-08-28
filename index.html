@@ -1636,16 +1636,16 @@
 
     <section id="emails" class="view">
       <h2>Práctica de emails</h2>
-      <p class="lead">Mismo formato que te da la profesora: leés el email de un amigo, respondés (~100 palabras) sobre <strong>tu ciudad, región o el lugar que quieras</strong> y el corrector revisa si tocaste los puntos pedidos (mejor época, actividades, ropa, porque…). No está limitado a un país: cada <strong>Nuevo email</strong> cambia el foco temático (comida, hotel, transporte, clima, comparaciones…).</p>
+      <p class="lead">Formato de la profesora: leés el email, respondés (~100 palabras) y el corrector mira si cubriste los puntos. Cada <strong>Nuevo email</strong> cambia el <strong>tema</strong> (visita, clima, hotel, comida, transporte, planes, trabajo…). Vos elegís de qué lugar o situación hablar — no hay destino fijo.</p>
       <div class="email-structure">
-        <strong>Estructura del ejercicio (modelo de la profesora)</strong>
+        <strong>Estructura (modelo de la profesora)</strong>
         <ol>
-          <li>Leés el email entrante (saludo → visita → 3 preguntas: <em>when / what to do / clothes</em>).</li>
-          <li>Respondés: saludo → “great news” → recomendás época + <em>because</em> → actividades → ropa/clima → cierre.</li>
-          <li>Usá: <em>You should… / I recommend… / The best time is… / You can visit…</em></li>
+          <li>Email entrante: saludo → pedido de ayuda → 3–4 preguntas.</li>
+          <li>Tu respuesta: saludo → reaccionás (“great news” / “thanks for writing”) → respondés cada punto con <em>because / should / can</em> → cierre.</li>
+          <li>Frases útiles: <em>You should… / I recommend… / The best time is… / You can… / Bring… because…</em></li>
         </ol>
       </div>
-      <div class="notice"><strong>Frases útiles:</strong> You should… / You shouldn't… / I recommend… / The best time to visit is… / There aren't so many tourists… / You can visit… / Bring warm / light clothes because…</div>
+      <div class="notice"><strong>Frases útiles:</strong> You should… / You shouldn't… / I recommend… / The best time is… / You can… / Don't forget to… / Bring… because… / If you…, you should…</div>
       <div class="toolbar" style="margin-bottom:14px">
         <button class="btn teal" type="button" onclick="newEmailPrompt()">↻ Nuevo email</button>
         <span id="email-scenario-tag" class="score">Sin generar</span>
@@ -3697,30 +3697,38 @@ const presentationSlides = [
     }
 
     const EMAIL_CATEGORY_LABELS = {
-      season: "Mencionás una estación o un mes",
+      season: "Mencionás una estación, un mes o un momento",
       reason: "Explicás el porqué (because / since / so)",
       activities: "Sugerís actividades para hacer",
       clothes: "Recomendás qué ropa llevar",
       weather: "Describís cómo es el clima",
-      places: "Nombrás lugares o ciudades",
-      food: "Mencionás comida típica",
+      places: "Nombrás lugares o sitios para ir",
+      food: "Mencionás comida",
       advice: "Das una recomendación clara (should / shouldn't / recommend)",
-      hotel: "Usás lenguaje de hotel / viaje",
+      hotel: "Usás lenguaje de hotel / alojamiento",
       transport: "Mencionás transporte o direcciones",
-      compare: "Comparás dos opciones (más / menos / better than…)"
+      compare: "Comparás dos opciones (más / menos / better than…)",
+      past: "Usás pasado (went / visited / last…)",
+      plans: "Hablás de planes (going to / will / next…)",
+      work: "Tocás trabajo / estudio / teléfono",
+      tech: "Mencionás tecnología o un dispositivo"
     };
     const EMAIL_KEYWORDS = {
-      season: ["january","february","march","april","may","june","july","august","september","october","november","december","spring","summer","autumn","fall","winter","season","month"],
+      season: ["january","february","march","april","may","june","july","august","september","october","november","december","spring","summer","autumn","fall","winter","season","month","weekend"],
       reason: ["because","since","so","that's why","therefore","as it"],
       activities: ["visit","go","do","see","try","eat","walk","swim","ride","tour","museum","park","beach","restaurant","shop","concert","hike","explore","enjoy","climb","photos","looking around"],
       clothes: ["clothes","wear","bring","pack","jacket","coat","t-shirt","tshirt","shirt","shorts","jeans","shoes","sunscreen","umbrella","sweater","jumper","scarf","gloves","hat","cap","sunglasses","boots","swimsuit"],
       weather: ["weather","rain","sunny","hot","cold","warm","cool","humid","dry","snow","mild","temperature"],
-      places: ["city","cities","town","museum","park","river","beach","mountain","lake","centre","center","square","market","coast","forest","national"],
+      places: ["place","museum","park","river","beach","mountain","lake","centre","center","square","market","coast","forest","hotel","restaurant","office"],
       food: ["food","eat","restaurant","try","dish","traditional","delicious","tasty","pizza","ice-cream","local","seafood","dessert","street food"],
       advice: ["should","shouldn't","recommend","don't miss","must","make sure","i think"],
       hotel: ["hotel","book","check in","check out","room","reservation","hostel"],
       transport: ["bus","train","taxi","metro","walk","on foot","get on","get off","turn left","turn right","straight"],
-      compare: ["than","more","less","better","worse","cheaper","easier","bigger","smaller","as"]
+      compare: ["than","more","less","better","worse","cheaper","easier","bigger","smaller","as"],
+      past: ["yesterday","last","ago","went","visited","saw","did","was","were","had"],
+      plans: ["going to","will","next","tomorrow","plan","planning","i'm going"],
+      work: ["work","job","office","study","university","call","phone","meeting","email"],
+      tech: ["app","phone","computer","laptop","internet","wifi","online","technology","device","ai"]
     };
     const COMMON_MISTAKES = [
       {re:/\b(very|so|really)\s+taste\b/i, msg:"“very taste” no existe. Usá “tasty” (rico/sabroso): “very tasty”."},
@@ -3729,7 +3737,6 @@ const presentationSlides = [
       {re:/\bwant funny\b/i, msg:"“funny” = gracioso. Si querés decir divertido, usá “fun”."},
       {re:/[!?]\s*,/, msg:"No se pone coma después de “!” o “?”."},
       {re:/,\s+It\b/, msg:"Después de una coma, “it” va en minúscula: “…, it's very hot”."},
-      {re:/\b[Bb]uenos aires\b/, msg:"“Buenos Aires” lleva mayúscula en ambas palabras."},
       {re:/(^|\n)\s*(see you soon|best wishes|take care|thanks|regards)\b/m, msg:"Los cierres van con mayúscula: “See you soon” / “Best wishes”."},
       {re:/\bi\b/, msg:"El pronombre “I” siempre va con mayúscula."},
       {re:/[a-z] (Spring|Summer|Autumn|Winter|Fall)\b/, msg:"Las estaciones van en minúscula, salvo al empezar la oración."},
@@ -3738,88 +3745,153 @@ const presentationSlides = [
       {re:/\bin the coast\b/i, msg:"Se dice “on the coast”, no “in the coast”."}
     ];
 
-    // Modelos solo de estructura (varios países). La consigna siempre es abierta: tu ciudad / región / temas.
-    const EMAIL_MODEL_EXAMPLES = [
+    // Temas abiertos (estructura tipo profesora). Sin destino fijo: vos elegís de qué hablar.
+    const EMAIL_TOPICS = [
       {
-        place:"Chile", region:"the south of Chile, in Patagonia",
-        popular:"summer, from October to March", recommend:"autumn, maybe in April",
-        reason:"there aren't so many tourists at that time and the autumn leaves are beautiful",
-        activity:"you can visit the Torres del Paine National Park, near us",
-        clothes:"warm clothes because the weather can be very cold",
-        weather:"cold and windy", food:"local seafood and hot chocolate",
-        hotel:"book a room early in small towns", transport:"go by bus between towns and walk when you arrive"
-      },
-      {
-        place:"Spain", region:"my region in Spain, near the coast",
-        popular:"July and August", recommend:"May or September",
-        reason:"the weather is still warm and there aren't so many tourists",
-        activity:"you can walk along the beach, visit the old town and look around the market",
-        clothes:"light clothes, sunscreen and comfortable shoes; bring a light jumper for the evening",
-        weather:"sunny and warm", food:"tapas and local seafood",
-        hotel:"check in at a hotel near the centre", transport:"go by metro or on foot around the old town"
-      },
-      {
-        place:"Italy", region:"a small town in Italy, near the mountains",
-        popular:"summer", recommend:"spring, from April to June",
-        reason:"the weather is mild and the countryside is beautiful",
-        activity:"you can visit museums, try local restaurants and go hiking",
-        clothes:"comfortable shoes, a jacket and sunglasses",
-        weather:"mild and sometimes rainy", food:"pasta and ice-cream",
-        hotel:"book a hotel with breakfast included", transport:"take the train and then walk from the station"
-      },
-      {
-        place:"Japan", region:"my city in Japan",
-        popular:"cherry blossom season in spring", recommend:"April",
-        reason:"the parks are beautiful and the weather is pleasant",
-        activity:"you can visit temples, take photos in the parks and try street food",
-        clothes:"a light coat and comfortable shoes because you will walk a lot",
-        weather:"mild", food:"ramen and local desserts",
-        hotel:"book a room near the metro", transport:"get on the metro and go straight to the centre"
-      },
-      {
-        place:"Canada", region:"my city in Canada",
-        popular:"summer, from June to August", recommend:"September",
-        reason:"it is quieter and the autumn colours are amazing",
-        activity:"you can visit a national park, walk by the lake and take photos",
-        clothes:"a warm jacket, boots and a scarf because evenings can be cold",
-        weather:"cool and sometimes rainy", food:"local maple desserts and coffee",
-        hotel:"check out late if the hotel allows it", transport:"go by bus or taxi from the airport"
-      },
-      {
-        place:"Mexico", region:"my region in Mexico",
-        popular:"December to April", recommend:"November",
-        reason:"it isn't too hot and there are interesting festivals",
-        activity:"you can visit markets, try local food and look around historic squares",
-        clothes:"light clothes, a hat and sunscreen; bring a jumper for air-conditioned places",
-        weather:"warm and dry", food:"tacos and traditional dishes",
-        hotel:"book a hotel near the main square", transport:"go by bus or on foot in the centre"
-      },
-      {
-        place:"the UK", region:"my city in the UK",
-        popular:"July and August", recommend:"May or June",
-        reason:"the days are long and it is less crowded than mid-summer",
-        activity:"you can visit museums, walk in parks and go on an organised tour",
-        clothes:"a raincoat, an umbrella and layers because the weather changes quickly",
-        weather:"cool and often rainy", food:"local pub food and desserts",
-        hotel:"pay your bill at reception before you check out", transport:"take the train and then the bus"
-      },
-      {
-        place:"Egypt", region:"my city near the Nile",
-        popular:"winter", recommend:"October or November",
-        reason:"it is cooler than summer and easier to walk around",
-        activity:"you can visit historic places, take a boat trip and look around the markets",
-        clothes:"light clothes, a hat and comfortable shoes; bring a light jacket for the evening",
-        weather:"hot during the day and cooler at night", food:"local street food and tea",
-        hotel:"book a room with air conditioning", transport:"go by taxi or on an organised tour"
-      }
-    ];
+        id:"visit",
+        label:"Best time to visit",
+        tag:"write an email about the best time to visit",
+        needs:["season","reason","activities","clothes","advice"],
+        ask:"Can you help me? I'd like to come and visit next year, for two weeks. When is the best time to come? What are some good things to do? What clothes should I bring?",
+        bullets:[
+          "Recommend the best time / season to come (and say why).",
+          "Suggest good things to do.",
+          "Say what clothes to bring (weather if useful)."
+        ],
+        modelBody:
+`It's great news about your visit. When should you come? Well, it depends. Many people think the best time is summer, but I think you should come in autumn, maybe in April. There aren't so many tourists at that time and the weather is nicer.
 
-    const EMAIL_VISIT_TARGETS = [
-      "your city",
-      "your region",
-      "where you live",
-      "your town",
-      "the area where you live"
+You can visit parks, look around the centre and try local restaurants. You should bring warm clothes because the weather can be cold.`
+      },
+      {
+        id:"weather",
+        label:"Weather & clothes",
+        tag:"write an email about weather and clothes",
+        needs:["weather","season","clothes","reason","advice"],
+        ask:"Can you help me? I'm visiting soon. What's the weather usually like? When is the best month to come? What clothes should I bring?",
+        bullets:[
+          "Describe the weather.",
+          "Recommend a good month/season and why.",
+          "Say what clothes to pack."
+        ],
+        modelBody:
+`Thanks for your email. The weather here changes a lot. In summer it's usually hot and sunny, but in winter it can be cold and rainy.
+
+I think you should come in spring because the weather is mild. You should bring a light jacket, comfortable shoes and an umbrella because it sometimes rains.`
+      },
+      {
+        id:"food",
+        label:"Local food tips",
+        tag:"write an email with food recommendations",
+        needs:["food","activities","advice","reason"],
+        ask:"Can you help me? I want to try local food when I visit. What should I eat? Where can I go? Any tips?",
+        bullets:[
+          "Recommend food to try.",
+          "Suggest places/activities related to food.",
+          "Give clear advice with should / recommend."
+        ],
+        modelBody:
+`It's great that you want to try local food. You should try traditional dishes and street food — they're really tasty!
+
+I recommend going to a local market and then eating at a small restaurant near the centre. You shouldn't only eat at tourist places because local places are better and often cheaper.`
+      },
+      {
+        id:"hotel",
+        label:"Hotel tips",
+        tag:"write an email with hotel advice",
+        needs:["hotel","advice","transport","compare"],
+        ask:"Can you help me? Where should I stay? Should I book a hotel or a hostel? Any tips for check-in?",
+        bullets:[
+          "Recommend where to stay (hotel/hostel).",
+          "Give one booking / check-in tip.",
+          "Compare two options if useful."
+        ],
+        modelBody:
+`Thanks for asking. I think you should book a hotel near the centre because it's easier than staying far away.
+
+You should check in early if you can, and ask about room service. A hostel is cheaper than a hotel, but a hotel is quieter. Don't forget to pay your bill before you check out.`
+      },
+      {
+        id:"transport",
+        label:"Getting around",
+        tag:"write an email about transport / directions",
+        needs:["transport","advice","compare","places"],
+        ask:"Can you help me? How can I get around? Is it better to go by bus or on foot? Any directions tips?",
+        bullets:[
+          "Explain how to get around.",
+          "Compare two transport options.",
+          "Give one clear directions tip."
+        ],
+        modelBody:
+`Of course I can help. You can go by bus or on foot. The bus is faster than walking, but walking is nicer if the weather is good.
+
+From the station, go straight on, then turn left at the main square. You should get off near the park and walk from there.`
+      },
+      {
+        id:"plans",
+        label:"Trip plans",
+        tag:"write an email about past trip + future plans",
+        needs:["past","plans","activities","compare","advice"],
+        ask:"Can you help me? Tell me about a trip you did last year. What are you going to do next holidays? What should I do if I travel with you?",
+        bullets:[
+          "Talk about a past trip (Past Simple).",
+          "Say future plans (be going to / will).",
+          "Give advice for travelling together."
+        ],
+        modelBody:
+`Thanks for your email! Last year I went on a short trip and visited museums and parks. It was cheaper than flying and really fun.
+
+Next holidays I'm going to travel again and I'm going to try local food. If you come with me, you should bring comfortable shoes because we walk a lot.`
+      },
+      {
+        id:"work",
+        label:"Work / study help",
+        tag:"write an email about work or study",
+        needs:["work","advice","plans","reason"],
+        ask:"Can you help me? Work is busy and I need advice. When should I call you? What should I do before the meeting? Are you going to study this weekend?",
+        bullets:[
+          "Answer about work/study.",
+          "Give clear advice (should…).",
+          "Mention a plan (going to / will)."
+        ],
+        modelBody:
+`It's good to hear from you. Work is busy here too. You should call me after 6 because I'm usually in meetings before that.
+
+Before the meeting, you should send a short email with your questions. This weekend I'm going to study at home and then I'm going to rest.`
+      },
+      {
+        id:"tech",
+        label:"Useful technology",
+        tag:"write an email about useful technology",
+        needs:["tech","compare","past","plans","advice"],
+        ask:"Can you help me? Tell me about a useful technology you have used. When did you first use it? Is it better than an older option? What will happen if more people use it?",
+        bullets:[
+          "Describe a useful technology.",
+          "Say when you first used it (past).",
+          "Compare it with an older option.",
+          "Give advice / a future idea."
+        ],
+        modelBody:
+`Thanks for your email. I use a translation app on my phone. I first used it last year when I travelled.
+
+It's better than a paper dictionary because it's faster and it works offline. If more people use it, learning languages will be easier. You should try it — I recommend it!`
+      },
+      {
+        id:"compare",
+        label:"Compare two options",
+        tag:"write an email comparing two options",
+        needs:["compare","advice","reason","activities"],
+        ask:"Can you help me? Is it better to travel in summer or winter? Should I go by bus or by train? What do you recommend?",
+        bullets:[
+          "Compare two options clearly.",
+          "Explain why (because…).",
+          "Give a final recommendation."
+        ],
+        modelBody:
+`Happy to help. Summer is hotter than winter, but winter is quieter and often cheaper. I think you should travel in spring because the weather is mild.
+
+The train is faster than the bus, but the bus is cheaper. I recommend the train if you don't have much time.`
+      }
     ];
 
     const EMAIL_FRIENDS = ["Matt","Emma","Lucy","Ben","Sam","Daniel","Sofia","Tom","Anna","Chris","Vicente","Nora"];
@@ -3829,95 +3901,51 @@ const presentationSlides = [
       "Hope you're well! Work is busy but good.",
       "How are things? I'm fine, thanks."
     ];
-    const EMAIL_DURATIONS = ["for two weeks","for a week","for ten days","for a long weekend","next month for 14 days"];
-    const EMAIL_FOCUSES = [
-      {id:"classic", label:"Best time to visit", needs:["season","reason","activities","clothes","advice"], extraQ:null},
-      {id:"food", label:"Visit + local food", needs:["season","reason","activities","clothes","food","advice"], extraQ:"What local food should I try?"},
-      {id:"hotel", label:"Visit + hotel tips", needs:["season","activities","clothes","hotel","advice"], extraQ:"Where should I stay? Any hotel tips?"},
-      {id:"transport", label:"Visit + getting around", needs:["season","activities","clothes","transport","advice"], extraQ:"How can I get around? Any directions tips?"},
-      {id:"weather", label:"Visit + weather focus", needs:["season","reason","weather","clothes","activities","advice"], extraQ:"What's the weather usually like?"},
-      {id:"compare", label:"Visit + compare options", needs:["season","activities","clothes","compare","advice"], extraQ:"Is it better to visit the city centre or the countryside?"},
-      {id:"travellers", label:"Travellers activities", needs:["season","activities","places","advice","clothes"], extraQ:"What are some good things to do for travellers?"}
-    ];
 
     let currentEmail = null;
 
-    function buildIncomingEmail(friend, visitTarget, duration, opener, focus, yourName) {
-      const lines = [
+    function buildIncomingEmail(friend, topic, opener, yourName) {
+      return [
         `Hi ${yourName},`,
         "",
         opener,
-        `Can you help me? I want to come to ${visitTarget} next year, ${duration}. When is the best time to come? What are some good things to do? What clothes should I bring?`
-      ];
-      if (focus.extraQ) lines[lines.length - 1] += " " + focus.extraQ;
-      lines.push("", "Best wishes,", friend);
-      return lines.join("\n");
+        topic.ask,
+        "",
+        "Best wishes,",
+        friend
+      ].join("\n");
     }
 
-    function buildModelReply(friend, model, focus, yourName) {
-      const parts = [
+    function buildModelReply(friend, topic, yourName) {
+      return [
         `Hi ${friend},`,
         "",
         "It's good to hear from you. We're well, thanks.",
-        `It's great news about your visit. When should you come? Well, it depends. In ${model.region}, many people think the best time is ${model.popular}. But I think you should come in ${model.recommend}. ${model.reason[0].toUpperCase() + model.reason.slice(1)}.`,
-        `${model.activity[0].toUpperCase() + model.activity.slice(1)}. You should bring ${model.clothes}.`
-      ];
-      if (focus.needs.includes("food")) {
-        parts.push(`Also, you have to try ${model.food} — it's really tasty!`);
-      }
-      if (focus.needs.includes("hotel")) {
-        parts.push(`For your stay, ${model.hotel}.`);
-      }
-      if (focus.needs.includes("transport")) {
-        parts.push(`To get around, ${model.transport}.`);
-      }
-      if (focus.needs.includes("weather") && !/weather|cold|hot|warm|mild|humid|snow|rain|sunny|cool/.test(parts.join(" ").toLowerCase())) {
-        parts.push(`The weather is usually ${model.weather}.`);
-      }
-      if (focus.needs.includes("compare")) {
-        parts.push("The city centre is busier than the countryside, but the countryside is quieter and often cheaper.");
-      }
-      parts.push("", "Best wishes,", yourName);
-      return parts.join("\n");
-    }
-
-    function buildBullets(focus) {
-      const bullets = [
-        "Recommend the best time / season to visit your city or region (and say why).",
-        "Suggest some good things to do (activities / places) using travel vocabulary.",
-        "Say what clothes they should bring (and mention the weather if useful)."
-      ];
-      if (focus.needs.includes("food")) bullets.push("Recommend local food to try in your area.");
-      if (focus.needs.includes("hotel")) bullets.push("Give one hotel tip (book / check in / room…).");
-      if (focus.needs.includes("transport")) bullets.push("Explain how to get around (bus, on foot, directions…).");
-      if (focus.needs.includes("compare")) bullets.push("Compare two options (city vs countryside / bus vs train / summer vs winter…).");
-      if (focus.needs.includes("places")) bullets.push("Name places travellers can visit (park, museum, coast, market…).");
-      bullets.push("Use polite email structure: greeting → answer the questions → closing.");
-      return bullets;
+        topic.modelBody,
+        "",
+        "Best wishes,",
+        yourName
+      ].join("\n");
     }
 
     function generateEmailScenario() {
       const profile = (typeof getProfile === "function" ? getProfile() : {}) || {};
       const yourName = (profile.name || "").trim() || "Alex";
       const friend = pick(EMAIL_FRIENDS);
-      const model = pick(EMAIL_MODEL_EXAMPLES);
-      const focus = pick(EMAIL_FOCUSES);
-      const duration = pick(EMAIL_DURATIONS);
+      const topic = pick(EMAIL_TOPICS);
       const opener = pick(EMAIL_OPENERS);
-      const visitTarget = pick(EMAIL_VISIT_TARGETS);
       return {
         id: "dyn",
-        title: `${focus.label} · open reply`,
+        title: topic.label,
+        tag: topic.tag,
         from: friend,
         yourName,
-        model,
-        focus,
-        visitTarget,
-        promptHtml: buildIncomingEmail(friend, visitTarget, duration, opener, focus, yourName),
-        bullets: buildBullets(focus),
-        needs: focus.needs,
-        modelText: buildModelReply(friend, model, focus, yourName),
-        tip: `Read the email (structure like the teacher's Matt → Vicente example). Then write your own reply about YOUR city or region — any place you know. The model below is only structure (${model.place}), not a fixed destination.`
+        topic,
+        promptHtml: buildIncomingEmail(friend, topic, opener, yourName),
+        bullets: [...topic.bullets, "Use polite email structure: greeting → answer the questions → closing."],
+        needs: topic.needs,
+        modelText: buildModelReply(friend, topic, yourName),
+        tip: "Leé el email y respondé los puntos pedidos. El tema es abierto: usá el vocabulario del curso con tus propias ideas (sin destino fijo)."
       };
     }
 
@@ -3935,12 +3963,12 @@ const presentationSlides = [
       if (tag) tag.textContent = p.title;
       box.innerHTML = `
         <article class="card" style="margin-bottom:22px">
-          <span class="tag">WRITING · write an email about the best time to visit</span>
+          <span class="tag">WRITING · ${escapeHtml(p.tag)}</span>
           <h3 style="margin-top:8px">${escapeHtml(p.title)}</h3>
           <p class="hint" style="margin:0 0 8px">${escapeHtml(p.tip)}</p>
           <p class="hint" style="margin:0 0 4px"><strong>Email from ${escapeHtml(p.from)}:</strong></p>
           <div class="email-quote">${escapeHtml(p.promptHtml)}</div>
-          <p class="hint" style="margin:0 0 6px"><strong>B · Write a reply to ${escapeHtml(p.from)} about your city or region (open topic). Include:</strong></p>
+          <p class="hint" style="margin:0 0 6px"><strong>B · Write a reply to ${escapeHtml(p.from)}. Include:</strong></p>
           <ul class="checklist">${p.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>
           <textarea id="email-text-dyn" class="word-area" data-target="100" placeholder="Hi ${escapeHtml(p.from)},&#10;&#10;It's good to hear from you..."></textarea>
           <div class="counter" id="email-counter-dyn">0 palabras · objetivo: 100+</div>
@@ -3952,8 +3980,8 @@ const presentationSlides = [
           </div>
           <div id="email-result-dyn"></div>
           <div id="email-model-dyn" class="email-model card" style="margin-top:10px;background:rgba(45,212,191,.05)">
-            <span class="tag">Modelo de estructura (ej. ${escapeHtml(p.model.place)}) · no copies el destino</span>
-            <p class="hint">Sirve para ver el orden: saludo → “great news” → época + because → actividades → ropa/clima → cierre. Adaptá todo a <em>tu</em> lugar y a los temas del email.</p>
+            <span class="tag">Modelo de estructura · adaptá con tus ideas</span>
+            <p class="hint">Sirve para ver el orden (saludo → respuesta punto por punto → cierre). No copies literal.</p>
             <div class="email-quote" style="border-left-color:#5eead4">${escapeHtml(p.modelText)}</div>
           </div>
         </article>`;
