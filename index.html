@@ -1591,20 +1591,34 @@
 
     <section id="vocabulario" class="view">
       <h2>Vocabulario · Inglés III</h2>
-      <p class="lead">Solo para practicar <strong>Inglés III</strong> (SpeakOut A2 · unidades 5–8). Cada expresión tiene significado y cuándo se usa.</p>
+      <p class="lead">Solo <strong>Inglés III</strong> (SpeakOut A2 · U5–U8). Elegí una unidad y aprendé <strong>de a 5 palabras por slide</strong>.</p>
       <div class="theme-filter" id="theme-filter"></div>
-      <div id="vocab-themes"></div>
 
-      <div class="practice-block">
-        <h3>Práctica · matching por significado</h3>
-        <p class="hint">Uní cada expresión con su significado en español.</p>
+      <div class="practice-block" id="vocab-slide-block">
+        <h3>Aprendé por slides</h3>
+        <p class="hint">Una slide = 5 expresiones. Mirálas, escuchálas, hacé el matching y recién ahí pasá a la siguiente.</p>
         <div class="toolbar">
-          <button class="btn primary" onclick="checkMatch()">Corregir matching</button>
-          <button class="btn" onclick="renderMatch(true)">Mezclar</button>
-          <span id="score-match" class="score">Sin corregir</span>
+          <button class="btn" type="button" onclick="prevVocabSlide()">← Anterior</button>
+          <button class="btn teal" type="button" onclick="nextVocabSlide()">Siguiente →</button>
+          <span id="vocab-slide-label" class="score">Slide 1</span>
+          <button class="btn small" type="button" onclick="speakVocabSlide()">▶ Audio de la slide</button>
         </div>
-        <div id="match-box"></div>
+        <div class="progress-wrap" style="margin:10px 0 16px"><div id="vocab-slide-progress" class="progress-bar" style="width:0%"></div></div>
+        <div id="vocab-slide-cards" class="flash-grid"></div>
+        <h3 style="margin-top:22px">Matching · solo esta slide</h3>
+        <p class="hint">Uní cada expresión de la slide con su significado.</p>
+        <div class="toolbar">
+          <button class="btn primary" type="button" onclick="checkVocabSlideMatch()">Corregir matching</button>
+          <button class="btn" type="button" onclick="renderVocabSlideMatch(true)">Mezclar</button>
+          <span id="score-vocab-slide" class="score">Sin corregir</span>
+        </div>
+        <div id="vocab-slide-match"></div>
       </div>
+
+      <details class="practice-block" style="margin-top:18px">
+        <summary style="cursor:pointer;font-weight:800;color:#e2e8f0">Ver lista completa del filtro (opcional)</summary>
+        <div id="vocab-themes" style="margin-top:14px"></div>
+      </details>
     </section>
 
     <section id="ingles3" class="view">
@@ -2559,6 +2573,8 @@ const presentationSlides = [
       }
     ];
 
+    const VOCAB_SLIDE_KEY = "uai-ingles-vocab-slide-v1";
+    const VOCAB_SLIDE_SIZE = 5;
     let activeThemeFilter = "iii";
 
     const HISTORY_KEY = "uai-ingles-history-v2";
@@ -2599,6 +2615,9 @@ const presentationSlides = [
       remaining:{speech3:420, speech4:420},
       timerStartedAt:{},
       matchItems:[],
+      vocabSlides:[],
+      vocabSlideIndex:0,
+      vocabSlideMatchItems:[],
       chosenVoiceURI: localStorage.getItem(VOICE_KEY) || "natural:en",
       speechRate: loadSavedSpeechRate(),
       speechEditing: null,
@@ -3898,7 +3917,8 @@ const presentationSlides = [
       activeThemeFilter = id;
       renderThemeFilter();
       renderVocabThemes();
-      renderMatch();
+      buildVocabSlides(true);
+      renderVocabSlide();
     }
     function renderVocabThemes() {
       const box = document.getElementById("vocab-themes");
@@ -3933,16 +3953,100 @@ const presentationSlides = [
       `).join("");
     }
 
-    function renderMatch(shuffle=false) {
-      let pool = allVocabItems();
-      if (activeThemeFilter !== "all" && activeThemeFilter !== "iii") {
-        pool = pool.filter(p => p.themeId === activeThemeFilter);
+    function orderedVocabItems() {
+      // keep book order (not random) so learning by parts feels sequential
+      return filteredThemes().flatMap(t => t.items.map(item => ({...item, theme:t.title, level:t.level, themeId:t.id, course:t.course})));
+    }
+    function loadVocabSlideIndex() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(VOCAB_SLIDE_KEY) || "{}");
+        const key = activeThemeFilter || "iii";
+        const n = Number(raw[key]);
+        return Number.isFinite(n) && n >= 0 ? n : 0;
+      } catch { return 0; }
+    }
+    function saveVocabSlideIndex() {
+      try {
+        const raw = JSON.parse(localStorage.getItem(VOCAB_SLIDE_KEY) || "{}");
+        raw[activeThemeFilter || "iii"] = state.vocabSlideIndex;
+        localStorage.setItem(VOCAB_SLIDE_KEY, JSON.stringify(raw));
+      } catch {}
+    }
+    function buildVocabSlides(resetIndex=false) {
+      const items = orderedVocabItems();
+      const slides = [];
+      for (let i = 0; i < items.length; i += VOCAB_SLIDE_SIZE) {
+        slides.push(items.slice(i, i + VOCAB_SLIDE_SIZE));
       }
-      pool = pool.sort(() => Math.random() - .5).slice(0, 10);
+      state.vocabSlides = slides.length ? slides : [[]];
+      if (resetIndex) state.vocabSlideIndex = 0;
+      else state.vocabSlideIndex = loadVocabSlideIndex();
+      if (state.vocabSlideIndex >= state.vocabSlides.length) state.vocabSlideIndex = Math.max(0, state.vocabSlides.length - 1);
+      saveVocabSlideIndex();
+    }
+    function currentVocabSlideItems() {
+      return state.vocabSlides[state.vocabSlideIndex] || [];
+    }
+    function renderVocabSlide() {
+      if (!state.vocabSlides.length) buildVocabSlides();
+      const items = currentVocabSlideItems();
+      const total = state.vocabSlides.length;
+      const idx = state.vocabSlideIndex;
+      const label = document.getElementById("vocab-slide-label");
+      const themeName = items[0]?.theme?.replace(/^III · /, "") || (activeThemeFilter === "iii" ? "Inglés III" : activeThemeFilter);
+      if (label) label.textContent = `Slide ${idx + 1} / ${total} · ${themeName} · ${items.length} palabras`;
+      const bar = document.getElementById("vocab-slide-progress");
+      if (bar) bar.style.width = `${Math.round(((idx + 1) / Math.max(total, 1)) * 100)}%`;
+      const cards = document.getElementById("vocab-slide-cards");
+      if (cards) {
+        if (!items.length) {
+          cards.innerHTML = `<div class="empty-state">No hay palabras en este filtro.</div>`;
+        } else {
+          cards.innerHTML = items.map((item, i) => `
+            <article class="flash-card">
+              <span class="tag">#${idx * VOCAB_SLIDE_SIZE + i + 1}</span>
+              <div class="term">${escapeHtml(item.term)}</div>
+              <span class="meta-label">Significado</span>
+              <div class="meaning">${escapeHtml(item.es)}</div>
+              <span class="meta-label">Cuándo se usa</span>
+              <div class="usage">${escapeHtml(item.use)}</div>
+              <div style="margin-top:12px">
+                <button class="btn small" type="button" data-say="${escapeHtml(item.term)}" onclick="speakText(this.dataset.say)">▶ Audio</button>
+              </div>
+            </article>`).join("");
+        }
+      }
+      renderVocabSlideMatch();
+    }
+    function prevVocabSlide() {
+      if (state.vocabSlideIndex <= 0) return;
+      state.vocabSlideIndex -= 1;
+      saveVocabSlideIndex();
+      renderVocabSlide();
+    }
+    function nextVocabSlide() {
+      if (state.vocabSlideIndex >= state.vocabSlides.length - 1) return;
+      state.vocabSlideIndex += 1;
+      saveVocabSlideIndex();
+      renderVocabSlide();
+    }
+    async function speakVocabSlide() {
+      const items = currentVocabSlideItems();
+      if (!items.length) return;
+      const text = items.map(it => `${it.term}. ${it.es}.`).join(" ");
+      await speakText(text);
+    }
+    function renderVocabSlideMatch(shuffle=false) {
+      const box = document.getElementById("vocab-slide-match");
+      if (!box) return;
+      let pool = [...currentVocabSlideItems()];
       if (shuffle) pool.sort(() => Math.random() - .5);
-      state.matchItems = pool;
+      state.vocabSlideMatchItems = pool;
       const defs = pool.map(p => p.es).sort(() => Math.random() - .5);
-      const box = document.getElementById("match-box");
+      if (!pool.length) {
+        box.innerHTML = `<div class="empty-state">Sin palabras en esta slide.</div>`;
+        return;
+      }
       box.innerHTML = pool.map((item,i) => `
         <div class="match-row" data-i="${i}">
           <div>
@@ -3954,38 +4058,52 @@ const presentationSlides = [
             ${defs.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join("")}
           </select>
         </div>`).join("");
-      document.getElementById("score-match").textContent = "Sin corregir";
+      const score = document.getElementById("score-vocab-slide");
+      if (score) score.textContent = "Sin corregir";
     }
-    function checkMatch() {
-      const rows = [...document.querySelectorAll("#match-box .match-row")];
+    function checkVocabSlideMatch() {
+      const rows = [...document.querySelectorAll("#vocab-slide-match .match-row")];
+      if (!rows.length || !state.vocabSlideMatchItems?.length) return;
       let ok = 0;
       const answers = [];
       rows.forEach((row,i) => {
         const sel = row.querySelector("select");
         const selected = sel.value || "";
-        const correct = state.matchItems[i].es;
+        const correct = state.vocabSlideMatchItems[i].es;
         const good = selected === correct;
         row.classList.toggle("ok", good);
         row.classList.toggle("bad", !good);
         if (good) ok++;
         answers.push({
-          q: state.matchItems[i].term,
+          q: state.vocabSlideMatchItems[i].term,
           selected: selected || "(sin responder)",
           correct,
           ok: good
         });
       });
       const pct = Math.round(ok/rows.length*100);
-      document.getElementById("score-match").textContent = `${ok}/${rows.length} · ${pct}%`;
+      document.getElementById("score-vocab-slide").textContent = `${ok}/${rows.length} · ${pct}%`;
       addHistory({
         type:"match",
-        label:"Matching vocabulario",
-        detail: ({iii:"Inglés III"}[activeThemeFilter] || vocabThemes.find(t=>t.id===activeThemeFilter)?.title || "Inglés III"),
+        label:"Vocabulario · slide",
+        detail: `Slide ${state.vocabSlideIndex + 1}/${state.vocabSlides.length} · ${currentVocabSlideItems()[0]?.theme || "III"}`,
         score: `${ok}/${rows.length} (${pct}%)`,
         pct,
         level: "III",
         answers
       });
+      if (ok === rows.length && state.vocabSlideIndex < state.vocabSlides.length - 1) {
+        const score = document.getElementById("score-vocab-slide");
+        if (score) score.textContent += " · ¡Listo! podés ir a la siguiente";
+      }
+    }
+
+    function renderMatch(shuffle=false) {
+      // compat: matching ahora vive en slides
+      renderVocabSlideMatch(shuffle);
+    }
+    function checkMatch() {
+      checkVocabSlideMatch();
     }
 
 
@@ -4765,7 +4883,8 @@ The train is faster than the bus, but the bus is cheaper. I recommend the train 
     renderStory("s3"); renderStory("s4");
     renderThemeFilter();
     renderVocabThemes();
-    renderMatch();
+    buildVocabSlides();
+    renderVocabSlide();
     renderTopicGroups();
     renderSpeech("speech3"); renderSpeech("speech4");
     renderEmailPractice();
