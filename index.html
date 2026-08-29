@@ -425,6 +425,32 @@
       margin-top: 8px;
       color: #99f6e4;
     }
+    .email-phrase-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+      gap: 10px;
+      margin: 12px 0 16px;
+    }
+    .email-phrase-card {
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      padding: 10px 12px;
+      background: rgba(15, 23, 42, .45);
+    }
+    .email-phrase-card .en {
+      color: #fef3c7;
+      font-weight: 800;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+    .email-phrase-card .es {
+      color: #94a3b8;
+      font-size: 13px;
+    }
+    .email-phrase-card.used {
+      border-color: rgba(52, 211, 153, .55);
+      background: rgba(16, 185, 129, .1);
+    }
     .email-model { display:none; margin-top:10px; }
     .email-model.open { display:block; }
     .email-structure {
@@ -1722,12 +1748,22 @@
           <li>Frases útiles: <em>You should… / I recommend… / The best time is… / You can… / Bring… because…</em></li>
         </ol>
       </div>
-      <div class="notice"><strong>Frases útiles:</strong> You should… / You shouldn't… / I recommend… / The best time is… / You can… / Don't forget to… / Bring… because… / If you…, you should…</div>
+      <div class="notice"><strong>Tip:</strong> abajo vas a ver <em>lenguaje recomendado</em> (bastantes expresiones). Intentá usar varias en tu respuesta: el corrector hace <strong>match</strong> de cuáles metiste.</div>
       <div class="toolbar" style="margin-bottom:14px">
         <button class="btn teal" type="button" onclick="newEmailPrompt()">↻ Nuevo email</button>
         <span id="email-scenario-tag" class="score">Sin generar</span>
       </div>
       <div id="email-prompts"></div>
+      <div class="practice-block" style="margin-top:28px">
+        <h3>Matching · expresiones de email</h3>
+        <p class="hint">Uní cada expresión en inglés con su significado. Las del escenario actual entran primero; mezclá para practicar más.</p>
+        <div class="toolbar">
+          <button class="btn primary" type="button" onclick="checkEmailPhraseMatch()">Corregir matching</button>
+          <button class="btn" type="button" onclick="renderEmailPhraseMatch(true)">Mezclar</button>
+          <span id="score-email-match" class="score">Sin corregir</span>
+        </div>
+        <div id="email-match-box"></div>
+      </div>
     </section>
 
     <section id="historial" class="view">
@@ -2523,7 +2559,7 @@ const presentationSlides = [
       try { return clampSpeechRate(localStorage.getItem(SPEED_KEY) || 1); }
       catch { return 1; }
     }
-    const GRADED_TYPES = new Set(["quiz","blanks","story","match","email"]);
+    const GRADED_TYPES = new Set(["quiz","blanks","story","match","email","email-match"]);
     // Supabase · historial compartido en tiempo real (permanente, gratis).
     // 1) Creá un proyecto en https://supabase.com/dashboard
     // 2) Corré el SQL de supabase-setup.sql
@@ -2543,6 +2579,7 @@ const presentationSlides = [
       chosenVoiceURI: localStorage.getItem(VOICE_KEY) || "natural:en",
       speechRate: loadSavedSpeechRate(),
       speechEditing: null,
+      emailMatchItems: [],
       currentAudio:null,
       playGen:0,
       audioWaitResolve:null,
@@ -3980,6 +4017,118 @@ const presentationSlides = [
       work: ["work","job","office","study","university","call","phone","meeting","email"],
       tech: ["app","phone","computer","laptop","internet","wifi","online","technology","device","ai"]
     };
+
+    // Banco amplio EN ↔ ES para recomendar + matching + corrección por uso
+    const EMAIL_PHRASE_BANK = [
+      {id:"p1", en:"It's good to hear from you", es:"Qué bueno saber de vos", tags:["greeting","general"]},
+      {id:"p2", en:"Thanks for your email", es:"Gracias por tu email", tags:["greeting","general"]},
+      {id:"p3", en:"It's great news about your visit", es:"Qué buena noticia tu visita", tags:["greeting","visit","season"]},
+      {id:"p4", en:"We're well, thanks", es:"Estamos bien, gracias", tags:["greeting","general"]},
+      {id:"p5", en:"Can you help me?", es:"¿Me podés ayudar?", tags:["general"]},
+      {id:"p6", en:"You should come in", es:"Deberías venir en…", tags:["advice","season","visit"]},
+      {id:"p7", en:"I recommend", es:"Te recomiendo", tags:["advice","general"]},
+      {id:"p8", en:"You shouldn't miss", es:"No te deberías perder", tags:["advice","activities","places"]},
+      {id:"p9", en:"The best time to visit is", es:"La mejor época para visitar es", tags:["season","visit","advice"]},
+      {id:"p10", en:"There aren't so many tourists", es:"No hay tantos turistas", tags:["season","reason","visit"]},
+      {id:"p11", en:"because the weather is", es:"porque el clima es…", tags:["reason","weather"]},
+      {id:"p12", en:"You can visit", es:"Podés visitar", tags:["activities","places","advice"]},
+      {id:"p13", en:"You can walk along", es:"Podés caminar por", tags:["activities","places"]},
+      {id:"p14", en:"look around the centre", es:"recorrer el centro", tags:["activities","places","travellers"]},
+      {id:"p15", en:"try the local food", es:"probar la comida local", tags:["food","activities"]},
+      {id:"p16", en:"It's really tasty", es:"Está muy rico / sabroso", tags:["food"]},
+      {id:"p17", en:"You should bring warm clothes", es:"Deberías llevar ropa abrigada", tags:["clothes","weather","advice"]},
+      {id:"p18", en:"You should bring light clothes", es:"Deberías llevar ropa liviana", tags:["clothes","weather","advice"]},
+      {id:"p19", en:"Don't forget to bring", es:"No te olvides de llevar", tags:["clothes","advice"]},
+      {id:"p20", en:"because it can be cold", es:"porque puede hacer frío", tags:["reason","weather","clothes"]},
+      {id:"p21", en:"because it can be hot", es:"porque puede hacer calor", tags:["reason","weather","clothes"]},
+      {id:"p22", en:"The weather is usually", es:"El clima suele ser", tags:["weather"]},
+      {id:"p23", en:"It depends", es:"Depende", tags:["general","compare","season"]},
+      {id:"p24", en:"Many people think", es:"Mucha gente piensa", tags:["season","general"]},
+      {id:"p25", en:"But I think you should", es:"Pero yo creo que deberías", tags:["advice","reason"]},
+      {id:"p26", en:"go by bus", es:"ir en colectivo", tags:["transport"]},
+      {id:"p27", en:"go on foot", es:"ir a pie", tags:["transport"]},
+      {id:"p28", en:"get on / get off", es:"subirse / bajarse (bus/train)", tags:["transport"]},
+      {id:"p29", en:"turn left / turn right", es:"doblá a la izquierda / derecha", tags:["transport"]},
+      {id:"p30", en:"go straight on", es:"seguí derecho", tags:["transport"]},
+      {id:"p31", en:"book a hotel", es:"reservar un hotel", tags:["hotel"]},
+      {id:"p32", en:"check in / check out", es:"hacer check-in / check-out", tags:["hotel"]},
+      {id:"p33", en:"pay your bill", es:"pagar la cuenta", tags:["hotel"]},
+      {id:"p34", en:"cheaper than", es:"más barato que", tags:["compare"]},
+      {id:"p35", en:"better than", es:"mejor que", tags:["compare"]},
+      {id:"p36", en:"easier than", es:"más fácil que", tags:["compare"]},
+      {id:"p37", en:"as … as", es:"tan … como", tags:["compare"]},
+      {id:"p38", en:"I'm going to", es:"Voy a (planes)", tags:["plans"]},
+      {id:"p39", en:"Next holidays", es:"En las próximas vacaciones", tags:["plans"]},
+      {id:"p40", en:"Last year I went", es:"El año pasado fui", tags:["past"]},
+      {id:"p41", en:"I visited", es:"Visité", tags:["past","activities"]},
+      {id:"p42", en:"taking photos", es:"sacar fotos", tags:["activities","travellers"]},
+      {id:"p43", en:"going on an organised tour", es:"hacer un tour organizado", tags:["activities","travellers"]},
+      {id:"p44", en:"using a guidebook", es:"usar una guía turística", tags:["activities","travellers"]},
+      {id:"p45", en:"If you visit", es:"Si visitás…", tags:["advice","plans"]},
+      {id:"p46", en:"Make sure you", es:"Asegurate de…", tags:["advice"]},
+      {id:"p47", en:"Best wishes", es:"Saludos / cordiales saludos", tags:["closing","general"]},
+      {id:"p48", en:"See you soon", es:"Nos vemos pronto", tags:["closing","general"]},
+      {id:"p49", en:"Take care", es:"Cuidate", tags:["closing","general"]},
+      {id:"p50", en:"Let me know if you need", es:"Avisame si necesitás", tags:["closing","general","advice"]},
+      {id:"p51", en:"comfortable shoes", es:"zapatos cómodos", tags:["clothes"]},
+      {id:"p52", en:"a light jacket", es:"una campera liviana", tags:["clothes","weather"]},
+      {id:"p53", en:"sunscreen and a hat", es:"protector solar y gorra", tags:["clothes","weather"]},
+      {id:"p54", en:"an umbrella", es:"un paraguas", tags:["clothes","weather"]},
+      {id:"p55", en:"near the centre", es:"cerca del centro", tags:["places","hotel"]},
+      {id:"p56", en:"on the coast", es:"en la costa", tags:["places"]},
+      {id:"p57", en:"in the mountains", es:"en las montañas", tags:["places"]},
+      {id:"p58", en:"call me back", es:"devolveme la llamada", tags:["work"]},
+      {id:"p59", en:"hold on", es:"esperá en línea", tags:["work"]},
+      {id:"p60", en:"I first used it", es:"La usé por primera vez", tags:["tech","past"]}
+    ];
+
+    function phraseMatchKey(en) {
+      return String(en || "").toLowerCase().replace(/[…\.\,\!\?]/g, " ").replace(/\s+/g, " ").trim();
+    }
+    function textHasPhrase(text, phrase) {
+      const hay = String(text || "").toLowerCase();
+      const key = phraseMatchKey(phrase.en);
+      if (!key) return false;
+      // flexible: full phrase, or main chunk without ellipsis variants
+      if (hay.includes(key)) return true;
+      const parts = key.split("/").map(p => p.trim()).filter(Boolean);
+      if (parts.length > 1 && parts.some(p => hay.includes(p))) return true;
+      // "as … as" style
+      if (key.includes("…") || key.includes("...")) {
+        const bits = key.split(/…|\.\.\./).map(b => b.trim()).filter(Boolean);
+        return bits.length >= 2 && bits.every(b => hay.includes(b));
+      }
+      return false;
+    }
+    function pickEmailPhrases(topic, count=10) {
+      const needTags = new Set([...(topic?.needs || []), "general", "greeting", "closing", "advice"]);
+      const scored = EMAIL_PHRASE_BANK.map(p => {
+        const hit = (p.tags || []).filter(t => needTags.has(t)).length;
+        return {p, hit};
+      }).sort((a,b) => b.hit - a.hit || Math.random() - 0.5);
+      const chosen = [];
+      const seen = new Set();
+      for (const row of scored) {
+        if (chosen.length >= count) break;
+        if (seen.has(row.p.id)) continue;
+        // prefer tagged hits first, then fill
+        if (row.hit > 0 || chosen.length < 4) {
+          chosen.push(row.p);
+          seen.add(row.p.id);
+        }
+      }
+      for (const row of scored) {
+        if (chosen.length >= count) break;
+        if (seen.has(row.p.id)) continue;
+        chosen.push(row.p);
+        seen.add(row.p.id);
+      }
+      return chosen.slice(0, count);
+    }
+    function countUsedPhrases(text, phrases) {
+      return (phrases || []).map(p => ({...p, used: textHasPhrase(text, p)}));
+    }
+
     const COMMON_MISTAKES = [
       {re:/\b(very|so|really)\s+taste\b/i, msg:"“very taste” no existe. Usá “tasty”: “very tasty”."},
       {re:/\bthe eat\b/i, msg:"“the eat” no es correcto. Usá “the food”."},
@@ -4056,34 +4205,40 @@ const presentationSlides = [
         </div>`;
     }
 
-    async function askEmailAiTutor({ text, prompt, bullets, words }) {
+    async function askEmailAiTutor({ text, prompt, bullets, words, phrases }) {
       if (typeof puter === "undefined" || !puter?.ai?.chat) {
         throw new Error("Puter AI no disponible");
       }
       const systemPrompt = `You are a friendly English teacher for Spanish-speaking A2 / SpeakOut students preparing an exam email (~100 words).
 Correct ENGLISH LANGUAGE carefully: grammar, vocabulary, spelling, articles, prepositions, verb tenses, natural email register, and clarity.
+Also comment on whether the student used recommended expressions naturally.
 Reply in SPANISH (student-facing), but keep English examples and the corrected email in ENGLISH.
 Use exactly this structure (plain text, no markdown tables):
 
 SCORE: <number>/10 — <one short Spanish sentence>
-SUMMARY: <2-3 Spanish sentences about language quality>
+SUMMARY: <2-3 Spanish sentences about language quality and expression use>
 CORRECTED_EMAIL:
-<full improved email in English, same ideas, natural A2 level>
+<full improved email in English, same ideas, natural A2 level, including some recommended phrases>
 CORRECTIONS:
 - "<wrong>" → "<better>" — <short Spanish why>
 (list 3-8 real language fixes; if almost perfect, say so)
 TIPS:
 - <one Spanish tip for the exam>
-- <another tip>
+- <another tip about using useful expressions>
 
 Be encouraging but precise. Do not invent content the student didn't try to say.`;
 
+      const used = (phrases || []).filter(p => p.used).map(p => p.en);
+      const missing = (phrases || []).filter(p => !p.used).map(p => p.en).slice(0, 8);
       const userPrompt = `TASK / TOPIC: ${prompt.title}
 INCOMING EMAIL:
 ${prompt.promptHtml}
 
 CHECKLIST THE STUDENT SHOULD COVER:
 ${(bullets || []).map((b,i)=>`${i+1}. ${b}`).join("\n")}
+
+RECOMMENDED EXPRESSIONS USED: ${used.length ? used.join(" | ") : "(none detected)"}
+RECOMMENDED EXPRESSIONS NOT USED YET: ${missing.length ? missing.join(" | ") : "(all used)"}
 
 STUDENT REPLY (${words} words):
 ${text}`;
@@ -4148,6 +4303,14 @@ ${text}`;
         const found = kws.some(k => lower.includes(k.toLowerCase()));
         return {label: EMAIL_CATEGORY_LABELS[cat] || cat, found};
       });
+      const phraseResults = countUsedPhrases(text, prompt.recommendedPhrases || []);
+      const phrasesUsed = phraseResults.filter(p => p.used).length;
+      const phrasesTotal = phraseResults.length || 1;
+      const phraseOk = phrasesUsed >= Math.min(4, phrasesTotal);
+      phraseResults.forEach(ph => {
+        const card = document.querySelector(`.email-phrase-card[data-phrase-id="${ph.id}"]`);
+        card?.classList.toggle("used", ph.used);
+      });
       const issues = COMMON_MISTAKES.filter(m => m.re.test(text)).map(m => m.msg);
       const localLang = localEnglishLanguageNotes(text);
       const covered = needResults.filter(r => r.found).length;
@@ -4155,25 +4318,31 @@ ${text}`;
       const greetingOk = /^(hi|hello|dear)\b/i.test(text);
       const closingOk = /(best wishes|see you|take care|regards|love)\s*,?\s*\n?\s*\w+/i.test(text);
       let score = 0;
-      const max = needResults.length + 3;
+      const max = needResults.length + 4;
       score += covered;
       if (wordOk) score++;
       if (greetingOk) score++;
       if (closingOk) score++;
+      if (phraseOk) score++;
       const pct = Math.round(score / max * 100);
 
       const checklistHtml = `
         <div class="exercise ${pct >= 70 ? "correct" : "wrong"}" style="margin-top:12px">
           <div class="feedback" style="display:block;margin-bottom:8px">
             ${wordOk ? "✓" : "✗"} Palabras: <strong>${words}</strong> (mínimo 100)${greetingOk ? "" : " · Falta un saludo claro (Hi…)"}${closingOk ? "" : " · Falta un cierre (Best wishes, …)"}
+            · Expresiones: <strong>${phrasesUsed}/${phraseResults.length}</strong> ${phraseOk ? "✓" : "(objetivo: 4+)"}
           </div>
           ${needResults.map(r => `<div class="email-check-row ${r.found ? "ok" : "bad"}"><span class="mark">${r.found ? "✓" : "✗"}</span><span>${escapeHtml(r.label)}</span></div>`).join("")}
+        </div>
+        <div class="exercise ${phraseOk ? "correct" : "wrong"}" style="margin-top:10px">
+          <div class="question" style="margin-bottom:6px">Match de lenguaje recomendado</div>
+          ${phraseResults.map(r => `<div class="email-check-row ${r.used ? "ok" : "bad"}"><span class="mark">${r.used ? "✓" : "✗"}</span><span><strong>${escapeHtml(r.en)}</strong> · ${escapeHtml(r.es)}</span></div>`).join("")}
         </div>
         ${issues.length || localLang.length ? `<div class="exercise wrong" style="margin-top:10px"><div class="question" style="margin-bottom:6px">Revisión rápida de lenguaje:</div>${[...issues, ...localLang].map(m => `<div class="email-issue">${escapeHtml(m)}</div>`).join("")}</div>` : `<div class="exercise correct" style="margin-top:10px"><div class="feedback" style="display:block">✓ En la revisión rápida no aparecieron errores típicos graves.</div></div>`}
       `;
 
       resultBox.innerHTML = checklistHtml + `<div class="ai-feedback" id="email-ai-box"><h4>Corrección IA</h4><p class="hint" style="margin:0">Analizando tu inglés… (puede pedir login de Puter la primera vez)</p></div>`;
-      document.getElementById("email-score-dyn").textContent = `${pct}% · ${words} palabras · IA…`;
+      document.getElementById("email-score-dyn").textContent = `${pct}% · ${phrasesUsed} exprs · IA…`;
       if (btn) {
         btn.disabled = true;
         btn.textContent = "Corrigiendo…";
@@ -4185,19 +4354,20 @@ ${text}`;
           text,
           prompt,
           bullets: prompt.bullets || [],
-          words
+          words,
+          phrases: phraseResults
         });
         const aiBox = document.getElementById("email-ai-box");
         if (aiBox) aiBox.outerHTML = formatAiFeedbackHtml(aiRaw);
         aiOk = true;
-        document.getElementById("email-score-dyn").textContent = `${pct}% · ${words} palabras · IA lista`;
+        document.getElementById("email-score-dyn").textContent = `${pct}% · ${phrasesUsed}/${phraseResults.length} exprs · IA lista`;
       } catch (err) {
         console.warn(err);
         const aiBox = document.getElementById("email-ai-box");
         if (aiBox) {
           aiBox.innerHTML = `<h4>Corrección IA</h4><p class="hint" style="margin:0">No se pudo usar la IA ahora (${escapeHtml(err.message || "error")}). Quedó la revisión rápida de arriba. Probá de nuevo con internet / login Puter.</p>`;
         }
-        document.getElementById("email-score-dyn").textContent = `${pct}% · ${words} palabras`;
+        document.getElementById("email-score-dyn").textContent = `${pct}% · ${phrasesUsed}/${phraseResults.length} exprs`;
       } finally {
         if (btn) {
           btn.disabled = false;
@@ -4208,11 +4378,14 @@ ${text}`;
       addHistory({
         type: "email",
         label: `Email · ${prompt.title}`,
-        detail: `Respuesta a ${prompt.from} · ${covered}/${needResults.length} puntos · ${aiOk ? "corrección IA" : "sin IA"}`,
-        score: `${pct}% · ${words} palabras`,
+        detail: `Respuesta a ${prompt.from} · ${covered}/${needResults.length} puntos · ${phrasesUsed}/${phraseResults.length} exprs · ${aiOk ? "IA" : "sin IA"}`,
+        score: `${pct}% · ${words} palabras · ${phrasesUsed} exprs`,
         pct,
         level: (typeof getProfile === "function" ? getProfile().level : null) || "III",
-        answers: needResults.map(r => ({q: r.label, selected: r.found ? "cubierto" : "faltante", correct: "cubierto", ok: r.found}))
+        answers: [
+          ...needResults.map(r => ({q: r.label, selected: r.found ? "cubierto" : "faltante", correct: "cubierto", ok: r.found})),
+          ...phraseResults.map(r => ({q: r.en, selected: r.used ? "usada" : "no usada", correct: "usada", ok: r.used}))
+        ]
       });
     }
 
@@ -4405,6 +4578,7 @@ The train is faster than the bus, but the bus is cheaper. I recommend the train 
       const friend = pick(EMAIL_FRIENDS);
       const topic = pick(EMAIL_TOPICS);
       const opener = pick(EMAIL_OPENERS);
+      const recommendedPhrases = pickEmailPhrases(topic, 12);
       return {
         id: "dyn",
         title: topic.label,
@@ -4412,11 +4586,16 @@ The train is faster than the bus, but the bus is cheaper. I recommend the train 
         from: friend,
         yourName,
         topic,
+        recommendedPhrases,
         promptHtml: buildIncomingEmail(friend, topic, opener, yourName),
-        bullets: [...topic.bullets, "Use polite email structure: greeting → answer the questions → closing."],
+        bullets: [
+          ...topic.bullets,
+          "Usá al menos 4 expresiones del lenguaje recomendado (el corrector hace match).",
+          "Use polite email structure: greeting → answer the questions → closing."
+        ],
         needs: topic.needs,
         modelText: buildModelReply(friend, topic, yourName),
-        tip: "Leé el email y respondé los puntos pedidos. El tema es abierto: usá el vocabulario del curso con tus propias ideas (sin destino fijo)."
+        tip: "Leé el email y respondé los puntos. Abajo tenés muchas expresiones útiles: meté varias en tu respuesta para sumar en el match."
       };
     }
 
@@ -4425,13 +4604,88 @@ The train is faster than the bus, but the bus is cheaper. I recommend the train 
       renderEmailPractice();
     }
 
+    function renderEmailPhraseMatch(shuffle=false) {
+      const box = document.getElementById("email-match-box");
+      if (!box) return;
+      const preferred = currentEmail?.recommendedPhrases || [];
+      let pool = [...preferred];
+      const rest = EMAIL_PHRASE_BANK.filter(p => !pool.some(x => x.id === p.id));
+      while (pool.length < 10 && rest.length) {
+        const i = Math.floor(Math.random() * rest.length);
+        pool.push(rest.splice(i, 1)[0]);
+      }
+      pool = pool.sort(() => Math.random() - .5).slice(0, 10);
+      if (shuffle) pool = pool.sort(() => Math.random() - .5);
+      state.emailMatchItems = pool;
+      const defs = pool.map(p => p.es).sort(() => Math.random() - .5);
+      box.innerHTML = pool.map((item,i) => `
+        <div class="match-row" data-i="${i}">
+          <div>
+            <strong>${escapeHtml(item.en)}</strong>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">${escapeHtml((item.tags||[]).slice(0,2).join(" · "))}</div>
+          </div>
+          <select>
+            <option value="">Elegí significado…</option>
+            ${defs.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join("")}
+          </select>
+        </div>`).join("");
+      const score = document.getElementById("score-email-match");
+      if (score) score.textContent = "Sin corregir";
+    }
+
+    function checkEmailPhraseMatch() {
+      const rows = [...document.querySelectorAll("#email-match-box .match-row")];
+      if (!rows.length || !state.emailMatchItems?.length) {
+        renderEmailPhraseMatch();
+        return;
+      }
+      let ok = 0;
+      const answers = [];
+      rows.forEach((row,i) => {
+        const sel = row.querySelector("select");
+        const selected = sel.value || "";
+        const correct = state.emailMatchItems[i].es;
+        const good = selected === correct;
+        row.classList.toggle("ok", good);
+        row.classList.toggle("bad", !good);
+        if (good) ok++;
+        answers.push({
+          q: state.emailMatchItems[i].en,
+          selected: selected || "(sin responder)",
+          correct,
+          ok: good
+        });
+      });
+      const pct = Math.round(ok/rows.length*100);
+      document.getElementById("score-email-match").textContent = `${ok}/${rows.length} · ${pct}%`;
+      addHistory({
+        type:"email-match",
+        label:"Matching expresiones de email",
+        detail: currentEmail?.title || "Email phrases",
+        score: `${ok}/${rows.length} (${pct}%)`,
+        pct,
+        level: (typeof getProfile === "function" ? getProfile().level : null) || "III",
+        answers
+      });
+    }
+
     function renderEmailPractice() {
       const box = document.getElementById("email-prompts");
       if (!box) return;
       if (!currentEmail) currentEmail = generateEmailScenario();
       const p = currentEmail;
+      if (!p.recommendedPhrases?.length) p.recommendedPhrases = pickEmailPhrases(p.topic, 12);
       const tag = document.getElementById("email-scenario-tag");
       if (tag) tag.textContent = p.title;
+      const phraseHtml = `
+        <div class="notice" style="margin-top:14px"><strong>Lenguaje recomendado (${p.recommendedPhrases.length}):</strong> usá varias de estas expresiones. Al corregir vas a ver el match de cuáles aparecieron en tu texto.</div>
+        <div class="email-phrase-grid" id="email-phrase-grid">
+          ${p.recommendedPhrases.map(ph => `
+            <div class="email-phrase-card" data-phrase-id="${escapeHtml(ph.id)}">
+              <div class="en">${escapeHtml(ph.en)}</div>
+              <div class="es">${escapeHtml(ph.es)}</div>
+            </div>`).join("")}
+        </div>`;
       box.innerHTML = `
         <article class="card" style="margin-bottom:22px">
           <span class="tag">WRITING · ${escapeHtml(p.tag)}</span>
@@ -4441,6 +4695,7 @@ The train is faster than the bus, but the bus is cheaper. I recommend the train 
           <div class="email-quote">${escapeHtml(p.promptHtml)}</div>
           <p class="hint" style="margin:0 0 6px"><strong>B · Write a reply to ${escapeHtml(p.from)}. Include:</strong></p>
           <ul class="checklist">${p.bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>
+          ${phraseHtml}
           <textarea id="email-text-dyn" class="word-area" data-target="100" placeholder="Hi ${escapeHtml(p.from)},&#10;&#10;It's good to hear from you..."></textarea>
           <div class="counter" id="email-counter-dyn">0 palabras · objetivo: 100+</div>
           <div class="toolbar">
@@ -4457,6 +4712,13 @@ The train is faster than the bus, but the bus is cheaper. I recommend the train 
           </div>
         </article>`;
       const area = document.getElementById("email-text-dyn");
+      const highlightUsed = () => {
+        const used = countUsedPhrases(area?.value || "", p.recommendedPhrases);
+        used.forEach(ph => {
+          const card = document.querySelector(`.email-phrase-card[data-phrase-id="${ph.id}"]`);
+          card?.classList.toggle("used", ph.used);
+        });
+      };
       area?.addEventListener("input", () => {
         const words = wordCount(area.value);
         const out = document.getElementById("email-counter-dyn");
@@ -4464,7 +4726,10 @@ The train is faster than the bus, but the bus is cheaper. I recommend the train 
           out.textContent = `${words} palabras · objetivo: 100+`;
           out.style.color = words >= 100 ? "var(--green)" : "var(--muted)";
         }
+        highlightUsed();
       });
+      highlightUsed();
+      renderEmailPhraseMatch();
     }
 
     function toggleEmailModel() {
@@ -4491,6 +4756,7 @@ The train is faster than the bus, but the bus is cheaper. I recommend the train 
     renderMatch();
     renderTopicGroups();
     renderSpeech("speech3"); renderSpeech("speech4");
+    renderEmailPractice();
     fillVoiceSelect();
     renderHistory();
     refreshSharedHistory();
