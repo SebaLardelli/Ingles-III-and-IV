@@ -1511,8 +1511,8 @@
     </section>
 
     <section id="vocabulario" class="view">
-      <h2>Vocabulario por nivel y unidad</h2>
-      <p class="lead">Dividido según el libro: <strong>Inglés III</strong> = SpeakOut A2 unidades 5–8 · <strong>Inglés IV</strong> = SpeakOut A2+ unidades 1–4. Cada expresión tiene significado y cuándo se usa.</p>
+      <h2>Vocabulario · Inglés III</h2>
+      <p class="lead">Solo para practicar <strong>Inglés III</strong> (SpeakOut A2 · unidades 5–8). Cada expresión tiene significado y cuándo se usa.</p>
       <div class="theme-filter" id="theme-filter"></div>
       <div id="vocab-themes"></div>
 
@@ -2470,7 +2470,7 @@ const presentationSlides = [
       }
     ];
 
-    let activeThemeFilter = "all";
+    let activeThemeFilter = "iii";
 
     const HISTORY_KEY = "uai-ingles-history-v2";
     const PROFILE_KEY = "uai-ingles-profile-v1";
@@ -3799,26 +3799,19 @@ const presentationSlides = [
       return filteredThemes().flatMap(t => t.items.map(item => ({...item, theme:t.title, level:t.level, themeId:t.id, course:t.course})));
     }
     function filteredThemes() {
-      if (activeThemeFilter === "all") return vocabThemes;
-      if (activeThemeFilter === "iii") return vocabThemes.filter(t => t.course === "III");
-      if (activeThemeFilter === "iv") return vocabThemes.filter(t => t.course === "IV");
-      if (activeThemeFilter === "oral") return vocabThemes.filter(t => t.course === "Oral");
-      return vocabThemes.filter(t => t.id === activeThemeFilter);
+      const iiiThemes = vocabThemes.filter(t => t.course === "III");
+      if (activeThemeFilter === "all" || activeThemeFilter === "iii") return iiiThemes;
+      return iiiThemes.filter(t => t.id === activeThemeFilter);
     }
     function renderThemeFilter() {
       const box = document.getElementById("theme-filter");
       if (!box) return;
-      const courseFirst = [
-        {id:"all", label:"Todas"},
-        {id:"iii", label:"Inglés III · A2 u.5–8"},
-        {id:"iv", label:"Inglés IV · A2+ u.1–4"},
-        {id:"oral", label:"Oral"}
+      const iiiThemes = vocabThemes.filter(t => t.course === "III");
+      const buttons = [
+        {id:"iii", label:"Todas · Inglés III"},
+        ...iiiThemes.map(t => ({id:t.id, label:t.title.replace(/^III · /, "")}))
       ];
-      const themeButtons = (["all","iii","iv","oral"].includes(activeThemeFilter)
-        ? filteredThemes()
-        : vocabThemes.filter(t => t.course === (vocabThemes.find(x=>x.id===activeThemeFilter)||{}).course)
-      ).map(t => ({id:t.id, label:t.title.replace(/^III · |^IV · |^Oral · /, "")}));
-      box.innerHTML = [...courseFirst, ...themeButtons].map(b =>
+      box.innerHTML = buttons.map(b =>
         `<button type="button" class="btn small ${activeThemeFilter===b.id?"active":""}" onclick="filterTheme('${b.id}')">${escapeHtml(b.label)}</button>`
       ).join("");
     }
@@ -3863,7 +3856,9 @@ const presentationSlides = [
 
     function renderMatch(shuffle=false) {
       let pool = allVocabItems();
-      if (activeThemeFilter !== "all") pool = pool.filter(p => p.themeId === activeThemeFilter);
+      if (activeThemeFilter !== "all" && activeThemeFilter !== "iii") {
+        pool = pool.filter(p => p.themeId === activeThemeFilter);
+      }
       pool = pool.sort(() => Math.random() - .5).slice(0, 10);
       if (shuffle) pool.sort(() => Math.random() - .5);
       state.matchItems = pool;
@@ -3906,10 +3901,10 @@ const presentationSlides = [
       addHistory({
         type:"match",
         label:"Matching vocabulario",
-        detail: ({all:"Todas", iii:"Inglés III", iv:"Inglés IV", oral:"Oral"}[activeThemeFilter] || vocabThemes.find(t=>t.id===activeThemeFilter)?.title || activeThemeFilter),
+        detail: ({iii:"Inglés III"}[activeThemeFilter] || vocabThemes.find(t=>t.id===activeThemeFilter)?.title || "Inglés III"),
         score: `${ok}/${rows.length} (${pct}%)`,
         pct,
-        level: "III+IV",
+        level: "III",
         answers
       });
     }
