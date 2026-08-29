@@ -395,6 +395,36 @@
     .email-check-row.ok .mark { color: var(--green); }
     .email-check-row.bad .mark { color: var(--red); }
     .email-issue { padding:8px 10px; margin:6px 0; border-radius:8px; background:rgba(248,113,113,.08); border:1px solid rgba(248,113,113,.25); color:#fca5a5; font-size:14px; }
+    .ai-feedback {
+      margin-top: 12px;
+      padding: 14px 16px;
+      border-radius: 12px;
+      border: 1px solid rgba(125, 211, 252, .35);
+      background: rgba(14, 165, 233, .08);
+      color: #e2e8f0;
+      font-size: 14px;
+      line-height: 1.55;
+      white-space: pre-wrap;
+    }
+    .ai-feedback h4 {
+      margin: 0 0 8px;
+      color: #7dd3fc;
+      font-size: 15px;
+    }
+    .ai-feedback .ai-corrected {
+      margin-top: 10px;
+      padding: 12px 14px;
+      border-radius: 10px;
+      border-left: 4px solid #5eead4;
+      background: rgba(45, 212, 191, .06);
+      white-space: pre-wrap;
+      color: #cbd5e1;
+      font-family: Georgia, "Times New Roman", serif;
+    }
+    .ai-feedback .ai-tip {
+      margin-top: 8px;
+      color: #99f6e4;
+    }
     .email-model { display:none; margin-top:10px; }
     .email-model.open { display:block; }
     .email-structure {
@@ -1683,7 +1713,7 @@
 
     <section id="emails" class="view">
       <h2>Práctica de emails</h2>
-      <p class="lead">Formato de la profesora: leés el email, respondés (~100 palabras) y el corrector mira si cubriste los puntos. Cada <strong>Nuevo email</strong> cambia el <strong>tema</strong> (visita, clima, hotel, comida, transporte, planes, trabajo…). Vos elegís de qué lugar o situación hablar — no hay destino fijo.</p>
+      <p class="lead">Formato de la profesora: leés el email, respondés (~100 palabras) y tocá <strong>Corregir con IA</strong> para recibir feedback de inglés (gramática, vocabulario, naturalidad y versión corregida). Cada <strong>Nuevo email</strong> cambia el tema. Necesita internet (Puter).</p>
       <div class="email-structure">
         <strong>Estructura (modelo de la profesora)</strong>
         <ol>
@@ -3951,21 +3981,242 @@ const presentationSlides = [
       tech: ["app","phone","computer","laptop","internet","wifi","online","technology","device","ai"]
     };
     const COMMON_MISTAKES = [
-      {re:/\b(very|so|really)\s+taste\b/i, msg:"“very taste” no existe. Usá “tasty” (rico/sabroso): “very tasty”."},
-      {re:/\bthe eat\b/i, msg:"“the eat” no es correcto — “eat” es verbo. Usá “the food”."},
+      {re:/\b(very|so|really)\s+taste\b/i, msg:"“very taste” no existe. Usá “tasty”: “very tasty”."},
+      {re:/\bthe eat\b/i, msg:"“the eat” no es correcto. Usá “the food”."},
       {re:/\b(weather('?s)?\s+(is\s+)?(very|usually)?\s*clean)\b/i, msg:"“clean weather” no es natural. Usá “nice/good/clear weather”."},
-      {re:/\bwant funny\b/i, msg:"“funny” = gracioso. Si querés decir divertido, usá “fun”."},
+      {re:/\bwant funny\b/i, msg:"“funny” = gracioso. Para divertido usá “fun”."},
       {re:/[!?]\s*,/, msg:"No se pone coma después de “!” o “?”."},
-      {re:/,\s+It\b/, msg:"Después de una coma, “it” va en minúscula: “…, it's very hot”."},
+      {re:/,\s+It\b/, msg:"Después de una coma, “it” va en minúscula."},
       {re:/(^|\n)\s*(see you soon|best wishes|take care|thanks|regards)\b/m, msg:"Los cierres van con mayúscula: “See you soon” / “Best wishes”."},
       {re:/\bi\b/, msg:"El pronombre “I” siempre va con mayúscula."},
       {re:/[a-z] (Spring|Summer|Autumn|Winter|Fall)\b/, msg:"Las estaciones van en minúscula, salvo al empezar la oración."},
       {re:/\s{2,}/, msg:"Hay espacios dobles — revisalos antes de entregar."},
       {re:/,[A-Za-z]/, msg:"Falta un espacio después de una coma."},
-      {re:/\bin the coast\b/i, msg:"Se dice “on the coast”, no “in the coast”."}
+      {re:/\bin the coast\b/i, msg:"Se dice “on the coast”, no “in the coast”."},
+      {re:/\brecomend\b/i, msg:"En inglés es “recommend” (con doble m), no “recomend”."},
+      {re:/\binformations\b/i, msg:"“information” es incontable: no digas “informations”."},
+      {re:/\badvices\b/i, msg:"“advice” es incontable: “some advice”, no “advices”."},
+      {re:/\bpeople is\b/i, msg:"“people” es plural: “people are”."},
+      {re:/\bi am agree\b/i, msg:"Se dice “I agree”, no “I am agree”."},
+      {re:/\bdepends of\b/i, msg:"Se dice “depends on”, no “depends of”."},
+      {re:/\bfor visit\b/i, msg:"Mejor “to visit” / “for visiting”, no “for visit”."},
+      {re:/\bthe nature\b/i, msg:"En general se dice “nature” sin “the” (salvo casos específicos)."},
+      {re:/\bmore better\b/i, msg:"No digas “more better”: usá “better”."},
+      {re:/\bmore easier\b/i, msg:"No digas “more easier”: usá “easier”."},
+      {re:/\bhe have\b/i, msg:"Con he/she/it: “has”, no “have”."},
+      {re:/\bshe have\b/i, msg:"Con he/she/it: “has”, no “have”."},
+      {re:/\bit have\b/i, msg:"Con he/she/it: “has”, no “have”."},
+      {re:/\bdidn't went\b/i, msg:"Después de didn’t va el infinitivo: “didn't go”."},
+      {re:/\bdidn't came\b/i, msg:"Después de didn’t: “didn't come”."},
+      {re:/\bcan to\b/i, msg:"Después de can no va “to”: “you can visit”."},
+      {re:/\bmust to\b/i, msg:"Después de must no va “to”: “you must bring”."},
+      {re:/\bshould to\b/i, msg:"Después de should no va “to”: “you should come”."}
     ];
 
-    // Temas abiertos (estructura tipo profesora). Sin destino fijo: vos elegís de qué hablar.
+    function extractAiText(res) {
+      if (res == null) return "";
+      if (typeof res === "string") return res;
+      if (typeof res === "number" || typeof res === "boolean") return String(res);
+      const c = res.message?.content ?? res.content ?? res.text ?? res.result;
+      if (typeof c === "string") return c;
+      if (Array.isArray(c)) {
+        return c.map(part => {
+          if (typeof part === "string") return part;
+          return part?.text || part?.content || "";
+        }).join("");
+      }
+      if (typeof res.toString === "function") {
+        const s = res.toString();
+        if (s && s !== "[object Object]") return s;
+      }
+      try { return JSON.stringify(res); } catch { return ""; }
+    }
+
+    function formatAiFeedbackHtml(raw) {
+      let s = String(raw || "").trim();
+      if (!s) return "<p class=\"hint\">La IA no devolvió texto. Probá de nuevo.</p>";
+      // pull corrected email if marked
+      let corrected = "";
+      const corrMatch = s.match(/CORRECTED_EMAIL:\s*([\s\S]*?)(?:\n\s*CORRECTIONS:|\n\s*TIPS:|$)/i);
+      if (corrMatch) {
+        corrected = corrMatch[1].trim();
+        s = s.replace(corrMatch[0], "").trim();
+      }
+      const esc = escapeHtml(s)
+        .replace(/\*\*(.+?)\*\*/g, "<strong>$1</strong>")
+        .replace(/^###\s+(.+)$/gm, "<h4>$1</h4>")
+        .replace(/^##\s+(.+)$/gm, "<h4>$1</h4>")
+        .replace(/^#\s+(.+)$/gm, "<h4>$1</h4>")
+        .replace(/^- (.+)$/gm, "• $1");
+      return `
+        <div class="ai-feedback">
+          <h4>Corrección IA · lenguaje en inglés</h4>
+          <div>${esc}</div>
+          ${corrected ? `<div class="ai-corrected"><strong>Versión corregida:</strong>\n${escapeHtml(corrected)}</div>` : ""}
+        </div>`;
+    }
+
+    async function askEmailAiTutor({ text, prompt, bullets, words }) {
+      if (typeof puter === "undefined" || !puter?.ai?.chat) {
+        throw new Error("Puter AI no disponible");
+      }
+      const systemPrompt = `You are a friendly English teacher for Spanish-speaking A2 / SpeakOut students preparing an exam email (~100 words).
+Correct ENGLISH LANGUAGE carefully: grammar, vocabulary, spelling, articles, prepositions, verb tenses, natural email register, and clarity.
+Reply in SPANISH (student-facing), but keep English examples and the corrected email in ENGLISH.
+Use exactly this structure (plain text, no markdown tables):
+
+SCORE: <number>/10 — <one short Spanish sentence>
+SUMMARY: <2-3 Spanish sentences about language quality>
+CORRECTED_EMAIL:
+<full improved email in English, same ideas, natural A2 level>
+CORRECTIONS:
+- "<wrong>" → "<better>" — <short Spanish why>
+(list 3-8 real language fixes; if almost perfect, say so)
+TIPS:
+- <one Spanish tip for the exam>
+- <another tip>
+
+Be encouraging but precise. Do not invent content the student didn't try to say.`;
+
+      const userPrompt = `TASK / TOPIC: ${prompt.title}
+INCOMING EMAIL:
+${prompt.promptHtml}
+
+CHECKLIST THE STUDENT SHOULD COVER:
+${(bullets || []).map((b,i)=>`${i+1}. ${b}`).join("\n")}
+
+STUDENT REPLY (${words} words):
+${text}`;
+
+      let res;
+      try {
+        res = await puter.ai.chat([
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt }
+        ], { model: "openai/gpt-4o-mini" });
+      } catch (err1) {
+        try {
+          res = await puter.ai.chat(`${systemPrompt}\n\n${userPrompt}`, { model: "gpt-4o-mini" });
+        } catch (err2) {
+          res = await puter.ai.chat(`${systemPrompt}\n\n${userPrompt}`);
+        }
+      }
+      const out = extractAiText(res).trim();
+      if (!out) throw new Error("Respuesta vacía de la IA");
+      return out;
+    }
+
+    function localEnglishLanguageNotes(text) {
+      const notes = [];
+      const lower = text.toLowerCase();
+      if (!/\bbecause\b|\bsince\b|\bso\b/i.test(text)) {
+        notes.push("Para sonar más natural en recomendaciones, sumá una razón con “because…”.");
+      }
+      if (!/\byou should\b|\bi recommend\b|\byou shouldn't\b/i.test(lower)) {
+        notes.push("Usá recomendaciones claras: “You should…” / “I recommend…”.");
+      }
+      if (/\bi go yesterday\b|\bi go last\b/i.test(lower)) {
+        notes.push("Para pasado: “I went yesterday”, no “I go yesterday”.");
+      }
+      if (/\bi'm go to\b|\bi am go to\b/i.test(lower)) {
+        notes.push("Planes: “I'm going to…”, no “I'm go to…”.");
+      }
+      if (text.split(/[.!?]/).filter(s => s.trim().length > 140).length) {
+        notes.push("Hay oraciones muy largas: separalas con punto para que se lean mejor.");
+      }
+      if (!/[.!?]\s*$/.test(text.trim())) {
+        notes.push("Terminá las oraciones con punto o signo de exclamación.");
+      }
+      return notes;
+    }
+
+    async function checkEmail() {
+      const prompt = currentEmail;
+      const area = document.getElementById("email-text-dyn");
+      const resultBox = document.getElementById("email-result-dyn");
+      const btn = document.getElementById("email-check-btn");
+      if (!prompt || !area || !resultBox) return;
+      const text = area.value.trim();
+      const lower = text.toLowerCase();
+      const words = wordCount(text);
+      if (!text) {
+        resultBox.innerHTML = `<div class="exercise wrong"><div class="feedback" style="display:block">Escribí tu respuesta antes de corregir.</div></div>`;
+        return;
+      }
+      const needResults = (prompt.needs || []).map(cat => {
+        const kws = EMAIL_KEYWORDS[cat] || [];
+        const found = kws.some(k => lower.includes(k.toLowerCase()));
+        return {label: EMAIL_CATEGORY_LABELS[cat] || cat, found};
+      });
+      const issues = COMMON_MISTAKES.filter(m => m.re.test(text)).map(m => m.msg);
+      const localLang = localEnglishLanguageNotes(text);
+      const covered = needResults.filter(r => r.found).length;
+      const wordOk = words >= 100;
+      const greetingOk = /^(hi|hello|dear)\b/i.test(text);
+      const closingOk = /(best wishes|see you|take care|regards|love)\s*,?\s*\n?\s*\w+/i.test(text);
+      let score = 0;
+      const max = needResults.length + 3;
+      score += covered;
+      if (wordOk) score++;
+      if (greetingOk) score++;
+      if (closingOk) score++;
+      const pct = Math.round(score / max * 100);
+
+      const checklistHtml = `
+        <div class="exercise ${pct >= 70 ? "correct" : "wrong"}" style="margin-top:12px">
+          <div class="feedback" style="display:block;margin-bottom:8px">
+            ${wordOk ? "✓" : "✗"} Palabras: <strong>${words}</strong> (mínimo 100)${greetingOk ? "" : " · Falta un saludo claro (Hi…)"}${closingOk ? "" : " · Falta un cierre (Best wishes, …)"}
+          </div>
+          ${needResults.map(r => `<div class="email-check-row ${r.found ? "ok" : "bad"}"><span class="mark">${r.found ? "✓" : "✗"}</span><span>${escapeHtml(r.label)}</span></div>`).join("")}
+        </div>
+        ${issues.length || localLang.length ? `<div class="exercise wrong" style="margin-top:10px"><div class="question" style="margin-bottom:6px">Revisión rápida de lenguaje:</div>${[...issues, ...localLang].map(m => `<div class="email-issue">${escapeHtml(m)}</div>`).join("")}</div>` : `<div class="exercise correct" style="margin-top:10px"><div class="feedback" style="display:block">✓ En la revisión rápida no aparecieron errores típicos graves.</div></div>`}
+      `;
+
+      resultBox.innerHTML = checklistHtml + `<div class="ai-feedback" id="email-ai-box"><h4>Corrección IA</h4><p class="hint" style="margin:0">Analizando tu inglés… (puede pedir login de Puter la primera vez)</p></div>`;
+      document.getElementById("email-score-dyn").textContent = `${pct}% · ${words} palabras · IA…`;
+      if (btn) {
+        btn.disabled = true;
+        btn.textContent = "Corrigiendo…";
+      }
+
+      let aiOk = false;
+      try {
+        const aiRaw = await askEmailAiTutor({
+          text,
+          prompt,
+          bullets: prompt.bullets || [],
+          words
+        });
+        const aiBox = document.getElementById("email-ai-box");
+        if (aiBox) aiBox.outerHTML = formatAiFeedbackHtml(aiRaw);
+        aiOk = true;
+        document.getElementById("email-score-dyn").textContent = `${pct}% · ${words} palabras · IA lista`;
+      } catch (err) {
+        console.warn(err);
+        const aiBox = document.getElementById("email-ai-box");
+        if (aiBox) {
+          aiBox.innerHTML = `<h4>Corrección IA</h4><p class="hint" style="margin:0">No se pudo usar la IA ahora (${escapeHtml(err.message || "error")}). Quedó la revisión rápida de arriba. Probá de nuevo con internet / login Puter.</p>`;
+        }
+        document.getElementById("email-score-dyn").textContent = `${pct}% · ${words} palabras`;
+      } finally {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = "Corregir con IA";
+        }
+      }
+
+      addHistory({
+        type: "email",
+        label: `Email · ${prompt.title}`,
+        detail: `Respuesta a ${prompt.from} · ${covered}/${needResults.length} puntos · ${aiOk ? "corrección IA" : "sin IA"}`,
+        score: `${pct}% · ${words} palabras`,
+        pct,
+        level: (typeof getProfile === "function" ? getProfile().level : null) || "III",
+        answers: needResults.map(r => ({q: r.label, selected: r.found ? "cubierto" : "faltante", correct: "cubierto", ok: r.found}))
+      });
+    }
+
+
     const EMAIL_TOPICS = [
       {
         id:"visit",
@@ -4193,7 +4444,7 @@ The train is faster than the bus, but the bus is cheaper. I recommend the train 
           <textarea id="email-text-dyn" class="word-area" data-target="100" placeholder="Hi ${escapeHtml(p.from)},&#10;&#10;It's good to hear from you..."></textarea>
           <div class="counter" id="email-counter-dyn">0 palabras · objetivo: 100+</div>
           <div class="toolbar">
-            <button class="btn primary" type="button" onclick="checkEmail()">Corregir</button>
+            <button class="btn primary" type="button" id="email-check-btn" onclick="checkEmail()">Corregir con IA</button>
             <button class="btn" type="button" onclick="toggleEmailModel()">Ver / ocultar modelo (estructura)</button>
             <button class="btn" type="button" onclick="newEmailPrompt()">Otro escenario</button>
             <span id="email-score-dyn" class="score">Sin corregir</span>
@@ -4218,56 +4469,6 @@ The train is faster than the bus, but the bus is cheaper. I recommend the train 
 
     function toggleEmailModel() {
       document.getElementById("email-model-dyn")?.classList.toggle("open");
-    }
-
-    function checkEmail() {
-      const prompt = currentEmail;
-      const area = document.getElementById("email-text-dyn");
-      const resultBox = document.getElementById("email-result-dyn");
-      if (!prompt || !area || !resultBox) return;
-      const text = area.value.trim();
-      const lower = text.toLowerCase();
-      const words = wordCount(text);
-      if (!text) {
-        resultBox.innerHTML = `<div class="exercise wrong"><div class="feedback" style="display:block">Escribí tu respuesta antes de corregir.</div></div>`;
-        return;
-      }
-      const needResults = (prompt.needs || []).map(cat => {
-        const kws = EMAIL_KEYWORDS[cat] || [];
-        const found = kws.some(k => lower.includes(k.toLowerCase()));
-        return {label: EMAIL_CATEGORY_LABELS[cat] || cat, found};
-      });
-      const issues = COMMON_MISTAKES.filter(m => m.re.test(text)).map(m => m.msg);
-      const covered = needResults.filter(r => r.found).length;
-      const wordOk = words >= 100;
-      const greetingOk = /^(hi|hello|dear)\b/i.test(text);
-      const closingOk = /(best wishes|see you|take care|regards|love)\s*,?\s*\n?\s*\w+/i.test(text);
-      let score = 0;
-      const max = needResults.length + 3;
-      score += covered;
-      if (wordOk) score++;
-      if (greetingOk) score++;
-      if (closingOk) score++;
-      const pct = Math.round(score / max * 100);
-      resultBox.innerHTML = `
-        <div class="exercise ${pct >= 70 ? "correct" : "wrong"}" style="margin-top:12px">
-          <div class="feedback" style="display:block;margin-bottom:8px">
-            ${wordOk ? "✓" : "✗"} Palabras: <strong>${words}</strong> (mínimo 100)${greetingOk ? "" : " · Falta un saludo claro (Hi…)"}${closingOk ? "" : " · Falta un cierre (Best wishes, …)"}
-          </div>
-          ${needResults.map(r => `<div class="email-check-row ${r.found ? "ok" : "bad"}"><span class="mark">${r.found ? "✓" : "✗"}</span><span>${escapeHtml(r.label)}</span></div>`).join("")}
-        </div>
-        ${issues.length ? `<div class="exercise wrong" style="margin-top:10px"><div class="question" style="margin-bottom:6px">Revisá estas expresiones:</div>${issues.map(m => `<div class="email-issue">${escapeHtml(m)}</div>`).join("")}</div>` : `<div class="exercise correct" style="margin-top:10px"><div class="feedback" style="display:block">✓ No encontré errores típicos habituales en este texto.</div></div>`}
-      `;
-      document.getElementById("email-score-dyn").textContent = `${pct}% · ${words} palabras`;
-      addHistory({
-        type: "email",
-        label: `Email · ${prompt.title}`,
-        detail: `Respuesta a ${prompt.from} · ${covered}/${needResults.length} puntos de contenido`,
-        score: `${pct}% · ${words} palabras`,
-        pct,
-        level: (typeof getProfile === "function" ? getProfile().level : null) || "III",
-        answers: needResults.map(r => ({q: r.label, selected: r.found ? "cubierto" : "faltante", correct: "cubierto", ok: r.found}))
-      });
     }
 
 
