@@ -266,6 +266,29 @@
     }
     .speech-one p { margin: 0 0 1.15em; }
     .speech-one p:last-child { margin-bottom: 0; }
+    .speech-one p[contenteditable="true"] {
+      outline: none;
+      border-radius: 10px;
+      padding: 6px 8px;
+      margin-left: -8px;
+      margin-right: -8px;
+      cursor: text;
+      transition: background .15s ease, box-shadow .15s ease;
+    }
+    .speech-one p[contenteditable="true"]:hover {
+      background: rgba(45, 212, 191, .07);
+    }
+    .speech-one p[contenteditable="true"]:focus {
+      background: rgba(45, 212, 191, .12);
+      box-shadow: inset 0 0 0 1px rgba(45, 212, 191, .5);
+    }
+    .speech-save-status {
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 700;
+      margin-left: 6px;
+    }
+    .speech-save-status.saved { color: #6ee7b7; }
     .phrase {
       background: linear-gradient(transparent 63%, rgba(251, 191, 36, .28) 0);
       font-weight: 700;
@@ -3325,29 +3348,8 @@ const presentationSlides = [
         ${img ? `<img class="slide-img" src="${img}" alt="Diapositiva ${s.n}: ${escapeHtml(s.title)}">` : `<h4>${escapeHtml(s.title)}</h4>`}
       </div>`;
     }
-    function sectionToParagraph(s, idx, speechId, editing) {
+    function sectionToParagraph(s, idx, speechId) {
       const slideBit = (speechId === "speech3") ? slidePreviewHtml(idx) : "";
-      if (editing) {
-        const bridgePlain = sectionHtmlToPlain(s.bridge || "");
-        const textPlain = sectionHtmlToPlain(s.text || "");
-        return `<div class="speech-section" data-section="${idx}">
-          ${slideBit}
-          <div class="section-speak">
-            <span class="tag">${escapeHtml(s.title)}</span>
-          </div>
-          <div class="speech-edit-box">
-            <label>Título de la sección
-              <input class="speech-edit-title" data-idx="${idx}" value="${escapeHtml(s.title || "")}" style="width:100%;border:1px solid #334155;border-radius:10px;padding:10px;background:var(--surface);color:var(--ink)">
-            </label>
-            <label>Puente / transición (opcional)
-              <textarea class="speech-edit-bridge" data-idx="${idx}" placeholder="Ej: First, I’ll explain…">${escapeHtml(bridgePlain)}</textarea>
-            </label>
-            <label>Texto que vas a decir
-              <textarea class="speech-edit-text" data-idx="${idx}" placeholder="Escribí el texto de esta parte…">${escapeHtml(textPlain)}</textarea>
-            </label>
-          </div>
-        </div>`;
-      }
       const bridge = s.bridge
         ? `<span class="link">${stripPhrase(s.bridge)}</span> `
         : "";
@@ -3355,44 +3357,62 @@ const presentationSlides = [
       return `<div class="speech-section" data-section="${idx}">
         ${slideBit}
         <div class="section-speak">
-          <button class="btn small" type="button" onclick="speakSection('${speechId}',${idx})">▶ Escuchar sección</button>
+          <button class="btn small" type="button" onclick="event.stopPropagation(); speakSection('${speechId}',${idx})">▶ Escuchar sección</button>
           <span class="tag">${escapeHtml(s.title)}</span>
         </div>
-        <p id="${speechId}-p-${idx}">${bridge}${body}</p>
+        <p id="${speechId}-p-${idx}"
+           class="speech-live-edit"
+           contenteditable="true"
+           spellcheck="true"
+           data-speech="${speechId}"
+           data-section="${idx}"
+           oninput="onSpeechLiveEdit('${speechId}')"
+           onblur="onSpeechLiveEdit('${speechId}', true)">${bridge}${body}</p>
       </div>`;
     }
-    function startSpeechEdit(id) {
-      stopSpeech();
-      state.speechEditing = id;
-      renderSpeech(id);
-      document.getElementById(id)?.scrollIntoView({behavior:"smooth", block:"start"});
-    }
-    function cancelSpeechEdit(id) {
-      state.speechEditing = null;
-      renderSpeech(id);
-    }
-    function saveSpeechEdits(id) {
-      const root = document.getElementById(id);
-      if (!root) return;
+    let speechSaveTimers = {};
+    function collectLiveSpeechSections(id) {
       const d = speechDefaults[id] || speechData[id];
-      const sections = d.sections.map((s, i) => {
-        const titleEl = root.querySelector(`.speech-edit-title[data-idx="${i}"]`);
-        const bridgeEl = root.querySelector(`.speech-edit-bridge[data-idx="${i}"]`);
-        const textEl = root.querySelector(`.speech-edit-text[data-idx="${i}"]`);
+      return d.sections.map((s, i) => {
+        const p = document.getElementById(`${id}-p-${i}`);
+        const plain = (p?.innerText || p?.textContent || "").replace(/\s+/g, " ").trim();
         return {
-          title: (titleEl?.value || s.title || "").trim(),
-          bridge: (bridgeEl?.value || "").trim(),
-          text: (textEl?.value || "").trim()
+          title: s.title,
+          bridge: "",
+          text: plain
         };
       });
-      const all = loadSpeechEdits();
-      all[id] = { sections, savedAt: new Date().toISOString() };
-      persistSpeechEdits(all);
-      state.speechEditing = null;
-      renderSpeech(id);
+    }
+    function onSpeechLiveEdit(id, immediate) {
+      const run = () => {
+        const sections = collectLiveSpeechSections(id);
+        if (!sections.some(s => s.text)) return;
+        const all = loadSpeechEdits();
+        all[id] = { sections, savedAt: new Date().toISOString(), live: true };
+        persistSpeechEdits(all);
+        const badge = document.getElementById(`speech-edited-badge-${id}`);
+        if (badge) {
+          badge.hidden = false;
+          badge.textContent = "Editado en este navegador";
+        }
+        const status = document.getElementById(`speech-save-status-${id}`);
+        if (status) {
+          status.textContent = "Guardado";
+          status.classList.add("saved");
+          clearTimeout(status._hide);
+          status._hide = setTimeout(() => {
+            status.textContent = "Tocá el texto para editar";
+            status.classList.remove("saved");
+          }, 1600);
+        }
+      };
+      clearTimeout(speechSaveTimers[id]);
+      if (immediate) run();
+      else speechSaveTimers[id] = setTimeout(run, 450);
     }
     function resetSpeechEdits(id) {
       if (!confirm("¿Restaurar el speech original y borrar tus ediciones guardadas en este navegador?")) return;
+      stopSpeech();
       const all = loadSpeechEdits();
       delete all[id];
       persistSpeechEdits(all);
@@ -3400,39 +3420,31 @@ const presentationSlides = [
       renderSpeech(id);
     }
     function renderSpeech(id) {
-      const editing = state.speechEditing === id;
       const source = getActiveSpeech(id);
       const questions = source.questions ? `<div class="questions-box"><h3>Las 4 preguntas que debés llevar (Inglés IV)</h3><ol>${source.questions.map(q=>`<li><span class="tag">${q[0]}</span><br><strong>${q[1]}</strong><br><span class="strategy">Answer strategy:</span> ${q[2]}</li>`).join("")}</ol>
         <p><strong>Frases de estrategia:</strong> “If I understood your question correctly…” · “That’s an interesting question.” · “As far as I know…” · “Could you please repeat the question?” · “Let me give you an example.”</p>
       </div>` : "";
-      const fullText = source.sections.map((s,i) => sectionToParagraph(s,i,id, editing)).join("");
+      const fullText = source.sections.map((s,i) => sectionToParagraph(s,i,id)).join("");
       const profileName = getProfile().name || "";
       const edited = speechHasEdits(id);
-      const editToolbar = editing ? `
-            <button class="btn primary" type="button" onclick="saveSpeechEdits('${id}')">Guardar cambios</button>
-            <button class="btn" type="button" onclick="cancelSpeechEdit('${id}')">Cancelar</button>
-            <button class="btn" type="button" onclick="resetSpeechEdits('${id}')" style="border-color:#f87171;color:#fca5a5">Restaurar original</button>
-          ` : `
-            <button class="btn" type="button" onclick="startSpeechEdit('${id}')">✎ Editar speech</button>
-            ${edited ? `<button class="btn small" type="button" onclick="resetSpeechEdits('${id}')">Restaurar original</button>` : ""}
-          `;
       document.getElementById(id).innerHTML = `
         <span class="tag">${source.level} · Oral</span>
-        ${edited ? `<span class="speech-edited-badge">Editado en este navegador</span>` : ""}
+        <span id="speech-edited-badge-${id}" class="speech-edited-badge" ${edited ? "" : "hidden"}>Editado en este navegador</span>
         <h2>${source.title}</h2>
         <p class="lead">${source.subtitle}</p>
         <div class="thread-banner"><span class="thread-icon">🎙</span><div><strong>${source.structure}</strong><p>${source.thread}</p></div></div>
         <div class="speech-controls">
           <div><label>Tu nombre para personalizar el speech<input class="name-input" value="${escapeHtml(profileName)}" placeholder="Escribí tu nombre" oninput="setStudentName('${id}',this.value)"></label></div>
           <div class="toolbar" style="margin:0">
-            ${editToolbar}
+            <span id="speech-save-status-${id}" class="speech-save-status">Tocá el texto para editar</span>
+            ${edited ? `<button class="btn small" type="button" onclick="resetSpeechEdits('${id}')">Restaurar original</button>` : `<button class="btn small" type="button" onclick="resetSpeechEdits('${id}')" title="Vuelve al texto original">Restaurar original</button>`}
             <button class="btn small" onclick="window.print()">Imprimir</button>
           </div>
         </div>
-        ${editing ? `<div class="notice"><strong>Modo edición:</strong> cambiá el texto de cada sección y dale a <em>Guardar cambios</em>. Queda guardado solo en este navegador (no modifica GitHub). El audio usa tu versión editada.</div>` : ""}
+        <div class="notice"><strong>Edición en vivo:</strong> hacé clic en cualquier párrafo del speech, cambiá lo que quieras y se guarda solo en este navegador. El audio lee lo que ves ahora.</div>
         <div class="toolbar">
           <div class="timer-panel"><span id="timer-${id}" class="timer">07:00</span><button class="btn small" onclick="toggleTimer('${id}')">Iniciar / pausar</button><button class="btn small" onclick="resetTimer('${id}')">Reiniciar</button></div>
-          <button class="btn teal" onclick="speakSpeech('${id}')" ${editing ? "disabled" : ""}>▶ Escuchar speech completo</button>
+          <button class="btn teal" onclick="speakSpeech('${id}')">▶ Escuchar speech completo</button>
           <button class="btn" onclick="stopSpeech()">■ Detener audio</button>
           <label style="font-size:13px;font-weight:800;color:#cbd5e1">Voz EN
             <select class="speech-voice-select" onchange="setChosenVoice(this.value)" style="margin-left:6px;border:1px solid #334155;border-radius:8px;padding:6px 8px;background:var(--surface);color:var(--ink)">
