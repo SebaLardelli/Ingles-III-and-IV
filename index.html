@@ -2101,7 +2101,7 @@
       ],
       pres: [
         {q:"Why is this topic important, according to the speech?", o:["Because data centres are illegal","Because we use online services every day and they need a lot of electricity","Because Ireland has no internet"], a:1, e:"We use streaming, shopping and cloud storage every day, and those services need enormous electricity."},
-        {q:"How many parts does the presentation have?", o:["Two","Four","Ten"], a:1, e:"The speaker says: My presentation has four parts."},
+        {q:"How many main points does the presentation have?", o:["Two","Four","Ten"], a:1, e:"The speaker says: My presentation has four main points."},
         {q:"What is a data centre?", o:["A type of virus","A place with computers that store and manage data","A wind turbine"], a:1, e:"A data centre is a place with computers that store and manage data."},
         {q:"Why do data centres need strong cooling systems?", o:["Because they are built only in deserts","Because thousands of servers run 24/7 and make a lot of heat","Because the government requires ice machines"], a:1, e:"Servers work all day and night and make heat, so cooling systems are needed."},
         {q:"How much electricity can one big data centre use?", o:["As much as a single house","As much as a small city","As much as a whole continent"], a:1, e:"One big data centre can use as much electricity as a small city."},
@@ -2321,11 +2321,11 @@ const presentationSlides = [
         ],
         sections:[
           {title:"1 · Introduction — Topic & relevance", cue:"Welcome · topic · why it matters.", text:`
-            <span class="phrase">Good morning, everyone.</span>
-            <span class="phrase">Today, I want to talk about</span> a relevant topic: how <span class="phrase">data centres</span> consume so much <span class="phrase">electricity</span>, and how we can reduce this.
+            <span class="phrase">Hello everyone.</span>
+            <span class="phrase">Today, I'm going to talk about</span> a relevant topic: how <span class="phrase">data centres</span> consume so much <span class="phrase">electricity</span>, and how we can reduce it.
             <span class="link">First of all,</span> this topic is important because we use online services every day — streaming, shopping, and saving photos in the cloud. <span class="link">However,</span> these services need an enormous amount of electricity to run. <span class="link">As a result,</span> this electricity use is a problem for the environment and for the power grid.`},
-          {title:"2 · Introduction — Outline (4 parts)", cue:"Structure · four parts.", text:`
-            <span class="phrase">My presentation has four parts.</span>
+          {title:"2 · Introduction — Outline (4 points)", cue:"Structure · four main points.", text:`
+            <span class="phrase">My presentation has four main points.</span>
             <span class="link">First,</span> I will explain why data centres use so much electricity.
             <span class="link">Second,</span> I will talk about Ireland, where this is a big problem.
             <span class="link">Then,</span> I will show new technologies that help save energy.
@@ -2336,12 +2336,12 @@ const presentationSlides = [
             <span class="link">However,</span> data centres need a lot of electricity. Why? Because they have thousands of <span class="phrase">servers</span>. These servers work all day and all night — <span class="phrase">24 hours a day, 7 days a week</span>. <span class="link">In addition,</span> the servers make a lot of heat, so the data centres need strong <span class="phrase">cooling systems</span>.
             <span class="link">For example,</span> one big data centre can use as much electricity as a <span class="phrase">small city</span>. <span class="link">Therefore,</span> data centres are becoming a big part of global electricity consumption.`},
           {title:"4 · Development — The case of Ireland", cue:"75+ centres · 27% by 2029 · government action.",
-           bridge:`Now, let's move on to the case of Ireland.`, text:`
+           bridge:`Second, let's move on to the case of Ireland.`, text:`
             <span class="phrase">Ireland</span> is a good example of this problem. Big companies like Amazon and Microsoft build data centres in Ireland. Today, Ireland has <span class="phrase">more than 75 data centres</span>, and more are coming.
             <span class="link">However,</span> Ireland's <span class="phrase">electric grid</span> is small. <span class="link">As a result,</span> all these data centres put a lot of pressure on the system. Experts say that by <span class="phrase">2029</span>, data centres could use <span class="phrase">27%</span> of all the electricity in Ireland, which is a very high number.
             <span class="link">Because of this,</span> the government in Ireland is taking action. Now, new data centres must show they can reduce electricity use during <span class="phrase">peak times</span>. <span class="link">In addition,</span> the government encourages them to use <span class="phrase">renewable energy</span> sources and innovative technology.`},
           {title:"5 · Development — New technologies that save energy", cue:"UPS · Grange Castle · Pure Storage · renewables.",
-           bridge:`Next, let's talk about new technologies.`, text:`
+           bridge:`Then, let's talk about new technologies.`, text:`
             There are new technologies that help data centres save energy.
             <span class="link">For example,</span> one technology is called <span class="phrase">UPS — Uninterruptible Power Supply</span>. This is like a big backup battery. When the electric grid has problems, the UPS turns on immediately.
             <span class="link">For instance,</span> at <span class="phrase">Grange Castle</span>, a data centre near Dublin, the UPS system works with smart software. This software can disconnect the centre from the grid for a short time, when necessary.
@@ -2354,7 +2354,7 @@ const presentationSlides = [
             <span class="link">Third,</span> we — the users — can help too. <span class="link">For example,</span> if we delete old files and use less <span class="phrase">cloud storage</span>, we reduce the demand for data centres. Even small actions can make a difference.
             <span class="link">Finally,</span> the future depends on everyone working together. As one expert said in the article: <span class="phrase">"Today, it's not only about price or performance — it's about the carbon footprint."</span>`},
           {title:"7 · Conclusion — Summary & questions", cue:"Summarize · recommendation · invite questions.",
-           bridge:`So, to sum up,`, text:`
+           bridge:`In conclusion,`, text:`
             data centres are very important for our digital life, but they use a lot of electricity. Ireland shows us that this problem can become very serious.
             <span class="link">However,</span> new technologies — like UPS systems and data reduction software — are helping. <span class="link">Also,</span> companies are becoming more aware of the environment.
             So, what can we learn from this? <span class="phrase">I suggest</span> we all become more conscious and careful with our digital habits — <span class="link">for example,</span> deleting files we don't need. <span class="link">At the same time,</span> companies need to keep innovating and investing in sustainable solutions.
@@ -2639,7 +2639,7 @@ speech4: {
     const PROFILE_KEY = "uai-ingles-profile-v1";
     const VOICE_KEY = "uai-ingles-voice-uri";
     const SPEED_KEY = "uai-ingles-speech-rate";
-    const SPEECH_EDIT_KEY = "uai-ingles-speech-edits-v3";
+    const SPEECH_EDIT_KEY = "uai-ingles-speech-edits-v4";
     const SPEECH_RATE_OPTIONS = [
       {value:0.7, label:"Lenta · 0.7x"},
       {value:0.85, label:"Tranquila · 0.85x"},
