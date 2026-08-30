@@ -904,6 +904,75 @@
       color: #e2e8f0;
       line-height: 1.55;
     }
+    .speech-lesson-panel {
+      margin-top: 14px;
+      display: grid;
+      gap: 16px;
+    }
+    .speech-lesson-head {
+      padding: 14px 16px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: var(--card);
+    }
+    .speech-lesson-head h4 {
+      margin: 0 0 6px;
+      color: #f1f5f9;
+      font-size: 17px;
+    }
+    .speech-lesson-head .flow {
+      margin: 8px 0 0;
+      color: #99f6e4;
+      font-size: 13px;
+      font-weight: 700;
+      line-height: 1.45;
+    }
+    .speech-lesson-head p {
+      margin: 0;
+      color: #cbd5e1;
+      font-size: 14px;
+      line-height: 1.5;
+    }
+    .order-list {
+      display: grid;
+      gap: 8px;
+    }
+    .order-row {
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 10px;
+      align-items: center;
+      padding: 12px;
+      border: 1px solid var(--line);
+      border-radius: 12px;
+      background: var(--card);
+    }
+    .order-row.ok { border-color: #34d399; background: rgba(52,211,153,.08); }
+    .order-row.bad { border-color: #f87171; background: rgba(248,113,113,.08); }
+    .order-row .ord {
+      width: 28px;
+      height: 28px;
+      border-radius: 999px;
+      display: grid;
+      place-items: center;
+      font-weight: 900;
+      font-size: 13px;
+      background: rgba(45,212,191,.15);
+      color: #99f6e4;
+    }
+    .order-row strong { color: #f1f5f9; font-size: 14px; display: block; }
+    .order-row small { color: var(--muted); font-size: 12px; }
+    .order-row .order-btns { display: flex; gap: 6px; }
+    .speech-part-quiz .exercise { margin-top: 10px; }
+    @media (max-width: 720px) {
+      .order-row {
+        grid-template-columns: auto 1fr;
+      }
+      .order-row .order-btns {
+        grid-column: 1 / -1;
+        justify-content: flex-end;
+      }
+    }
     .speech-cheat li { margin: 0 0 10px; }
     .speech-cheat strong { color: #99f6e4; }
     @media (max-width: 720px) {
@@ -2509,10 +2578,194 @@ const presentationSlides = [
         {en:"In conclusion,", es:"En conclusión / Para cerrar,"},
         {en:"At the same time,", es:"Al mismo tiempo,"},
         {en:"I suggest…", es:"Sugiero / Propongo…"}
+      ],
+      lessons: [
+        {
+          id:"intro",
+          section:0,
+          tab:"1 · Intro",
+          title:"Introduction · topic & relevance",
+          es:"Arrancás el oral: saludo, tema y por qué importa.",
+          flow:"Hello everyone → Today I'm going to talk about… → First of all / However / As a result",
+          order:[
+            {en:"Hello everyone.", es:"Saludo"},
+            {en:"Today, I'm going to talk about data centres and electricity.", es:"Presentar el tema"},
+            {en:"First of all, this topic is important because we use online services every day.", es:"Por qué importa"},
+            {en:"However… As a result… problem for the environment and the power grid.", es:"Problema / consecuencia"}
+          ],
+          terms:[
+            {en:"data centre", es:"centro de datos"},
+            {en:"electricity", es:"electricidad"},
+            {en:"power grid", es:"red eléctrica"},
+            {en:"cloud", es:"nube (guardar datos online)"},
+            {en:"First of all,", es:"Antes que nada,"},
+            {en:"As a result,", es:"Como resultado,"}
+          ],
+          quiz:[
+            {q:"What do you say first?", o:["In conclusion…","Hello everyone.","UPS stands for…"], a:1, e:"Empezás con el saludo: Hello everyone."},
+            {q:"Why is the topic important?", o:["Because Ireland has no internet","Because we use online services every day","Because data centres are illegal"], a:1, e:"Usamos streaming, shopping y cloud todos los días."}
+          ]
+        },
+        {
+          id:"outline",
+          section:1,
+          tab:"2 · Outline",
+          title:"Outline · four main points",
+          es:"Decís la estructura: cuatro puntos en orden.",
+          flow:"My presentation has four main points → First → Second → Then → Finally",
+          order:[
+            {en:"My presentation has four main points.", es:"Anunciar la estructura"},
+            {en:"First, why data centres use so much electricity.", es:"Punto 1"},
+            {en:"Second, Ireland.", es:"Punto 2"},
+            {en:"Then, new technologies.", es:"Punto 3"},
+            {en:"Finally, solutions for the future.", es:"Punto 4"}
+          ],
+          terms:[
+            {en:"First,", es:"Primero,"},
+            {en:"Second,", es:"Segundo,"},
+            {en:"Then,", es:"Luego / Después,"},
+            {en:"Finally,", es:"Finalmente,"},
+            {en:"main points", es:"puntos principales"}
+          ],
+          quiz:[
+            {q:"How many main points are there?", o:["Two","Four","Eight"], a:1, e:"My presentation has four main points."},
+            {q:"What is the second point about?", o:["UPS only","Ireland","Thank you"], a:1, e:"Second, I will talk about Ireland."}
+          ]
+        },
+        {
+          id:"part1",
+          section:2,
+          tab:"3 · Why electricity?",
+          title:"Part 1 · Why so much electricity?",
+          es:"Definís data centre → servidores 24/7 → calor/cooling → ciudad chica.",
+          flow:"What is a data centre? → servers 24/7 → heat + cooling → as much as a small city → Therefore…",
+          order:[
+            {en:"A data centre stores and manages data.", es:"Definición"},
+            {en:"Thousands of servers work 24/7.", es:"Servidores"},
+            {en:"They make heat → strong cooling systems.", es:"Calor / refrigeración"},
+            {en:"One big data centre ≈ a small city. Therefore…", es:"Ejemplo + conclusión"}
+          ],
+          terms:[
+            {en:"server", es:"servidor"},
+            {en:"24/7", es:"las 24 horas, los 7 días"},
+            {en:"cooling system", es:"sistema de refrigeración"},
+            {en:"small city", es:"ciudad chica (comparación de consumo)"},
+            {en:"Therefore,", es:"Por lo tanto,"},
+            {en:"In addition,", es:"Además,"}
+          ],
+          quiz:[
+            {q:"Why do data centres need cooling?", o:["For decoration","Because servers make a lot of heat","Because Ireland is cold"], a:1, e:"Los servidores generan mucho calor."},
+            {q:"One big data centre can use as much electricity as…", o:["a single phone","a small city","a bicycle"], a:1, e:"…as much electricity as a small city."}
+          ]
+        },
+        {
+          id:"part2",
+          section:3,
+          tab:"4 · Ireland",
+          title:"Part 2 · The case of Ireland",
+          es:"Ejemplo país: empresas, 75+, red chica, 27%, gobierno.",
+          flow:"Second, Ireland → Amazon/Microsoft → 75+ → small grid → 27% by 2029 → peak times + renewables",
+          order:[
+            {en:"Second, let's move on to Ireland.", es:"Puente a la parte 2"},
+            {en:"Amazon and Microsoft; more than 75 data centres.", es:"Hechos"},
+            {en:"Ireland's electric grid is small → pressure.", es:"Problema"},
+            {en:"By 2029: 27%. Government: peak times + renewables.", es:"Dato + acción"}
+          ],
+          terms:[
+            {en:"Ireland", es:"Irlanda"},
+            {en:"electric grid", es:"red eléctrica"},
+            {en:"27%", es:"veintisiete por ciento (dato clave 2029)"},
+            {en:"peak times", es:"horarios pico"},
+            {en:"renewable energy", es:"energía renovable"},
+            {en:"Because of this,", es:"Por este motivo,"}
+          ],
+          quiz:[
+            {q:"How many data centres does Ireland have?", o:["More than 75","Exactly 27","Around 5"], a:0, e:"More than 75 data centres, and more are coming."},
+            {q:"By 2029, data centres could use…", o:["5%","27%","90%"], a:1, e:"27% of all the electricity in Ireland."}
+          ]
+        },
+        {
+          id:"part3",
+          section:4,
+          tab:"5 · Technologies",
+          title:"Part 3 · New technologies",
+          es:"UPS, Grange Castle, Pure Storage, solar/wind.",
+          flow:"Then, technologies → UPS → Grange Castle → Pure Storage data reduction → renewables / carbon footprint",
+          order:[
+            {en:"Then, let's talk about new technologies.", es:"Puente a la parte 3"},
+            {en:"UPS = Uninterruptible Power Supply (backup battery).", es:"Tecnología 1"},
+            {en:"Grange Castle: smart software can disconnect from the grid.", es:"Ejemplo Irlanda"},
+            {en:"Pure Storage data reduction + solar/wind → carbon footprint.", es:"Más soluciones"}
+          ],
+          terms:[
+            {en:"UPS", es:"batería de respaldo"},
+            {en:"Grange Castle", es:"data centre cerca de Dublín"},
+            {en:"data reduction", es:"borrar archivos viejos/duplicados"},
+            {en:"Pure Storage", es:"empresa de data reduction"},
+            {en:"carbon footprint", es:"huella de carbono"},
+            {en:"For instance,", es:"Por ejemplo,"}
+          ],
+          quiz:[
+            {q:"What is a UPS like?", o:["A small city","A big backup battery","A shopping mall"], a:1, e:"Like a big backup battery."},
+            {q:"What does Pure Storage's data reduction do?", o:["Builds more servers","Finds old or duplicate files and deletes them","Closes the grid"], a:1, e:"Deletes old/duplicate files → fewer servers."}
+          ]
+        },
+        {
+          id:"part4",
+          section:5,
+          tab:"6 · Solutions",
+          title:"Part 4 · Solutions & future",
+          es:"Empresas, gobiernos, usuarios y colaboración.",
+          flow:"Finally, solutions → First companies (+ AI) → Second governments → Third users → Finally work together / carbon footprint quote",
+          order:[
+            {en:"Finally, solutions and future trends.", es:"Puente a la parte 4"},
+            {en:"First: companies — efficient centres + AI.", es:"Empresas"},
+            {en:"Second: governments — rules + tax benefits.", es:"Gobiernos"},
+            {en:"Third: users — delete files / less cloud storage.", es:"Usuarios"},
+            {en:"Finally: everyone together · carbon footprint quote.", es:"Cierre de la parte"}
+          ],
+          terms:[
+            {en:"artificial intelligence", es:"inteligencia artificial"},
+            {en:"tax benefits", es:"beneficios impositivos"},
+            {en:"cloud storage", es:"almacenamiento en la nube"},
+            {en:"Also,", es:"También,"},
+            {en:"Third,", es:"En tercer lugar,"},
+            {en:"carbon footprint", es:"huella de carbono"}
+          ],
+          quiz:[
+            {q:"How can users help?", o:["Buy more phones","Delete old files and use less cloud storage","Close Ireland"], a:1, e:"Menos demanda de data centres."},
+            {q:"Besides price or performance, what matters?", o:["Only speed","The carbon footprint","Only brand names"], a:1, e:"It's about the carbon footprint."}
+          ]
+        },
+        {
+          id:"conclusion",
+          section:6,
+          tab:"7 · Conclusion",
+          title:"Conclusion · summary & questions",
+          es:"Resumen, sugerencia y preguntas a la audiencia.",
+          flow:"In conclusion → summary → However / Also → I suggest… → Finally, questions → Thank you",
+          order:[
+            {en:"In conclusion… data centres are important but use a lot of electricity.", es:"Resumen inicial"},
+            {en:"Ireland shows the problem can become serious; technologies help.", es:"Irlanda + tecnologías"},
+            {en:"I suggest more conscious digital habits.", es:"Recomendación"},
+            {en:"Questions for the audience + Thank you.", es:"Cierre"}
+          ],
+          terms:[
+            {en:"In conclusion,", es:"En conclusión,"},
+            {en:"I suggest…", es:"Sugiero…"},
+            {en:"At the same time,", es:"Al mismo tiempo,"},
+            {en:"digital habits", es:"hábitos digitales"},
+            {en:"Thank you very much for your attention.", es:"Gracias por su atención."}
+          ],
+          quiz:[
+            {q:"How does the conclusion start?", o:["Hello everyone.","In conclusion…","UPS stands for…"], a:1, e:"In conclusion,…"},
+            {q:"Which technologies does the speaker ask about?", o:["Past Simple or Present Perfect","UPS, data reduction, or renewable energy","Bus, train, or plane"], a:1, e:"Pregunta a la audiencia al final."}
+          ]
+        }
       ]
     };
 
-    const speechData = {
+const speechData = {
       speech3: {
         level:"Inglés III",
         title:"How data centres consume electricity — and how we can reduce it",
@@ -2893,6 +3146,9 @@ speech4: {
       emailMatchItems: [],
       speechMatchItems: [],
       speechMatchKind: "terms",
+      speechLessonId: "intro",
+      speechOrderItems: [],
+      speechPartMatchItems: [],
       currentAudio:null,
       playGen:0,
       audioWaitResolve:null,
@@ -3909,6 +4165,12 @@ speech4: {
         </div>
         ${id === "speech3" ? `
         <div class="practice-block" style="margin-top:22px">
+          <h3>Estudiá por partes · orden, términos y mini quiz</h3>
+          <p class="hint">Elegí una parte, practicá el orden de las ideas (qué va primero), los términos EN↔ES y 2 preguntas. Después pasá a la siguiente.</p>
+          <div class="theme-filter" id="speech3-lesson-tabs"></div>
+          <div id="speech3-lesson-panel" class="speech-lesson-panel"></div>
+        </div>
+        <div class="practice-block" style="margin-top:22px">
           <h3>Guía rápida EN + ES · entendé de qué habla cada parte</h3>
           <p class="hint">Leé esto en 2–3 minutos antes de memorizar. Izquierda = tema del speech · derecha = qué significa en español.</p>
           <div id="speech3-parts-guide" class="speech-study-grid"></div>
@@ -3949,8 +4211,15 @@ speech4: {
         || document.querySelector(`#${id} .speech-section[data-section="${i}"]`)
         || document.querySelectorAll(`#${id}-text p`)[i];
       target?.scrollIntoView({behavior:"smooth", block:"center"});
-      el.parentElement.querySelectorAll(".slide-thumb").forEach(x=>x.classList.remove("active"));
-      el.classList.add("active");
+      if (el?.parentElement) {
+        el.parentElement.querySelectorAll(".slide-thumb").forEach(x=>x.classList.remove("active"));
+        el.classList.add("active");
+      }
+    }
+    function jumpSpeechPart(i) {
+      const thumbs = document.querySelectorAll("#speech3 .slide-thumb");
+      const el = thumbs[i] || thumbs[0];
+      goSection("speech3", i, el || null);
     }
     function cleanSpeechText(el) {
       return (el?.textContent || "").replace(/\s+/g, " ").trim();
@@ -4564,6 +4833,10 @@ speech4: {
       }
     }
 
+    function getSpeechLesson() {
+      const list = speech3Study.lessons || [];
+      return list.find(l => l.id === state.speechLessonId) || list[0];
+    }
     function renderSpeech3StudyAids() {
       const guide = document.getElementById("speech3-parts-guide");
       if (guide) {
@@ -4595,7 +4868,247 @@ speech4: {
           <li><strong>Slide 6:</strong> Companies (efficient design + AI) · governments (rules + tax benefits) · users (delete files / less cloud) · work together.</li>
           <li><strong>Slide 7–8:</strong> In conclusion… · I suggest conscious digital habits · questions (UPS / data reduction / renewables) · Thank you.</li>`;
       }
+      renderSpeechLessonTabs();
+      renderSpeechLesson();
       renderSpeechMatch("terms");
+    }
+    function renderSpeechLessonTabs() {
+      const box = document.getElementById("speech3-lesson-tabs");
+      if (!box || !speech3Study.lessons) return;
+      box.innerHTML = speech3Study.lessons.map(l => `
+        <button type="button" class="${l.id === state.speechLessonId ? "active" : ""}" onclick="setSpeechLesson('${l.id}')">${escapeHtml(l.tab)}</button>
+      `).join("");
+    }
+    function setSpeechLesson(id) {
+      state.speechLessonId = id;
+      renderSpeechLessonTabs();
+      renderSpeechLesson(true);
+    }
+    function renderSpeechLesson(shuffleOrder=true) {
+      const panel = document.getElementById("speech3-lesson-panel");
+      const lesson = getSpeechLesson();
+      if (!panel || !lesson) return;
+      let order = lesson.order.map((x, i) => ({...x, correct: i}));
+      if (shuffleOrder) order = order.sort(() => Math.random() - .5);
+      state.speechOrderItems = order;
+      panel.innerHTML = `
+        <div class="speech-lesson-head">
+          <h4>${escapeHtml(lesson.title)}</h4>
+          <p>${escapeHtml(lesson.es)}</p>
+          <p class="flow">Hilo: ${escapeHtml(lesson.flow)}</p>
+          <div class="toolbar" style="margin-top:12px">
+            <button class="btn teal" type="button" onclick="jumpSpeechPart(${lesson.section})">Ir a esa parte del speech</button>
+            <button class="btn small" type="button" onclick="toggleSpeakSection('speech3', ${lesson.section})">▶ / ■ Audio de esta parte</button>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="margin:0 0 6px;font-size:16px">1 · Ordená las ideas (qué va primero)</h3>
+          <p class="hint" style="margin-bottom:10px">Usá ↑ ↓ hasta que el orden sea el del speech. Después corregí.</p>
+          <div class="order-list" id="speech3-order-list">
+            ${order.map((item, i) => `
+              <div class="order-row" data-i="${i}">
+                <span class="ord">${i + 1}</span>
+                <div>
+                  <strong>${escapeHtml(item.en)}</strong>
+                  <small>${escapeHtml(item.es)}</small>
+                </div>
+                <div class="order-btns">
+                  <button class="btn small" type="button" onclick="moveSpeechOrder(${i}, -1)">↑</button>
+                  <button class="btn small" type="button" onclick="moveSpeechOrder(${i}, 1)">↓</button>
+                </div>
+              </div>
+            `).join("")}
+          </div>
+          <div class="toolbar" style="margin-top:10px">
+            <button class="btn primary" type="button" onclick="checkSpeechOrder()">Corregir orden</button>
+            <button class="btn" type="button" onclick="renderSpeechLesson(true)">Mezclar de nuevo</button>
+            <span id="score-speech-order" class="score">Sin corregir</span>
+          </div>
+        </div>
+
+        <div>
+          <h3 style="margin:0 0 6px;font-size:16px">2 · Términos de esta parte EN ↔ ES</h3>
+          <p class="hint" style="margin-bottom:10px">Solo el vocabulario / conectores de esta sección.</p>
+          <div class="toolbar">
+            <button class="btn primary" type="button" onclick="checkSpeechPartMatch()">Corregir matching</button>
+            <button class="btn" type="button" onclick="renderSpeechPartMatch(true)">Mezclar</button>
+            <span id="score-speech-part-match" class="score">Sin corregir</span>
+          </div>
+          <div id="speech3-part-match"></div>
+        </div>
+
+        <div class="speech-part-quiz">
+          <h3 style="margin:0 0 6px;font-size:16px">3 · Mini quiz de esta parte</h3>
+          <p class="hint" style="margin-bottom:10px">2 preguntas rápidas para fijar la idea.</p>
+          <div id="speech3-part-quiz"></div>
+          <div class="toolbar">
+            <button class="btn primary" type="button" onclick="checkSpeechPartQuiz()">Corregir quiz</button>
+            <span id="score-speech-part-quiz" class="score">Sin corregir</span>
+          </div>
+        </div>`;
+      renderSpeechPartMatch(false);
+      renderSpeechPartQuiz();
+    }
+    function moveSpeechOrder(i, dir) {
+      const items = state.speechOrderItems;
+      const j = i + dir;
+      if (!items || j < 0 || j >= items.length) return;
+      [items[i], items[j]] = [items[j], items[i]];
+      // re-render list without reshuffling
+      const list = document.getElementById("speech3-order-list");
+      if (!list) return;
+      list.innerHTML = items.map((item, idx) => `
+        <div class="order-row" data-i="${idx}">
+          <span class="ord">${idx + 1}</span>
+          <div>
+            <strong>${escapeHtml(item.en)}</strong>
+            <small>${escapeHtml(item.es)}</small>
+          </div>
+          <div class="order-btns">
+            <button class="btn small" type="button" onclick="moveSpeechOrder(${idx}, -1)">↑</button>
+            <button class="btn small" type="button" onclick="moveSpeechOrder(${idx}, 1)">↓</button>
+          </div>
+        </div>`).join("");
+      const score = document.getElementById("score-speech-order");
+      if (score) score.textContent = "Sin corregir";
+    }
+    function checkSpeechOrder() {
+      const items = state.speechOrderItems || [];
+      const rows = [...document.querySelectorAll("#speech3-order-list .order-row")];
+      if (!items.length || !rows.length) return;
+      let ok = 0;
+      const answers = [];
+      items.forEach((item, i) => {
+        const good = item.correct === i;
+        rows[i]?.classList.toggle("ok", good);
+        rows[i]?.classList.toggle("bad", !good);
+        if (good) ok++;
+        answers.push({q: `Posición ${i + 1}`, selected: item.en, correct: (getSpeechLesson().order[i] || {}).en || "", ok: good});
+      });
+      const pct = Math.round(ok / items.length * 100);
+      const score = document.getElementById("score-speech-order");
+      if (score) score.textContent = `${ok}/${items.length} · ${pct}%`;
+      addHistory({
+        type: "match",
+        label: "Speech III · orden · " + (getSpeechLesson()?.tab || ""),
+        detail: getSpeechLesson()?.title || "",
+        score: `${ok}/${items.length} (${pct}%)`,
+        pct,
+        level: "III",
+        answers
+      });
+    }
+    function renderSpeechPartMatch(shuffle=false) {
+      const box = document.getElementById("speech3-part-match");
+      const lesson = getSpeechLesson();
+      if (!box || !lesson) return;
+      let pool = lesson.terms.map(x => ({ term: x.en, es: x.es }));
+      if (shuffle) pool.sort(() => Math.random() - .5);
+      state.speechPartMatchItems = pool;
+      const defs = pool.map(p => p.es).sort(() => Math.random() - .5);
+      box.innerHTML = pool.map((item, i) => `
+        <div class="match-row" data-i="${i}">
+          <div>
+            <strong>${escapeHtml(item.term)}</strong>
+            <div style="font-size:12px;color:var(--muted);margin-top:4px">${escapeHtml(lesson.tab)}</div>
+          </div>
+          <select>
+            <option value="">Elegí significado en español…</option>
+            ${defs.map(d => `<option value="${escapeHtml(d)}">${escapeHtml(d)}</option>`).join("")}
+          </select>
+        </div>`).join("");
+      const score = document.getElementById("score-speech-part-match");
+      if (score) score.textContent = "Sin corregir";
+    }
+    function checkSpeechPartMatch() {
+      const rows = [...document.querySelectorAll("#speech3-part-match .match-row")];
+      if (!rows.length || !state.speechPartMatchItems?.length) return;
+      let ok = 0;
+      const answers = [];
+      rows.forEach((row, i) => {
+        const selected = row.querySelector("select")?.value || "";
+        const correct = state.speechPartMatchItems[i].es;
+        const good = selected === correct;
+        row.classList.toggle("ok", good);
+        row.classList.toggle("bad", !good);
+        if (good) ok++;
+        answers.push({
+          q: state.speechPartMatchItems[i].term,
+          selected: selected || "(sin responder)",
+          correct,
+          ok: good
+        });
+      });
+      const pct = Math.round(ok / rows.length * 100);
+      const score = document.getElementById("score-speech-part-match");
+      if (score) score.textContent = `${ok}/${rows.length} · ${pct}%`;
+      addHistory({
+        type: "match",
+        label: "Speech III · términos · " + (getSpeechLesson()?.tab || ""),
+        detail: getSpeechLesson()?.title || "",
+        score: `${ok}/${rows.length} (${pct}%)`,
+        pct,
+        level: "III",
+        answers
+      });
+    }
+    function renderSpeechPartQuiz() {
+      const box = document.getElementById("speech3-part-quiz");
+      const lesson = getSpeechLesson();
+      if (!box || !lesson) return;
+      box.innerHTML = (lesson.quiz || []).map((item, i) => `
+        <article class="exercise" data-answer="${item.a}" data-explanation="${escapeHtml(item.e)}">
+          <div class="question"><span class="qnum">${i + 1}</span>${escapeHtml(item.q)}</div>
+          <div class="options">${item.o.map((o, j) => `
+            <label class="option"><input type="radio" name="speech-part-q-${i}" value="${j}"> <span>${escapeHtml(o)}</span></label>
+          `).join("")}</div>
+          <div class="feedback"></div>
+        </article>`).join("");
+      const score = document.getElementById("score-speech-part-quiz");
+      if (score) score.textContent = "Sin corregir";
+    }
+    function checkSpeechPartQuiz() {
+      const box = document.getElementById("speech3-part-quiz");
+      if (!box) return;
+      const exercises = [...box.querySelectorAll(".exercise")];
+      if (!exercises.length) return;
+      let ok = 0;
+      const answers = [];
+      exercises.forEach((ex, i) => {
+        const correct = Number(ex.dataset.answer);
+        const chosen = ex.querySelector("input:checked");
+        const selected = chosen ? Number(chosen.value) : -1;
+        const good = selected === correct;
+        const fb = ex.querySelector(".feedback");
+        ex.querySelectorAll(".option").forEach((opt, j) => {
+          opt.style.outline = j === correct ? "2px solid #34d399" : (j === selected && !good ? "2px solid #f87171" : "");
+        });
+        if (fb) {
+          fb.style.display = "block";
+          fb.textContent = good ? "✓ Bien" : `✗ ${ex.dataset.explanation || ""}`;
+          fb.style.color = good ? "#34d399" : "#f87171";
+        }
+        if (good) ok++;
+        answers.push({
+          q: ex.querySelector(".question")?.textContent?.trim() || `Q${i + 1}`,
+          selected: selected >= 0 ? String(selected) : "(sin responder)",
+          correct: String(correct),
+          ok: good
+        });
+      });
+      const pct = Math.round(ok / exercises.length * 100);
+      const score = document.getElementById("score-speech-part-quiz");
+      if (score) score.textContent = `${ok}/${exercises.length} · ${pct}%`;
+      addHistory({
+        type: "quiz",
+        label: "Speech III · quiz · " + (getSpeechLesson()?.tab || ""),
+        detail: getSpeechLesson()?.title || "",
+        score: `${ok}/${exercises.length} (${pct}%)`,
+        pct,
+        level: "III",
+        answers
+      });
     }
     function renderSpeechMatch(kind, shuffle=false) {
       const box = document.getElementById("speech3-match");
