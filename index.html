@@ -253,6 +253,60 @@
       margin-top: 8px;
       border: 1px solid var(--line);
     }
+    .slide-card {
+      position: relative;
+      width: 100%;
+      max-width: 720px;
+      margin-top: 8px;
+      aspect-ratio: 16 / 9;
+      border-radius: 10px;
+      border: 1px solid var(--line);
+      overflow: hidden;
+      background: #0b1a14 center / cover no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 7% 8%;
+      box-sizing: border-box;
+      color: #f8fafc;
+      text-shadow: 0 1px 8px rgba(0,0,0,.55);
+    }
+    .slide-card.slide-card--title { align-items: center; text-align: center; }
+    .slide-card .slide-card-title {
+      margin: 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-weight: 800;
+      font-size: clamp(22px, 4.2vw, 40px);
+      letter-spacing: .04em;
+      text-transform: uppercase;
+      line-height: 1.15;
+      color: #fff;
+    }
+    .slide-card .slide-card-sub {
+      margin: 14px 0 0;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: clamp(14px, 2.2vw, 22px);
+      font-weight: 600;
+      color: #86efac;
+      line-height: 1.35;
+      max-width: 36em;
+    }
+    .slide-card .slide-card-title.slide-card-title--left {
+      font-size: clamp(18px, 3vw, 28px);
+      text-align: left;
+      margin-bottom: 12px;
+    }
+    .slide-card ul {
+      margin: 0;
+      padding: 0 0 0 1.1em;
+      list-style: disc;
+      font-family: "Segoe UI", system-ui, sans-serif;
+      font-size: clamp(13px, 1.85vw, 18px);
+      line-height: 1.45;
+      color: #f1f5f9;
+    }
+    .slide-card li { margin: 0 0 .55em; }
+    .slide-card li:last-child { margin-bottom: 0; }
     .speech-one {
       background: var(--card);
       border: 1px solid var(--line);
@@ -3369,9 +3423,16 @@ speech4: {
       if (typeof presentationSlides === "undefined" || !presentationSlides[idx]) return "";
       const s = presentationSlides[idx];
       const img = (typeof slideImages !== "undefined") ? slideImages[idx] : null;
+      const bullets = Array.isArray(s.bullets) ? s.bullets : [];
+      const isTitle = !bullets.length;
+      const bg = img ? ` style="background-image:url('${img}')"` : "";
+      const body = isTitle
+        ? `<h3 class="slide-card-title">${escapeHtml(s.title)}</h3>${s.sub ? `<p class="slide-card-sub">${escapeHtml(s.sub)}</p>` : ""}`
+        : `<h3 class="slide-card-title slide-card-title--left">${escapeHtml(s.title)}</h3>
+           <ul>${bullets.map(b => `<li>${escapeHtml(b)}</li>`).join("")}</ul>`;
       return `<div class="slide-preview">
         <span class="tag">SLIDE ${s.n} / ${presentationSlides.length} · lo que ves en la diapositiva</span>
-        ${img ? `<img class="slide-img" src="${img}" alt="Diapositiva ${s.n}: ${escapeHtml(s.title)}">` : `<h4>${escapeHtml(s.title)}</h4>`}
+        <div class="slide-card${isTitle ? " slide-card--title" : ""}"${bg}>${body}</div>
       </div>`;
     }
     function sectionToParagraph(s, idx, speechId) {
