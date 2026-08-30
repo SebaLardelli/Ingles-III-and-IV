@@ -2889,6 +2889,7 @@ speech4: {
       chosenVoiceURI: localStorage.getItem(VOICE_KEY) || "natural:en",
       speechRate: loadSavedSpeechRate(),
       speechEditing: null,
+      playingSectionKey: null,
       emailMatchItems: [],
       speechMatchItems: [],
       speechMatchKind: "terms",
@@ -3763,7 +3764,9 @@ speech4: {
       return `<div class="speech-section" data-section="${idx}">
         ${slideBit}
         <div class="section-speak">
-          <button class="btn small" type="button" onclick="event.stopPropagation(); speakSection('${speechId}',${idx})">▶ Escuchar sección</button>
+          <button class="btn small" type="button"
+                  data-section-speak="${speechId}:${idx}"
+                  onclick="event.stopPropagation(); toggleSpeakSection('${speechId}',${idx})">▶ Escuchar sección</button>
           <span class="tag">${escapeHtml(s.title)}</span>
         </div>
         <p id="${speechId}-p-${idx}"
@@ -3986,6 +3989,49 @@ speech4: {
       state.playGen += 1;
       hardStopAudio();
       document.querySelectorAll(".speaking-line").forEach(el => el.classList.remove("speaking-line"));
+      state.playingSectionKey = null;
+      setSectionSpeakUi(null);
+    }
+    function setSectionSpeakUi(activeKey) {
+      document.querySelectorAll("[data-section-speak]").forEach(btn => {
+        const playing = !!(activeKey && btn.dataset.sectionSpeak === activeKey);
+        btn.textContent = playing ? "■ Detener" : "▶ Escuchar sección";
+        btn.classList.toggle("teal", playing);
+        btn.setAttribute("aria-pressed", playing ? "true" : "false");
+      });
+    }
+    async function toggleSpeakSection(id, idx) {
+      const key = `${id}:${idx}`;
+      if (state.playingSectionKey === key) {
+        stopSpeech();
+        return;
+      }
+      stopSpeech();
+      state.playingSectionKey = key;
+      setSectionSpeakUi(key);
+      const p = document.getElementById(`${id}-p-${idx}`);
+      if (!p) {
+        state.playingSectionKey = null;
+        setSectionSpeakUi(null);
+        return;
+      }
+      p.scrollIntoView({behavior:"smooth", block:"center"});
+      try {
+        await speakText(cleanSpeechText(p), {
+          onstart: () => {
+            document.querySelectorAll(`#${id} .speaking-line`).forEach(el => el.classList.remove("speaking-line"));
+            p.classList.add("speaking-line");
+            if (state.playingSectionKey === key) setSectionSpeakUi(key);
+          },
+          onend: () => p.classList.remove("speaking-line")
+        });
+      } finally {
+        if (state.playingSectionKey === key) {
+          state.playingSectionKey = null;
+          setSectionSpeakUi(null);
+        }
+        p.classList.remove("speaking-line");
+      }
     }
     function chunkForTTS(text, maxLen=450) {
       const parts = String(text).match(/[^.!?]+[.!?]+\s*|[^.!?]+$/g) || [text];
@@ -4172,22 +4218,15 @@ speech4: {
       alert("No se pudo reproducir el audio natural. Revisá tu conexión a internet e intentá de nuevo.");
     }
     async function speakSpeech(id) {
+      state.playingSectionKey = null;
+      setSectionSpeakUi(null);
       const el = document.getElementById(`${id}-text`);
       const text = cleanSpeechText(el);
       if (!text) return;
       await speakText(text);
     }
     async function speakSection(id, idx) {
-      const p = document.getElementById(`${id}-p-${idx}`);
-      if (!p) return;
-      p.scrollIntoView({behavior:"smooth", block:"center"});
-      await speakText(cleanSpeechText(p), {
-        onstart: () => {
-          document.querySelectorAll(`#${id} .speaking-line`).forEach(el => el.classList.remove("speaking-line"));
-          p.classList.add("speaking-line");
-        },
-        onend: () => p.classList.remove("speaking-line")
-      });
+      await toggleSpeakSection(id, idx);
     }
     function toggleTimer(id) {
       if (state.timers[id]) {
