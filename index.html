@@ -1004,6 +1004,75 @@
     .history-table td { background: rgba(15, 23, 42, .45); color: #e2e8f0; }
     .history-table tr:hover td { background: rgba(45, 212, 191, .06); }
     .speaking-line { outline: 2px solid var(--teal); background: rgba(45,212,191,.08); border-radius: 8px; }
+    .speech-sent { transition: background .15s ease; }
+    .speech-sent-active {
+      background: rgba(45, 212, 191, .38);
+      border-radius: 4px;
+      box-shadow: 0 0 0 1px rgba(45, 212, 191, .55);
+    }
+    .speech-part-picker {
+      margin: 12px 0 16px;
+      padding: 14px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: rgba(24, 35, 56, .65);
+    }
+    .speech-part-picker .hint { margin: 0 0 10px; }
+    .speech-part-checks {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+      gap: 8px;
+      margin: 10px 0 12px;
+    }
+    .speech-part-checks label {
+      display: flex;
+      gap: 8px;
+      align-items: flex-start;
+      padding: 8px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      background: var(--card);
+      font-size: 13px;
+      color: #e2e8f0;
+      cursor: pointer;
+    }
+    .speech-part-checks label:has(input:checked) {
+      border-color: var(--teal);
+      background: rgba(45, 212, 191, .08);
+    }
+    .speech-part-checks input { accent-color: var(--teal); margin-top: 2px; }
+    .speech-follow-bar {
+      display: none;
+      margin: 12px 0 0;
+      padding: 12px 14px;
+      border: 1px solid rgba(45, 212, 191, .45);
+      border-radius: 12px;
+      background: rgba(6, 24, 22, .94);
+      color: #ecfeff;
+      box-shadow: 0 10px 30px rgba(0,0,0,.35);
+    }
+    .speech-follow-bar.open {
+      display: block;
+      position: fixed;
+      left: 12px;
+      right: 12px;
+      bottom: 12px;
+      z-index: 80;
+      max-width: 720px;
+      margin: 0 auto;
+    }
+    .speech-follow-bar .tag { margin-bottom: 6px; }
+    .speech-follow-bar .now {
+      font-size: 15px;
+      line-height: 1.45;
+      color: #a7f3d0;
+      font-weight: 700;
+    }
+    .speech-section.speaking-section {
+      outline: 2px solid rgba(45, 212, 191, .55);
+      border-radius: 12px;
+      background: rgba(45, 212, 191, .05);
+    }
     .profile-bar {
       display: flex;
       flex-wrap: wrap;
@@ -3147,6 +3216,8 @@ speech4: {
       speechLoopGapSec: 30,
       loopWaitTimer: null,
       loopWaitResolve: null,
+      followRestore: null,
+      playingSelection: false,
       emailMatchItems: [],
       speechMatchItems: [],
       speechMatchKind: "terms",
@@ -4024,6 +4095,10 @@ speech4: {
       return `<div class="speech-section" data-section="${idx}">
         ${slideBit}
         <div class="section-speak">
+          <label class="speech-inline-check" title="Incluir en lectura elegida" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#cbd5e1;font-weight:800">
+            <input type="checkbox" class="speech-part-check" data-speech="${speechId}" data-idx="${idx}" checked onchange="syncSpeechPartChecks('${speechId}')">
+            Leer
+          </label>
           <button class="btn small" type="button"
                   data-section-speak="${speechId}:${idx}"
                   onclick="event.stopPropagation(); toggleSpeakSection('${speechId}',${idx})">▶ Escuchar sección</button>
@@ -4121,7 +4196,24 @@ speech4: {
             <button class="btn small" onclick="window.print()">Imprimir</button>
           </div>
         </div>
-        <div class="notice"><strong>Edición compartida:</strong> tocá un párrafo, editá y se guarda en la nube (Supabase). Los demás ven el mismo texto al recargar o en vivo. El audio lee lo que ves ahora.</div>
+        <div class="notice"><strong>Edición compartida:</strong> tocá un párrafo, editá y se guarda en la nube (Supabase). Los demás ven el mismo texto al recargar o en vivo. El audio lee solo el texto del speech y va marcando lo que dice.</div>
+        <div class="speech-part-picker" id="speech-part-picker-${id}">
+          <p class="hint"><strong>Qué partes lee el bot:</strong> marcá las que quieras (o usá los atajos). Sirve con <em>Bucle</em> + pausa.</p>
+          <div class="toolbar" style="margin:0 0 8px">
+            <button class="btn small" type="button" onclick="selectSpeechParts('${id}','first3')">Primeras 3</button>
+            <button class="btn small" type="button" onclick="selectSpeechParts('${id}','last3')">Últimas 3</button>
+            <button class="btn small" type="button" onclick="selectSpeechParts('${id}','all')">Todas</button>
+            <button class="btn small" type="button" onclick="selectSpeechParts('${id}','none')">Ninguna</button>
+            <button class="btn teal" type="button" onclick="speakSelectedParts('${id}')">▶ Leer partes elegidas</button>
+          </div>
+          <div class="speech-part-checks" id="speech-part-checks-${id}">
+            ${source.sections.map((s,i) => `<label><input type="checkbox" class="speech-part-check" data-speech="${id}" data-idx="${i}" checked onchange="syncSpeechPartChecks('${id}')"><span><strong>${i+1}.</strong> ${escapeHtml(String(s.title||"").replace(/^\d+\s*·\s*/, ""))}</span></label>`).join("")}
+          </div>
+        </div>
+        <div id="speech-follow-bar-${id}" class="speech-follow-bar" aria-live="polite">
+          <span class="tag">Siguiendo al bot</span>
+          <div class="now" id="speech-follow-now-${id}">—</div>
+        </div>
         <div class="toolbar">
           <div class="timer-panel"><span id="timer-${id}" class="timer">07:00</span><button class="btn small" onclick="toggleTimer('${id}')">Iniciar / pausar</button><button class="btn small" onclick="resetTimer('${id}')">Reiniciar</button></div>
           <button class="btn teal" onclick="speakSpeech('${id}')">▶ Escuchar speech completo</button>
@@ -4289,9 +4381,105 @@ speech4: {
       state.playGen += 1;
       hardStopAudio();
       clearSpeechLoopWait();
+      clearSpeechFollow();
       document.querySelectorAll(".speaking-line").forEach(el => el.classList.remove("speaking-line"));
+      document.querySelectorAll(".speaking-section").forEach(el => el.classList.remove("speaking-section"));
       state.playingSectionKey = null;
+      state.playingSelection = false;
       setSectionSpeakUi(null);
+    }
+    function shortSpeechTitle(title) {
+      return String(title || "").replace(/^\d+\s*·\s*/, "").trim();
+    }
+    function getSelectedSpeechParts(id) {
+      const idxs = [...document.querySelectorAll(`.speech-part-check[data-speech="${id}"]`)]
+        .filter(el => el.checked)
+        .map(el => Number(el.dataset.idx))
+        .filter(n => Number.isInteger(n) && n >= 0);
+      return [...new Set(idxs)].sort((a, b) => a - b);
+    }
+    function selectSpeechParts(id, mode) {
+      const checks = [...document.querySelectorAll(`.speech-part-check[data-speech="${id}"]`)];
+      if (!checks.length) return;
+      const n = checks.length;
+      checks.forEach((el, i) => {
+        if (mode === "all") el.checked = true;
+        else if (mode === "none") el.checked = false;
+        else if (mode === "first3") el.checked = i < 3;
+        else if (mode === "last3") el.checked = i >= Math.max(0, n - 3);
+      });
+      syncSpeechPartChecks(id);
+    }
+    function syncSpeechPartChecks(id) {
+      const map = new Map();
+      document.querySelectorAll(`.speech-part-check[data-speech="${id}"]`).forEach(el => {
+        const idx = String(el.dataset.idx);
+        if (!map.has(idx)) map.set(idx, el.checked);
+        else if (el.checked !== map.get(idx)) {
+          // keep master from picker if both exist; last write wins toward checked union? prefer current el
+          map.set(idx, el.checked);
+        }
+      });
+      document.querySelectorAll(`.speech-part-check[data-speech="${id}"]`).forEach(el => {
+        const idx = String(el.dataset.idx);
+        if (map.has(idx)) el.checked = map.get(idx);
+      });
+    }
+    function setFollowBar(id, sectionLabel, sentence) {
+      const bar = document.getElementById(`speech-follow-bar-${id}`);
+      const now = document.getElementById(`speech-follow-now-${id}`);
+      if (bar) bar.classList.add("open");
+      if (now) now.textContent = (sectionLabel ? sectionLabel + " · " : "") + (sentence || "…");
+    }
+    function clearSpeechFollow() {
+      if (state.followRestore) {
+        try { state.followRestore(); } catch {}
+        state.followRestore = null;
+      }
+      document.querySelectorAll(".speech-sent-active").forEach(el => el.classList.remove("speech-sent-active"));
+      document.querySelectorAll(".speech-follow-bar").forEach(el => el.classList.remove("open"));
+      document.querySelectorAll("[id^='speech-follow-now-']").forEach(el => { el.textContent = "—"; });
+      document.querySelectorAll(".speaking-section").forEach(el => el.classList.remove("speaking-section"));
+    }
+    function prepareSentenceFollow(p) {
+      if (!p) return [];
+      if (state.followRestore) {
+        try { state.followRestore(); } catch {}
+        state.followRestore = null;
+      }
+      const plain = cleanSpeechText(p);
+      const sentences = (plain.match(/[^.!?]+[.!?]+\s*|[^.!?]+$/g) || [plain]).map(s => s.trim()).filter(Boolean);
+      const orig = p.innerHTML;
+      const editable = p.getAttribute("contenteditable");
+      p.setAttribute("contenteditable", "false");
+      p.innerHTML = sentences.map((s, i) => `<span class="speech-sent" data-sent="${i}">${escapeHtml(s)}</span>`).join(" ");
+      state.followRestore = () => {
+        p.innerHTML = orig;
+        if (editable != null) p.setAttribute("contenteditable", editable);
+        else p.removeAttribute("contenteditable");
+      };
+      return sentences;
+    }
+    function highlightSentence(p, index) {
+      if (!p) return;
+      p.querySelectorAll(".speech-sent").forEach((el, i) => {
+        el.classList.toggle("speech-sent-active", i === index);
+      });
+      const active = p.querySelector(`.speech-sent[data-sent="${index}"]`) || p.querySelector(".speech-sent-active");
+      active?.scrollIntoView({ behavior: "smooth", block: "center" });
+    }
+    function markSpeakingSection(id, idx) {
+      document.querySelectorAll(`#${id} .speaking-section`).forEach(el => el.classList.remove("speaking-section"));
+      document.querySelectorAll(`#${id} .speaking-line`).forEach(el => el.classList.remove("speaking-line"));
+      const p = document.getElementById(`${id}-p-${idx}`);
+      const wrap = p?.closest(".speech-section");
+      wrap?.classList.add("speaking-section");
+      p?.classList.add("speaking-line");
+      const thumb = document.querySelectorAll(`#${id} .slide-thumb`)[idx];
+      if (thumb?.parentElement) {
+        thumb.parentElement.querySelectorAll(".slide-thumb").forEach(x => x.classList.remove("active"));
+        thumb.classList.add("active");
+      }
     }
     function setSpeechLoop(on) {
       state.speechLoop = !!on;
@@ -4376,19 +4564,11 @@ speech4: {
         setSectionSpeakUi(null);
         return;
       }
-      p.scrollIntoView({behavior:"smooth", block:"center"});
       try {
         while (true) {
           if (state.playingSectionKey !== key) break;
           setSectionSpeakUi(key);
-          const result = await speakText(text, {
-            onstart: () => {
-              document.querySelectorAll(`#${id} .speaking-line`).forEach(el => el.classList.remove("speaking-line"));
-              p.classList.add("speaking-line");
-              if (state.playingSectionKey === key) setSectionSpeakUi(key);
-            },
-            onend: () => p.classList.remove("speaking-line")
-          });
+          const result = await speakParagraphFollow(id, idx);
           if (result !== "ended" || !state.speechLoop || state.playingSectionKey !== key) break;
           const ok = await waitSpeechLoopGap(state.playGen);
           if (!ok || !state.speechLoop || state.playingSectionKey !== key) break;
@@ -4398,8 +4578,8 @@ speech4: {
           state.playingSectionKey = null;
           setSectionSpeakUi(null);
         }
-        p.classList.remove("speaking-line");
         clearSpeechLoopWait();
+        clearSpeechFollow();
       }
     }
     function chunkForTTS(text, maxLen=450) {
@@ -4536,9 +4716,13 @@ speech4: {
         speechSynthesis.speak(u);
       });
     }
-    async function speakChunksWith(player, chunks, gen) {
-      for (const chunk of chunks) {
+    async function speakChunksWith(player, chunks, gen, onChunk) {
+      for (let i = 0; i < chunks.length; i++) {
+        const chunk = chunks[i];
         if (!isPlayActive(gen)) return "cancelled";
+        if (typeof onChunk === "function") {
+          try { onChunk(chunk, i, chunks); } catch {}
+        }
         const result = await player(chunk);
         if (result === "cancelled" || !isPlayActive(gen)) return "cancelled";
         const pause = await wait(120, gen);
@@ -4559,13 +4743,32 @@ speech4: {
       document.querySelectorAll(".speaking-line").forEach(el => el.classList.remove("speaking-line"));
 
       const cfg = getNaturalVoiceConfig();
-      const chunks = chunkForTTS(cleaned, 450);
+      const useSentences = !!opts.followEl;
+      const chunks = useSentences
+        ? ((cleaned.match(/[^.!?]+[.!?]+\s*|[^.!?]+$/g) || [cleaned]).map(s => s.trim()).filter(Boolean))
+        : chunkForTTS(cleaned, 450);
       if (opts.onstart) opts.onstart();
+      const onChunk = (chunk, i, all) => {
+        if (typeof opts.onChunk === "function") opts.onChunk(chunk, i, all);
+      };
 
       const engines = [
-        async () => speakChunksWith((chunk) => playPuterChunk(chunk, cfg, gen), chunks, gen),
-        async () => speakChunksWith((chunk) => playGoogleChunk(chunk, cfg.id === "en" ? "en" : cfg.id, gen), chunkForTTS(cleaned, 160), gen),
-        async () => speakBrowserFallback(cleaned, gen)
+        async () => speakChunksWith((chunk) => playPuterChunk(chunk, cfg, gen), chunks, gen, onChunk),
+        async () => speakChunksWith((chunk) => playGoogleChunk(chunk, cfg.id === "en" ? "en" : cfg.id, gen), useSentences ? chunks : chunkForTTS(cleaned, 160), gen, onChunk),
+        async () => {
+          // Browser fallback: still notify per sentence when possible
+          if (useSentences) {
+            for (let i = 0; i < chunks.length; i++) {
+              if (!isPlayActive(gen)) return "cancelled";
+              onChunk(chunks[i], i, chunks);
+              const r = await speakBrowserFallback(chunks[i], gen);
+              if (r === "cancelled" || !isPlayActive(gen)) return "cancelled";
+            }
+            return "ended";
+          }
+          onChunk(cleaned, 0, [cleaned]);
+          return speakBrowserFallback(cleaned, gen);
+        }
       ];
 
       let lastErr = null;
@@ -4587,22 +4790,68 @@ speech4: {
       alert("No se pudo reproducir el audio natural. Revisá tu conexión a internet e intentá de nuevo.");
       return "cancelled";
     }
-    async function speakSpeech(id) {
+    async function speakParagraphFollow(id, idx) {
+      const p = document.getElementById(`${id}-p-${idx}`);
+      const text = getSpeakableSpeechText(id, idx);
+      if (!p || !text) return "cancelled";
+      const source = getActiveSpeech(id);
+      const label = shortSpeechTitle(source?.sections?.[idx]?.title || `Parte ${idx + 1}`);
+      markSpeakingSection(id, idx);
+      const sentences = prepareSentenceFollow(p);
+      p.scrollIntoView({ behavior: "smooth", block: "center" });
+      setFollowBar(id, label, sentences[0] || text);
+      const result = await speakText(text, {
+        followEl: p,
+        onstart: () => {
+          markSpeakingSection(id, idx);
+          setFollowBar(id, label, sentences[0] || text);
+        },
+        onChunk: (_chunk, i) => {
+          highlightSentence(p, i);
+          setFollowBar(id, label, sentences[i] || _chunk);
+        },
+        onend: () => {
+          p.querySelectorAll(".speech-sent-active").forEach(el => el.classList.remove("speech-sent-active"));
+        }
+      });
+      if (state.followRestore) {
+        try { state.followRestore(); } catch {}
+        state.followRestore = null;
+      }
+      return result;
+    }
+    async function speakSelectedParts(id) {
+      const indices = getSelectedSpeechParts(id);
+      if (!indices.length) {
+        alert("Elegí al menos una parte para que el bot lea.");
+        return;
+      }
       stopSpeech();
-      state.playingSectionKey = null;
-      setSectionSpeakUi(null);
+      state.playingSelection = true;
+      state.playingSectionKey = `${id}:selection`;
       try {
         while (true) {
-          const text = getSpeakableSpeechText(id);
-          if (!text) return;
-          const result = await speakText(text);
-          if (result !== "ended" || !state.speechLoop) break;
+          for (const idx of indices) {
+            if (!state.playingSelection) return;
+            const result = await speakParagraphFollow(id, idx);
+            if (result !== "ended" || !state.playingSelection) return;
+          }
+          if (!state.speechLoop) break;
           const ok = await waitSpeechLoopGap(state.playGen);
-          if (!ok || !state.speechLoop) break;
+          if (!ok || !state.speechLoop || !state.playingSelection) break;
         }
       } finally {
+        state.playingSelection = false;
+        state.playingSectionKey = null;
         clearSpeechLoopWait();
+        clearSpeechFollow();
+        setSectionSpeakUi(null);
       }
+    }
+    async function speakSpeech(id) {
+      // Completo = todas las partes, con seguimiento
+      selectSpeechParts(id, "all");
+      await speakSelectedParts(id);
     }
     async function speakSection(id, idx) {
       await toggleSpeakSection(id, idx);
