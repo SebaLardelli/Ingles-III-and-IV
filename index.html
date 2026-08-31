@@ -3999,7 +3999,7 @@ speech4: {
       if (img) {
         return `<div class="slide-preview">
           <span class="tag">SLIDE ${s.n} / ${presentationSlides.length} · igual que el PowerPoint</span>
-          <img class="slide-shot" src="${img}" alt="Diapositiva ${s.n}: ${escapeHtml(s.title)}">
+          <img class="slide-shot" src="${img}" alt="" role="presentation">
         </div>`;
       }
       const body = isTitle
@@ -4222,7 +4222,21 @@ speech4: {
       goSection("speech3", i, el || null);
     }
     function cleanSpeechText(el) {
-      return (el?.textContent || "").replace(/\s+/g, " ").trim();
+      return (el?.innerText || el?.textContent || "").replace(/\s+/g, " ").trim();
+    }
+    function getSpeechParagraphs(id) {
+      return [...document.querySelectorAll(`#${id} p.speech-live-edit`)];
+    }
+    function getSpeakableSpeechText(id, idx=null) {
+      if (idx != null && idx !== undefined) {
+        const p = document.getElementById(`${id}-p-${idx}`);
+        return cleanSpeechText(p);
+      }
+      // Solo párrafos del speech: nunca slides, tags ni títulos "Development…"
+      return getSpeechParagraphs(id)
+        .map(p => cleanSpeechText(p))
+        .filter(Boolean)
+        .join(" ");
     }
     function getVoiceLang() {
       const raw = state.chosenVoiceURI || "natural:en";
@@ -4279,14 +4293,15 @@ speech4: {
       state.playingSectionKey = key;
       setSectionSpeakUi(key);
       const p = document.getElementById(`${id}-p-${idx}`);
-      if (!p) {
+      const text = getSpeakableSpeechText(id, idx);
+      if (!p || !text) {
         state.playingSectionKey = null;
         setSectionSpeakUi(null);
         return;
       }
       p.scrollIntoView({behavior:"smooth", block:"center"});
       try {
-        await speakText(cleanSpeechText(p), {
+        await speakText(text, {
           onstart: () => {
             document.querySelectorAll(`#${id} .speaking-line`).forEach(el => el.classList.remove("speaking-line"));
             p.classList.add("speaking-line");
@@ -4489,8 +4504,7 @@ speech4: {
     async function speakSpeech(id) {
       state.playingSectionKey = null;
       setSectionSpeakUi(null);
-      const el = document.getElementById(`${id}-text`);
-      const text = cleanSpeechText(el);
+      const text = getSpeakableSpeechText(id);
       if (!text) return;
       await speakText(text);
     }
