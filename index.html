@@ -4096,7 +4096,7 @@ speech4: {
         ${slideBit}
         <div class="section-speak">
           <label class="speech-inline-check" title="Incluir en lectura elegida" style="display:inline-flex;align-items:center;gap:6px;font-size:12px;color:#cbd5e1;font-weight:800">
-            <input type="checkbox" class="speech-part-check" data-speech="${speechId}" data-idx="${idx}" checked onchange="syncSpeechPartChecks('${speechId}')">
+            <input type="checkbox" class="speech-part-check" data-speech="${speechId}" data-idx="${idx}" checked onchange="syncSpeechPartChecks('${speechId}', this)">
             Leer
           </label>
           <button class="btn small" type="button"
@@ -4207,7 +4207,7 @@ speech4: {
             <button class="btn teal" type="button" onclick="speakSelectedParts('${id}')">▶ Leer partes elegidas</button>
           </div>
           <div class="speech-part-checks" id="speech-part-checks-${id}">
-            ${source.sections.map((s,i) => `<label><input type="checkbox" class="speech-part-check" data-speech="${id}" data-idx="${i}" checked onchange="syncSpeechPartChecks('${id}')"><span><strong>${i+1}.</strong> ${escapeHtml(String(s.title||"").replace(/^\d+\s*·\s*/, ""))}</span></label>`).join("")}
+            ${source.sections.map((s,i) => `<label><input type="checkbox" class="speech-part-check" data-speech="${id}" data-idx="${i}" checked onchange="syncSpeechPartChecks('${id}', this)"><span><strong>${i+1}.</strong> ${escapeHtml(String(s.title||"").replace(/^\d+\s*·\s*/, ""))}</span></label>`).join("")}
           </div>
         </div>
         <div id="speech-follow-bar-${id}" class="speech-follow-bar" aria-live="polite">
@@ -4391,15 +4391,21 @@ speech4: {
     function shortSpeechTitle(title) {
       return String(title || "").replace(/^\d+\s*·\s*/, "").trim();
     }
+    function getSpeechPartCheckRoots(id) {
+      const picker = document.getElementById(`speech-part-checks-${id}`);
+      return picker
+        ? [...picker.querySelectorAll(`.speech-part-check[data-speech="${id}"]`)]
+        : [...document.querySelectorAll(`.speech-part-check[data-speech="${id}"]`)];
+    }
     function getSelectedSpeechParts(id) {
-      const idxs = [...document.querySelectorAll(`.speech-part-check[data-speech="${id}"]`)]
+      const idxs = getSpeechPartCheckRoots(id)
         .filter(el => el.checked)
         .map(el => Number(el.dataset.idx))
         .filter(n => Number.isInteger(n) && n >= 0);
       return [...new Set(idxs)].sort((a, b) => a - b);
     }
     function selectSpeechParts(id, mode) {
-      const checks = [...document.querySelectorAll(`.speech-part-check[data-speech="${id}"]`)];
+      const checks = getSpeechPartCheckRoots(id);
       if (!checks.length) return;
       const n = checks.length;
       checks.forEach((el, i) => {
@@ -4410,19 +4416,22 @@ speech4: {
       });
       syncSpeechPartChecks(id);
     }
-    function syncSpeechPartChecks(id) {
-      const map = new Map();
-      document.querySelectorAll(`.speech-part-check[data-speech="${id}"]`).forEach(el => {
-        const idx = String(el.dataset.idx);
-        if (!map.has(idx)) map.set(idx, el.checked);
-        else if (el.checked !== map.get(idx)) {
-          // keep master from picker if both exist; last write wins toward checked union? prefer current el
-          map.set(idx, el.checked);
-        }
-      });
-      document.querySelectorAll(`.speech-part-check[data-speech="${id}"]`).forEach(el => {
-        const idx = String(el.dataset.idx);
-        if (map.has(idx)) el.checked = map.get(idx);
+    function syncSpeechPartChecks(id, fromEl) {
+      if (fromEl && fromEl.dataset) {
+        const idx = String(fromEl.dataset.idx);
+        const checked = !!fromEl.checked;
+        document.querySelectorAll(`.speech-part-check[data-speech="${id}"][data-idx="${idx}"]`).forEach(el => {
+          el.checked = checked;
+        });
+        return;
+      }
+      // Atajos: el selector superior es la fuente de verdad
+      getSpeechPartCheckRoots(id).forEach(src => {
+        const idx = String(src.dataset.idx);
+        const checked = !!src.checked;
+        document.querySelectorAll(`.speech-part-check[data-speech="${id}"][data-idx="${idx}"]`).forEach(el => {
+          el.checked = checked;
+        });
       });
     }
     function setFollowBar(id, sectionLabel, sentence) {
