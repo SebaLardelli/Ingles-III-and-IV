@@ -4636,10 +4636,18 @@ speech4: {
         }
       });
     }
+    function canUsePuterTts() {
+      try {
+        // Solo si ya hay sesión: evita el popup/login de Puter en cada reproducción
+        return !!(typeof puter !== "undefined" && puter?.ai?.txt2speech && puter?.auth?.isSignedIn?.());
+      } catch {
+        return false;
+      }
+    }
     async function playPuterChunk(chunk, cfg, gen) {
       if (!isPlayActive(gen)) return "cancelled";
-      if (typeof puter === "undefined" || !puter?.ai?.txt2speech) {
-        throw new Error("Puter TTS no disponible");
+      if (!canUsePuterTts()) {
+        throw new Error("Puter TTS sin sesión");
       }
       hardStopAudio();
       if (!isPlayActive(gen)) return "cancelled";
@@ -4752,11 +4760,13 @@ speech4: {
         if (typeof opts.onChunk === "function") opts.onChunk(chunk, i, all);
       };
 
-      const engines = [
-        async () => speakChunksWith((chunk) => playPuterChunk(chunk, cfg, gen), chunks, gen, onChunk),
+      const engines = [];
+      if (canUsePuterTts()) {
+        engines.push(async () => speakChunksWith((chunk) => playPuterChunk(chunk, cfg, gen), chunks, gen, onChunk));
+      }
+      engines.push(
         async () => speakChunksWith((chunk) => playGoogleChunk(chunk, cfg.id === "en" ? "en" : cfg.id, gen), useSentences ? chunks : chunkForTTS(cleaned, 160), gen, onChunk),
         async () => {
-          // Browser fallback: still notify per sentence when possible
           if (useSentences) {
             for (let i = 0; i < chunks.length; i++) {
               if (!isPlayActive(gen)) return "cancelled";
@@ -4769,7 +4779,7 @@ speech4: {
           onChunk(cleaned, 0, [cleaned]);
           return speakBrowserFallback(cleaned, gen);
         }
-      ];
+      );
 
       let lastErr = null;
       for (const engine of engines) {
@@ -4786,8 +4796,7 @@ speech4: {
         }
       }
       if (!isPlayActive(gen)) return "cancelled";
-      console.warn(lastErr);
-      alert("No se pudo reproducir el audio natural. Revisá tu conexión a internet e intentá de nuevo.");
+      console.warn("TTS unavailable", lastErr);
       return "cancelled";
     }
     async function speakParagraphFollow(id, idx) {
