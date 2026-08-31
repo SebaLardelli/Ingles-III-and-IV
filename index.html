@@ -3143,6 +3143,10 @@ speech4: {
       speechRate: loadSavedSpeechRate(),
       speechEditing: null,
       playingSectionKey: null,
+      speechLoop: false,
+      speechLoopGapSec: 30,
+      loopWaitTimer: null,
+      loopWaitResolve: null,
       emailMatchItems: [],
       speechMatchItems: [],
       speechMatchKind: "terms",
@@ -4122,6 +4126,19 @@ speech4: {
           <div class="timer-panel"><span id="timer-${id}" class="timer">07:00</span><button class="btn small" onclick="toggleTimer('${id}')">Iniciar / pausar</button><button class="btn small" onclick="resetTimer('${id}')">Reiniciar</button></div>
           <button class="btn teal" onclick="speakSpeech('${id}')">▶ Escuchar speech completo</button>
           <button class="btn" onclick="stopSpeech()">■ Detener audio</button>
+          <label style="font-size:13px;font-weight:800;color:#cbd5e1;display:inline-flex;align-items:center;gap:6px">
+            <input type="checkbox" class="speech-loop-toggle" ${state.speechLoop ? "checked" : ""} onchange="setSpeechLoop(this.checked)" style="accent-color:var(--teal)">
+            Bucle
+          </label>
+          <label style="font-size:13px;font-weight:800;color:#cbd5e1">Pausa
+            <select class="speech-loop-gap" onchange="setSpeechLoopGap(this.value)" style="margin-left:6px;border:1px solid #334155;border-radius:8px;padding:6px 8px;background:var(--surface);color:var(--ink)">
+              <option value="15" ${state.speechLoopGapSec===15?"selected":""}>15s</option>
+              <option value="30" ${state.speechLoopGapSec===30?"selected":""}>30s</option>
+              <option value="45" ${state.speechLoopGapSec===45?"selected":""}>45s</option>
+              <option value="60" ${state.speechLoopGapSec===60?"selected":""}>60s</option>
+            </select>
+          </label>
+          <span class="speech-loop-status score" hidden></span>
           <label style="font-size:13px;font-weight:800;color:#cbd5e1">Voz EN
             <select class="speech-voice-select" onchange="setChosenVoice(this.value)" style="margin-left:6px;border:1px solid #334155;border-radius:8px;padding:6px 8px;background:var(--surface);color:var(--ink)">
               <option value="natural:en">English US · natural</option>
@@ -4271,9 +4288,69 @@ speech4: {
     function stopSpeech() {
       state.playGen += 1;
       hardStopAudio();
+      clearSpeechLoopWait();
       document.querySelectorAll(".speaking-line").forEach(el => el.classList.remove("speaking-line"));
       state.playingSectionKey = null;
       setSectionSpeakUi(null);
+    }
+    function setSpeechLoop(on) {
+      state.speechLoop = !!on;
+      document.querySelectorAll(".speech-loop-toggle").forEach(el => { el.checked = state.speechLoop; });
+      if (!state.speechLoop) clearSpeechLoopWait();
+    }
+    function setSpeechLoopGap(sec) {
+      const n = Number(sec);
+      state.speechLoopGapSec = [15, 30, 45, 60].includes(n) ? n : 30;
+      document.querySelectorAll(".speech-loop-gap").forEach(el => { el.value = String(state.speechLoopGapSec); });
+    }
+    function clearSpeechLoopWait() {
+      if (state.loopWaitTimer) {
+        clearInterval(state.loopWaitTimer);
+        state.loopWaitTimer = null;
+      }
+      const resolve = state.loopWaitResolve;
+      state.loopWaitResolve = null;
+      document.querySelectorAll(".speech-loop-status").forEach(el => {
+        el.hidden = true;
+        el.textContent = "";
+      });
+      if (resolve) resolve(false);
+    }
+    function waitSpeechLoopGap(gen) {
+      return new Promise(resolve => {
+        clearSpeechLoopWait();
+        let left = Math.max(5, Number(state.speechLoopGapSec) || 30);
+        const tick = () => {
+          document.querySelectorAll(".speech-loop-status").forEach(el => {
+            el.hidden = false;
+            el.textContent = `Bucle · pausa ${left}s… (Detener para cancelar)`;
+          });
+        };
+        tick();
+        state.loopWaitResolve = (ok) => resolve(!!ok);
+        state.loopWaitTimer = setInterval(() => {
+          if (!isPlayActive(gen) || !state.speechLoop) {
+            clearSpeechLoopWait();
+            resolve(false);
+            return;
+          }
+          left -= 1;
+          if (left <= 0) {
+            if (state.loopWaitTimer) {
+              clearInterval(state.loopWaitTimer);
+              state.loopWaitTimer = null;
+            }
+            state.loopWaitResolve = null;
+            document.querySelectorAll(".speech-loop-status").forEach(el => {
+              el.hidden = false;
+              el.textContent = "Bucle · reiniciando…";
+            });
+            resolve(true);
+            return;
+          }
+          tick();
+        }, 1000);
+      });
     }
     function setSectionSpeakUi(activeKey) {
       document.querySelectorAll("[data-section-speak]").forEach(btn => {
@@ -4301,20 +4378,28 @@ speech4: {
       }
       p.scrollIntoView({behavior:"smooth", block:"center"});
       try {
-        await speakText(text, {
-          onstart: () => {
-            document.querySelectorAll(`#${id} .speaking-line`).forEach(el => el.classList.remove("speaking-line"));
-            p.classList.add("speaking-line");
-            if (state.playingSectionKey === key) setSectionSpeakUi(key);
-          },
-          onend: () => p.classList.remove("speaking-line")
-        });
+        while (true) {
+          if (state.playingSectionKey !== key) break;
+          setSectionSpeakUi(key);
+          const result = await speakText(text, {
+            onstart: () => {
+              document.querySelectorAll(`#${id} .speaking-line`).forEach(el => el.classList.remove("speaking-line"));
+              p.classList.add("speaking-line");
+              if (state.playingSectionKey === key) setSectionSpeakUi(key);
+            },
+            onend: () => p.classList.remove("speaking-line")
+          });
+          if (result !== "ended" || !state.speechLoop || state.playingSectionKey !== key) break;
+          const ok = await waitSpeechLoopGap(state.playGen);
+          if (!ok || !state.speechLoop || state.playingSectionKey !== key) break;
+        }
       } finally {
         if (state.playingSectionKey === key) {
           state.playingSectionKey = null;
           setSectionSpeakUi(null);
         }
         p.classList.remove("speaking-line");
+        clearSpeechLoopWait();
       }
     }
     function chunkForTTS(text, maxLen=450) {
@@ -4467,7 +4552,7 @@ speech4: {
         .replace(/\s*—\s*/g, ". ")
         .replace(/\s*–\s*/g, ". ")
         .trim();
-      if (!cleaned) return;
+      if (!cleaned) return "cancelled";
 
       const gen = ++state.playGen;
       hardStopAudio();
@@ -4485,28 +4570,39 @@ speech4: {
 
       let lastErr = null;
       for (const engine of engines) {
-        if (!isPlayActive(gen)) return;
+        if (!isPlayActive(gen)) return "cancelled";
         try {
           const result = await engine();
-          if (result === "cancelled" || !isPlayActive(gen)) return;
+          if (result === "cancelled" || !isPlayActive(gen)) return "cancelled";
           if (isPlayActive(gen) && opts.onend) opts.onend();
-          return;
+          return "ended";
         } catch (err) {
           lastErr = err;
           console.warn("TTS engine failed, trying next", err);
           hardStopAudio();
         }
       }
-      if (!isPlayActive(gen)) return;
+      if (!isPlayActive(gen)) return "cancelled";
       console.warn(lastErr);
       alert("No se pudo reproducir el audio natural. Revisá tu conexión a internet e intentá de nuevo.");
+      return "cancelled";
     }
     async function speakSpeech(id) {
+      stopSpeech();
       state.playingSectionKey = null;
       setSectionSpeakUi(null);
-      const text = getSpeakableSpeechText(id);
-      if (!text) return;
-      await speakText(text);
+      try {
+        while (true) {
+          const text = getSpeakableSpeechText(id);
+          if (!text) return;
+          const result = await speakText(text);
+          if (result !== "ended" || !state.speechLoop) break;
+          const ok = await waitSpeechLoopGap(state.playGen);
+          if (!ok || !state.speechLoop) break;
+        }
+      } finally {
+        clearSpeechLoopWait();
+      }
     }
     async function speakSection(id, idx) {
       await toggleSpeakSection(id, idx);
